@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Back-Office — Pro Market Algérie</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-wrapper">
+
+<div class="container" style="padding:24px 16px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+    <div style="font-size:1.8rem;color:var(--blue)"><i class="fas fa-shield-alt"></i></div>
+    <div>
+      <h1 style="font-size:1.4rem">Back-Office — Pro Market Algérie</h1>
+      <span style="font-size:13px;color:var(--gray-600)">Modération et gestion de la plateforme</span>
+    </div>
+  </div>
+
+  <!-- Quick Action -->
+  <div style="background: linear-gradient(135deg, var(--orange), var(--orange-dark)); border-radius: var(--r-lg); padding: 24px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: var(--shadow-orange)">
+    <div style="color: #fff">
+      <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 4px"><i class="fas fa-bolt" style="margin-right: 8px"></i>Publication rapide</div>
+      <div style="font-size: 13px; opacity: 0.9">Créer et publier une annonce pour un client en quelques clics</div>
+    </div>
+    <a href="admin-publish.html" class="btn" style="background: #fff; color: var(--orange); border: none; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2)">
+      <i class="fas fa-plus-circle"></i> Nouvelle annonce
+    </a>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="stat-cards" style="margin-bottom:28px" id="admin-stats">
+    <div class="stat-card"><div class="spinner" style="width:24px;height:24px;border-color:var(--blue);border-top-color:transparent;margin:0 auto"></div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid var(--gray-200);overflow-x:auto">
+    <button class="admin-tab" onclick="showAdminTab('create')" id="tab-create-btn">
+      <i class="fas fa-plus-circle"></i> Créer une annonce
+    </button>
+    <button class="admin-tab active" onclick="showAdminTab('pending')" id="tab-pending-btn">
+      <i class="fas fa-clock"></i> En attente <span class="badge badge-orange" id="pending-count">…</span>
+    </button>
+    <button class="admin-tab" onclick="showAdminTab('users')" id="tab-users-btn">
+      <i class="fas fa-users"></i> Utilisateurs
+    </button>
+    <button class="admin-tab" onclick="showAdminTab('orders')" id="tab-orders-btn">
+      <i class="fas fa-credit-card"></i> Commandes
+    </button>
+    <button class="admin-tab" onclick="showAdminTab('ads')" id="tab-ads-btn">
+      <i class="fas fa-ad"></i> Publicités
+    </button>
+  </div>
+
+  <!-- CREATE LISTING -->
+  <div id="admin-create" style="display:none">
+    <div style="text-align:center;padding:60px 20px;background:var(--gray-100);border-radius:var(--r-lg);border:2px dashed var(--gray-300)">
+      <div style="font-size:4rem;color:var(--orange);margin-bottom:20px">
+        <i class="fas fa-bullhorn"></i>
+      </div>
+      <h2 style="font-size:1.3rem;margin-bottom:12px">Publication d'annonces</h2>
+      <p style="color:var(--gray-600);max-width:400px;margin:0 auto 24px;font-size:14px">
+        Utilisez la page dédiée pour créer et publier rapidement des annonces pour vos clients.
+      </p>
+      <a href="admin-publish.html" class="btn btn-orange btn-lg">
+        <i class="fas fa-plus-circle"></i> Ouvrir la page de publication
+      </a>
+    </div>
+  </div>
+
+  <!-- Pending listings -->
+  <div id="admin-pending">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="font-size:1.1rem">Annonces en attente de modération</h2>
+      <button class="btn btn-ghost btn-sm" onclick="loadPending()"><i class="fas fa-sync"></i> Rafraîchir</button>
+    </div>
+    <div id="pending-list">
+      <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div id="admin-users" style="display:none">
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <input type="text" class="form-control" style="max-width:280px" id="user-search" placeholder="Rechercher email / nom…" oninput="searchUsers()">
+      <select class="form-control" style="width:auto" id="user-role-filter" onchange="searchUsers()">
+        <option value="">Tous les rôles</option>
+        <option value="buyer">Acheteur</option>
+        <option value="seller">Vendeur</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div id="users-list">
+      <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+    </div>
+  </div>
+
+  <!-- Orders -->
+  <div id="admin-orders" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="font-size:1.1rem">Commandes en attente de validation</h2>
+      <button class="btn btn-ghost btn-sm" onclick="loadOrders()"><i class="fas fa-sync"></i> Rafraîchir</button>
+    </div>
+    <div id="orders-list">
+      <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+    </div>
+  </div>
+
+  <!-- Advertisements / Publicités -->
+  <div id="admin-ads" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+      <h2 style="font-size:1.1rem">Gestion des publicités</h2>
+      <button class="btn btn-orange btn-sm" onclick="openAdModal()"><i class="fas fa-plus"></i> Ajouter une publicité</button>
+    </div>
+    <div id="ads-list">
+      <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Ad Modal -->
+<div class="modal-overlay" id="ad-modal">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-close" onclick="closeModal('ad-modal')">&times;</button>
+    <h3><i class="fas fa-ad" style="color:var(--orange)"></i> <span id="ad-modal-title">Nouvelle publicité</span></h3>
+    <div class="form-group">
+      <label>Titre</label>
+      <input type="text" class="form-control" id="ad-title" placeholder="Titre de la publicité">
+    </div>
+    <div class="form-group">
+      <label>URL de l'image</label>
+      <input type="text" class="form-control" id="ad-image-url" placeholder="https://example.com/image.jpg">
+    </div>
+    <div class="form-group">
+      <label>Lien (URL)</label>
+      <input type="text" class="form-control" id="ad-link-url" placeholder="https://example.com">
+    </div>
+    <div class="form-group">
+      <label>Position</label>
+      <select class="form-control" id="ad-position">
+        <option value="homepage">Page d'accueil</option>
+        <option value="category">Page catégorie</option>
+        <option value="listing">Page annonce</option>
+        <option value="sidebar">Sidebar</option>
+        <option value="banner-top">Bannière haut</option>
+        <option value="banner-bottom">Bannière bas</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Date de début (optionnel)</label>
+      <input type="date" class="form-control" id="ad-start-date">
+    </div>
+    <div class="form-group">
+      <label>Date de fin (optionnel)</label>
+      <input type="date" class="form-control" id="ad-end-date">
+    </div>
+    <button class="btn btn-orange btn-block" onclick="saveAd()" style="background:var(--orange);color:#fff;border:none">
+      <i class="fas fa-save"></i> Enregistrer
+    </button>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" id="reject-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('reject-modal')">&times;</button>
+    <h3 style="color:var(--red)"><i class="fas fa-times-circle"></i> Rejeter l'annonce</h3>
+    <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">Indiquez la raison du rejet. Elle sera communiquée au vendeur.</p>
+    <div class="form-group">
+      <textarea class="form-control" id="reject-reason" rows="3" placeholder="Prix irréaliste / catégorie incorrecte / coordonnées dans le texte…"></textarea>
+    </div>
+    <button class="btn btn-red btn-block" onclick="confirmReject()" style="background:var(--red);color:#fff;border:none">
+      <i class="fas fa-times"></i> Confirmer le rejet
+    </button>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<style>
+.admin-tab {
+  padding: 10px 18px; font-size: 14px; font-weight: 600;
+  border: none; background: none; cursor: pointer; color: var(--gray-600);
+  border-bottom: 3px solid transparent; transition: var(--transition);
+  display: flex; align-items: center; gap: 7px;
+}
+.admin-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.admin-tab:hover { color: var(--blue); }
+</style>
+
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  // Guard — admin only
+  if (!Auth.isLoggedIn() || Auth.getUser()?.role !== 'admin') {
+    alert('Accès réservé aux administrateurs.');
+    window.location.href = '../index.html';
+  }
+
+  // ── Stats ─────────────────────────────────────────────────
+  AdminAPI.stats().then(s => {
+    document.getElementById('admin-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-val">${s.active_listings}</div><div class="stat-lbl">Annonces actives</div></div>
+      <div class="stat-card orange"><div class="stat-val">${s.pending_listings}</div><div class="stat-lbl">En attente</div></div>
+      <div class="stat-card"><div class="stat-val">${s.total_users}</div><div class="stat-lbl">Utilisateurs</div></div>
+      <div class="stat-card green"><div class="stat-val">${parseInt(s.total_revenue).toLocaleString('fr-DZ')} DZD</div><div class="stat-lbl">Revenus validés</div></div>`;
+  });
+
+  // ── Tabs ──────────────────────────────────────────────────
+  function showAdminTab(tab) {
+    ['create','pending','users','orders','ads'].forEach(t => {
+      const el = document.getElementById(`admin-${t}`);
+      if (el) el.style.display = t === tab ? '' : 'none';
+      const btn = document.getElementById(`tab-${t}-btn`);
+      if (btn) btn.classList.toggle('active', t === tab);
+    });
+    if (tab === 'pending') loadPending();
+    if (tab === 'users')   loadUsers();
+    if (tab === 'orders')  loadOrders();
+    if (tab === 'ads')     loadAds();
+  }
+
+  // ── PENDING LISTINGS ──────────────────────────────────────
+  async function loadPending() {
+    try {
+      const listings = await AdminAPI.pendingListings();
+      document.getElementById('pending-count').textContent = listings.length;
+      document.getElementById('pending-list').innerHTML = listings.length
+        ? `<table class="data-table">
+            <thead><tr><th>Titre</th><th>Catégorie</th><th>Vendeur</th><th>Prix</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody>${listings.map(l => `
+              <tr id="pending-row-${l.id}">
+                <td><a href="listing-detail.html?id=${l.id}" target="_blank" style="font-weight:600">${escapeHtml(l.title_fr)}</a></td>
+                <td><span class="badge badge-gray">${escapeHtml(l.category_name || '?')}</span></td>
+                <td>
+                  <div style="font-size:13px;font-weight:600">${escapeHtml(l.seller_name)}</div>
+                  <div style="font-size:12px;color:var(--gray-600)">${escapeHtml(l.seller_email)}</div>
+                  <div style="font-size:12px;color:var(--blue)">${escapeHtml(l.seller_phone || '')}</div>
+                </td>
+                <td>${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Sur contact'}</td>
+                <td style="font-size:12px;color:var(--gray-600)">${formatDate(l.created_at)}</td>
+                <td>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <button class="btn btn-green btn-sm" onclick="approveListing('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-check"></i> Valider
+                    </button>
+                    <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="openReject('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-times"></i> Rejeter
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="boostListing('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-star"></i> Boost
+                    </button>
+                    <a href="listing-detail.html?id=${l.id}&admin=1" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
+                      <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody></table>`
+        : '<div class="empty-state"><i class="fas fa-check-double" style="color:var(--green)"></i><p>Aucune annonce en attente. Tout est à jour !</p></div>';
+    } catch { showToast('Erreur chargement.', 'error'); }
+  }
+
+  async function approveListing(id) {
+    try {
+      await AdminAPI.approve(id);
+      document.getElementById(`pending-row-${id}`)?.remove();
+      showToast('Annonce validée et publiée.', 'success');
+    } catch { showToast('Erreur.', 'error'); }
+  }
+
+  let rejectTarget = null;
+  function openReject(id) { rejectTarget = id; document.getElementById('reject-reason').value = ''; openModal('reject-modal'); }
+  async function confirmReject() {
+    const reason = document.getElementById('reject-reason').value.trim();
+    if (!reason) { showToast('Raison obligatoire.', 'warning'); return; }
+    try {
+      await AdminAPI.reject(rejectTarget, reason);
+      document.getElementById(`pending-row-${rejectTarget}`)?.remove();
+      closeModal('reject-modal');
+      showToast('Annonce rejetée.', 'info');
+    } catch { showToast('Erreur.', 'error'); }
+  }
+
+  async function boostListing(id) {
+    const days = prompt('Durée du boost (jours) ?', '7');
+    if (!days) return;
+    try {
+      await AdminAPI.boostListing(id, { days: parseInt(days), is_premium: true });
+      showToast('Boost activé !', 'success');
+    } catch { showToast('Erreur.', 'error'); }
+  }
+
+  async function deleteListing(id) {
+    if (!confirm('Supprimer définitivement cette annonce ?')) return;
+    try {
+      await apiFetch(`/admin/listings/${id}`, { method: 'DELETE' });
+      document.getElementById(`pending-row-${id}`)?.remove();
+      showToast('Annonce supprimée.', 'info');
+    } catch { showToast('Erreur suppression.', 'error'); }
+  }
+
+  // ── USERS ─────────────────────────────────────────────────
+  let searchTimer;
+  function searchUsers() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(loadUsers, 400);
+  }
+
+  async function loadUsers() {
+    const search = document.getElementById('user-search')?.value.trim();
+    const role   = document.getElementById('user-role-filter')?.value;
+    try {
+      const users = await AdminAPI.users({ search, role });
+      document.getElementById('users-list').innerHTML = users.length
+        ? `<table class="data-table">
+            <thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Pack</th><th>Certifié</th><th>Actions</th></tr></thead>
+            <tbody>${users.map(u => `
+              <tr id="user-row-${u.id}">
+                <td style="font-weight:600">${escapeHtml(u.full_name)}</td>
+                <td style="font-size:13px">${escapeHtml(u.email)}</td>
+                <td><span class="badge ${u.role === 'admin' ? 'badge-red' : 'badge-gray'}">${u.role}</span></td>
+                <td><span class="badge ${u.pack !== 'free' ? 'badge-orange' : 'badge-gray'}">${u.pack}</span></td>
+                <td>${u.is_certified ? '<i class="fas fa-shield-alt" style="color:var(--blue)"></i>' : '—'}</td>
+                <td>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap">
+                    ${!u.is_certified ? `<button class="btn btn-sm btn-blue" onclick="certifyUser('${String(u.id).replace(/'/g, '\\\'')}',this)"><i class="fas fa-shield-alt"></i></button>` : ''}
+                    <button class="btn btn-ghost btn-sm" onclick="toggleUser('${String(u.id).replace(/'/g, '\\\'')}',this)" title="${u.is_active ? 'Suspendre' : 'Réactiver'}">
+                      <i class="fas ${u.is_active ? 'fa-ban' : 'fa-check'}"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-orange" onclick="setPack('${String(u.id).replace(/'/g, '\\\'')}')"><i class="fas fa-crown"></i></button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody></table>`
+        : '<div class="empty-state"><i class="fas fa-users"></i><p>Aucun utilisateur trouvé.</p></div>';
+    } catch { showToast('Erreur chargement.', 'error'); }
+  }
+
+  async function certifyUser(id, btn) {
+    try { await AdminAPI.certifyUser(id); btn.innerHTML = '<i class="fas fa-check"></i>'; showToast('Certifié !', 'success'); } catch { showToast('Erreur.', 'error'); }
+  }
+  async function toggleUser(id, btn) {
+    try {
+      const r = await AdminAPI.toggleUser(id);
+      btn.innerHTML = `<i class="fas ${r.is_active ? 'fa-ban' : 'fa-check'}"></i>`;
+      showToast(r.message, r.is_active ? 'success' : 'warning');
+    } catch { showToast('Erreur.', 'error'); }
+  }
+  async function setPack(id) {
+    const pack = prompt('Nouveau pack :\n(free / starter_pro / business_pro / concessionnaire_elite)');
+    if (!pack) return;
+    try { await AdminAPI.setPack(id, { pack, days: 30 }); showToast('Pack mis à jour !', 'success'); loadUsers(); } catch (e) { showToast(e.error || 'Erreur.', 'error'); }
+  }
+
+  // ── ORDERS ────────────────────────────────────────────────
+  async function loadOrders() {
+    try {
+      const orders = await AdminAPI.pendingOrders();
+      document.getElementById('orders-list').innerHTML = orders.length
+        ? `<table class="data-table">
+            <thead><tr><th>Utilisateur</th><th>Pack</th><th>Montant</th><th>Paiement</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody>${orders.map(o => `
+              <tr id="order-row-${o.id}">
+                <td>
+                  <div style="font-weight:600">${escapeHtml(o.full_name)}</div>
+                  <div style="font-size:12px;color:var(--gray-600)">${escapeHtml(o.email)}</div>
+                </td>
+                <td><span class="badge badge-orange">${o.pack}</span></td>
+                <td style="font-weight:700;color:var(--orange)">${parseInt(o.amount).toLocaleString('fr-DZ')} DZD</td>
+                <td>
+                  <span class="badge badge-gray">${o.payment_method || '?'}</span>
+                  ${o.receipt_url ? `<a href="${escapeHtml(o.receipt_url)}" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:4px"><i class="fas fa-file-image"></i> Reçu</a>` : ''}
+                  ${o.notes ? `<div style="font-size:12px;color:var(--gray-600);margin-top:4px">${escapeHtml(o.notes)}</div>` : ''}
+                </td>
+                <td style="font-size:12px;color:var(--gray-600)">${formatDate(o.created_at)}</td>
+                <td>
+                  <button class="btn btn-green btn-sm" onclick="validateOrder('${String(o.id).replace(/'/g, '\\\'')}',this)">
+                    <i class="fas fa-check"></i> Valider paiement
+                  </button>
+                </td>
+              </tr>`).join('')}
+            </tbody></table>`
+        : '<div class="empty-state"><i class="fas fa-check-double" style="color:var(--green)"></i><p>Aucune commande en attente.</p></div>';
+    } catch { showToast('Erreur chargement.', 'error'); }
+  }
+
+  async function validateOrder(id, btn) {
+    if (!confirm('Valider ce paiement et activer le pack ?')) return;
+    try {
+      await AdminAPI.validateOrder(id);
+      document.getElementById(`order-row-${id}`)?.remove();
+      showToast('Paiement validé — pack activé.', 'success');
+    } catch { showToast('Erreur.', 'error'); }
+  }
+
+  // ── ADVERTISEMENTS ────────────────────────────────────────
+  let currentAdId = null;
+
+  async function loadAds() {
+    try {
+      const ads = await AdsAPI.adminList();
+      document.getElementById('ads-list').innerHTML = ads.length
+        ? `<table class="data-table">
+            <thead><tr><th>Image</th><th>Titre</th><th>Position</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>${ads.map(a => `
+              <tr id="ad-row-${a.id}">
+                <td><img src="${escapeHtml(a.image_url)}" style="width:80px;height:50px;object-fit:cover;border-radius:4px" alt=""></td>
+                <td>
+                  <div style="font-weight:600">${escapeHtml(a.title)}</div>
+                  ${a.link_url ? `<a href="${escapeHtml(a.link_url)}" target="_blank" style="font-size:12px;color:var(--blue)">${escapeHtml(a.link_url)}</a>` : ''}
+                </td>
+                <td><span class="badge badge-gray">${escapeHtml(a.position)}</span></td>
+                <td>${a.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}</td>
+                <td>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap">
+                    <button class="btn btn-sm btn-blue" onclick="editAd('${String(a.id).replace(/'/g, '\\\'')}')" title="Modifier"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-ghost btn-sm" onclick="toggleAd('${String(a.id).replace(/'/g, '\\\'')}')" title="${a.is_active ? 'Désactiver' : 'Activer'}"><i class="fas ${a.is_active ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                    <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="deleteAd('${String(a.id).replace(/'/g, '\\\'')}')" title="Supprimer"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody></table>`
+        : '<div class="empty-state"><i class="fas fa-ad" style="color:var(--gray-400)"></i><p>Aucune publicité créée.</p></div>';
+    } catch { showToast('Erreur chargement publicités.', 'error'); }
+  }
+
+  function openAdModal() {
+    currentAdId = null;
+    document.getElementById('ad-modal-title').textContent = 'Nouvelle publicité';
+    document.getElementById('ad-title').value = '';
+    document.getElementById('ad-image-url').value = '';
+    document.getElementById('ad-link-url').value = '';
+    document.getElementById('ad-position').value = 'homepage';
+    document.getElementById('ad-start-date').value = '';
+    document.getElementById('ad-end-date').value = '';
+    openModal('ad-modal');
+  }
+
+  async function editAd(id) {
+    try {
+      const ads = await AdsAPI.adminList();
+      const ad = ads.find(a => a.id === id);
+      if (!ad) return;
+      currentAdId = id;
+      document.getElementById('ad-modal-title').textContent = 'Modifier la publicité';
+      document.getElementById('ad-title').value = ad.title;
+      document.getElementById('ad-image-url').value = ad.image_url;
+      document.getElementById('ad-link-url').value = ad.link_url || '';
+      document.getElementById('ad-position').value = ad.position;
+      document.getElementById('ad-start-date').value = ad.start_date ? ad.start_date.split('T')[0] : '';
+      document.getElementById('ad-end-date').value = ad.end_date ? ad.end_date.split('T')[0] : '';
+      openModal('ad-modal');
+    } catch { showToast('Erreur.', 'error'); }
+  }
+
+  async function saveAd() {
+    const title = document.getElementById('ad-title').value.trim();
+    const image_url = document.getElementById('ad-image-url').value.trim();
+    const link_url = document.getElementById('ad-link-url').value.trim();
+    const position = document.getElementById('ad-position').value;
+    const start_date = document.getElementById('ad-start-date').value || null;
+    const end_date = document.getElementById('ad-end-date').value || null;
+
+    if (!title || !image_url) {
+      showToast('Titre et image obligatoires.', 'warning');
+      return;
+    }
+
+    const body = { title, image_url, link_url, position, start_date, end_date };
+
+    try {
+      if (currentAdId) {
+        await AdsAPI.update(currentAdId, body);
+        showToast('Publicité mise à jour.', 'success');
+      } else {
+        await AdsAPI.create(body);
+        showToast('Publicité créée.', 'success');
+      }
+      closeModal('ad-modal');
+      loadAds();
+    } catch (e) {
+      showToast(e.error || 'Erreur.', 'error');
+    }
+  }
+
+  async function toggleAd(id) {
+    try {
+      const r = await AdsAPI.toggle(id);
+      showToast(r.message, 'success');
+      loadAds();
+    } catch { showToast('Erreur.', 'error'); }
+  }
+
+  async function deleteAd(id) {
+    if (!confirm('Supprimer cette publicité ?')) return;
+    try {
+      await AdsAPI.delete(id);
+      showToast('Publicité supprimée.', 'info');
+      loadAds();
+    } catch { showToast('Erreur.', 'error'); }
+  }
+
+  // Init
+  loadPending();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Déposer une annonce — Pro Market Algérie</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-wrapper">
+
+<div class="container" style="padding:32px 16px">
+  <div class="form-card">
+    <h2><i class="fas fa-plus-circle" style="color:var(--orange)"></i> Déposer une annonce</h2>
+    <p style="color:var(--gray-600);margin-bottom:24px;font-size:14px">Votre annonce sera visible après validation par notre équipe (généralement sous 24h).</p>
+
+    <!-- Steps wizard -->
+    <div class="steps-wizard">
+      <div class="step active" id="step-1">
+        <div class="step-num">1</div>
+        <div class="step-label">Rubrique</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step" id="step-2">
+        <div class="step-num">2</div>
+        <div class="step-label">Informations</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step" id="step-3">
+        <div class="step-num">3</div>
+        <div class="step-label">Photos</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step" id="step-4">
+        <div class="step-num">4</div>
+        <div class="step-label">Contact</div>
+      </div>
+    </div>
+
+    <form id="listing-form">
+      <!-- ── STEP 1: Category ────────────────────────────────── -->
+      <div id="form-step-1">
+        <h3 style="margin-bottom:16px">1. Choisissez votre rubrique</h3>
+        <div id="cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px">
+          <!-- injected -->
+        </div>
+        <input type="hidden" id="category_id" required>
+
+        <div id="subcat-group" style="display:none;margin-top:20px">
+          <div class="form-group">
+            <label>Sous-catégorie <span class="required">*</span></label>
+            <select id="subcategory_id" class="form-control">
+              <option value="">Sélectionnez…</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;text-align:right">
+          <button type="button" class="btn btn-orange" onclick="goStep(2)" id="step1-next" disabled>
+            Suivant <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: Details ────────────────────────────────── -->
+      <div id="form-step-2" style="display:none">
+        <h3 style="margin-bottom:20px">2. Informations sur votre annonce</h3>
+
+        <div class="form-group">
+          <label>Titre de l'annonce (FR) <span class="required">*</span></label>
+          <input type="text" id="title_fr" class="form-control" placeholder="Ex: Pelle hydraulique Caterpillar 320 — 2018 — 4000h" maxlength="300" required>
+          <div class="form-text">Soyez précis : marque, modèle, année, état aident les acheteurs.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Titre en Arabe (optionnel)</label>
+          <input type="text" id="title_ar" class="form-control" placeholder="عنوان الإعلان بالعربية" dir="rtl">
+        </div>
+
+        <!-- Dynamic technical attributes (injected by JS) -->
+        <div id="dynamic-attr-fields"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Marque / Fabricant</label>
+            <input type="text" id="brand" class="form-control" placeholder="Caterpillar, Komatsu, Mercedes…">
+          </div>
+          <div class="form-group">
+            <label>Année de fabrication</label>
+            <input type="number" id="year" class="form-control" min="1970" max="2026" placeholder="2020">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>État général <span class="required">*</span></label>
+          <select id="condition" class="form-control" required>
+            <option value="">Sélectionnez l'état…</option>
+            <option value="new">Neuf</option>
+            <option value="excellent">Très bon état</option>
+            <option value="good">Bon état</option>
+            <option value="fair">État correct</option>
+            <option value="for_parts">Pour pièces</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prix <span class="required">*</span></label>
+            <input type="number" id="price" class="form-control" min="0" placeholder="0" oninput="togglePriceContact()">
+          </div>
+          <div class="form-group">
+            <label>Devise</label>
+            <select id="currency" class="form-control">
+              <option value="DZD">DZD — Dinar Algérien</option>
+              <option value="EUR">EUR — Euro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:normal;cursor:pointer">
+            <input type="checkbox" id="price_on_contact" onchange="togglePriceContact()">
+            Prix après contact (ne pas afficher le prix)
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Description détaillée</label>
+          <textarea id="description_fr" class="form-control" rows="5"
+            placeholder="Décrivez l'état, l'historique d'utilisation, les options, les raisons de la vente…"></textarea>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:24px">
+          <button type="button" class="btn btn-ghost" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Retour</button>
+          <button type="button" class="btn btn-orange" onclick="goStep(3)">Suivant <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Photos ──────────────────────────────────── -->
+      <div id="form-step-3" style="display:none">
+        <h3 style="margin-bottom:16px">3. Photos de l'annonce</h3>
+        <p style="color:var(--gray-600);font-size:14px;margin-bottom:20px">
+          Ajoutez jusqu'à 10 photos. La 1ère photo sera la photo de couverture.<br>
+          <strong>Conseil :</strong> Photographiez la plaque constructeur, les heures/km, et les éventuels défauts.
+        </p>
+
+        <div class="upload-zone" id="upload-zone">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Glissez vos photos ici ou <strong style="color:var(--orange)">cliquez pour parcourir</strong></p>
+          <span>JPEG, PNG, WebP — Max 10 Mo par photo</span>
+          <input type="file" id="file-input" accept="image/*" multiple style="display:none" onchange="handleFileSelect(event)">
+        </div>
+
+        <div class="uploaded-previews" id="previews"></div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:28px">
+          <button type="button" class="btn btn-ghost" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Retour</button>
+          <button type="button" class="btn btn-orange" onclick="goStep(4)">Suivant <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: Location + Submit ─────────────────────── -->
+      <div id="form-step-4" style="display:none">
+        <h3 style="margin-bottom:20px">4. Localisation et contact</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Wilaya <span class="required">*</span></label>
+            <select id="wilaya_id" class="form-control" required onchange="loadCommunes()">
+              <option value="">Sélectionnez votre wilaya</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Commune</label>
+            <select id="commune" class="form-control">
+              <option value="">Sélectionnez d'abord la wilaya</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Référence du matériel (optionnel)</label>
+          <input type="text" id="reference_num" class="form-control" placeholder="Numéro de série, référence interne…">
+        </div>
+
+        <!-- Summary -->
+        <div style="background:var(--gray-100);border-radius:var(--radius);padding:16px;margin:20px 0">
+          <h4 style="margin-bottom:10px;font-size:14px;color:var(--blue)"><i class="fas fa-clipboard-check"></i> Récapitulatif</h4>
+          <div id="summary" style="font-size:13px;line-height:1.8;color:var(--dark)"></div>
+        </div>
+
+        <div id="form-error" class="error-msg" style="margin-bottom:12px;font-size:14px"></div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:16px">
+          <button type="button" class="btn btn-ghost" onclick="goStep(3)"><i class="fas fa-arrow-left"></i> Retour</button>
+          <button type="submit" class="btn btn-orange btn-lg" id="submit-btn">
+            <span id="btn-text"><i class="fas fa-paper-plane"></i> Publier l'annonce</span>
+            <div class="spinner" id="btn-spinner" style="display:none"></div>
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- SUCCESS STATE -->
+    <div id="success-state" style="display:none;text-align:center;padding:40px">
+      <div style="font-size:4rem;color:var(--green);margin-bottom:20px"><i class="fas fa-check-circle"></i></div>
+      <h2 style="color:var(--green)">Annonce soumise avec succès !</h2>
+      <p style="color:var(--gray-600);margin:16px 0">Votre annonce est en attente de validation par notre équipe. Vous recevrez une notification sous 24h.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px">
+        <a href="dashboard.html" class="btn btn-blue"><i class="fas fa-tachometer-alt"></i> Mon espace</a>
+        <a href="create-listing.html" class="btn btn-outline-orange"><i class="fas fa-plus"></i> Nouvelle annonce</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  // Redirect non-admin to WhatsApp (only admin can create listings)
+  const user = Auth.getUser();
+  if (!Auth.isLoggedIn() || user?.role !== 'admin') {
+    window.location.href = getWhatsAppPublishUrl();
+  }
+
+  let currentStep  = 1;
+  let selectedCat  = null;
+  let selectedFiles = [];
+  let createdListingId = null;
+
+  // ── Step navigation ───────────────────────────────────────
+  function goStep(step) {
+    if (step === 2 && !document.getElementById('category_id').value) {
+      showToast('Choisissez une rubrique.', 'warning'); return;
+    }
+    if (step === 3) {
+      const titleFr = document.getElementById('title_fr').value.trim();
+      const condition = document.getElementById('condition').value;
+      if (!titleFr) { showToast('Le titre de l\'annonce est obligatoire.', 'warning'); return; }
+      if (!condition) { showToast('L\'état de l\'équipement est obligatoire.', 'warning'); return; }
+    }
+    if (step === 4) updateSummary();
+
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById(`form-step-${i}`).style.display = i === step ? '' : 'none';
+      const stepEl = document.getElementById(`step-${i}`);
+      stepEl.classList.toggle('active', i === step);
+      stepEl.classList.toggle('done', i < step);
+    }
+    currentStep = step;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateSummary() {
+    const titleFr = document.getElementById('title_fr').value.trim();
+    const price   = document.getElementById('price').value;
+    const currency = document.getElementById('currency').value;
+    const priceOnContact = document.getElementById('price_on_contact').checked;
+    document.getElementById('summary').innerHTML = `
+      <strong>Rubrique :</strong> ${selectedCat?.name_fr || '—'}<br>
+      <strong>Titre :</strong> ${escapeHtml(titleFr)}<br>
+      <strong>Prix :</strong> ${priceOnContact ? 'À discuter' : (price ? new Intl.NumberFormat('fr-DZ').format(price) + ' ' + currency : 'Non précisé')}<br>
+      <strong>Photos :</strong> ${selectedFiles.length} photo(s) sélectionnée(s)<br>
+    `;
+  }
+
+  function togglePriceContact() {
+    const poc = document.getElementById('price_on_contact').checked;
+    document.getElementById('price').disabled = poc;
+    if (poc) document.getElementById('price').value = '';
+  }
+
+  // ── Category grid ─────────────────────────────────────────
+  CategoriesAPI.list().then(cats => {
+    const grid = document.getElementById('cat-grid');
+    grid.innerHTML = cats.map(c => `
+      <button type="button" class="cat-card" data-id="${c.id}" data-slug="${c.slug}" onclick="selectCategory(this,'${c.slug}',${c.id})">
+        <i class="fas ${c.icon}"></i>
+        <span>${escapeHtml(c.name_fr)}</span>
+        <small>${escapeHtml(c.name_ar)}</small>
+      </button>`).join('');
+  });
+
+  async function selectCategory(btn, slug, id) {
+    document.querySelectorAll('.cat-card').forEach(b => b.style.borderColor = '');
+    btn.style.borderColor = 'var(--orange)';
+    btn.style.background  = 'rgba(242,101,34,.06)';
+    document.getElementById('category_id').value = id;
+    document.getElementById('step1-next').disabled = false;
+
+    try {
+      selectedCat = await CategoriesAPI.get(slug);
+
+      // Subcategories
+      if (selectedCat.subcategories?.length) {
+        const sel = document.getElementById('subcategory_id');
+        sel.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>' +
+          selectedCat.subcategories.map((s, i) => `<option value="${i+1}">${escapeHtml(s.name_fr)}</option>`).join('');
+        document.getElementById('subcat-group').style.display = '';
+      } else {
+        document.getElementById('subcat-group').style.display = 'none';
+      }
+    } catch {}
+  }
+
+  // ── Dynamic attribute fields ──────────────────────────────
+  document.getElementById('category_id').addEventListener('change', () => {
+    if (!selectedCat?.filters) return;
+    const container = document.getElementById('dynamic-attr-fields');
+    container.innerHTML = `<h4 style="margin-bottom:12px;color:var(--blue);font-size:14px"><i class="fas fa-clipboard-list"></i> Caractéristiques techniques</h4>` +
+      selectedCat.filters.map(f => {
+        if (f.type === 'select') {
+          return `<div class="form-group">
+            <label>${escapeHtml(f.label_fr)}</label>
+            <select class="form-control" data-attr="${f.key}">
+              <option value="">Sélectionnez…</option>
+              ${f.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}
+            </select></div>`;
+        } else if (f.type === 'boolean') {
+          return `<div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:normal;cursor:pointer">
+              <input type="checkbox" data-attr="${f.key}"> ${escapeHtml(f.label_fr)}
+            </label></div>`;
+        }
+        return `<div class="form-group">
+          <label>${escapeHtml(f.label_fr)}</label>
+          <input type="${f.type === 'number' ? 'number' : 'text'}" class="form-control" data-attr="${f.key}" placeholder="${escapeHtml(f.label_fr)}">
+        </div>`;
+      }).join('');
+  });
+
+  // Trigger when user proceeds to step 2
+  const origGoStep = goStep;
+
+  // ── File upload ───────────────────────────────────────────
+  const uploadZone = document.getElementById('upload-zone');
+  uploadZone.addEventListener('click', () => document.getElementById('file-input').click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('dragover');
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+
+  function handleFileSelect(e) { addFiles(Array.from(e.target.files)); }
+
+  function addFiles(files) {
+    const allowed = ['image/jpeg','image/png','image/webp'];
+    files.forEach(f => {
+      if (!allowed.includes(f.type)) { showToast(`${f.name} — format non supporté.`, 'warning'); return; }
+      if (f.size > 10 * 1024 * 1024) { showToast(`${f.name} — trop volumineux (max 10 Mo).`, 'warning'); return; }
+      if (selectedFiles.length >= 10) { showToast('Maximum 10 photos.', 'warning'); return; }
+      selectedFiles.push(f);
+      const reader = new FileReader();
+      reader.onload = e => {
+        const idx = selectedFiles.length - 1;
+        document.getElementById('previews').insertAdjacentHTML('beforeend', `
+          <div class="preview-item" id="preview-${idx}">
+            <img src="${e.target.result}" alt="">
+            ${idx === 0 ? '<span class="badge badge-orange" style="margin-top:4px;display:block;text-align:center;font-size:11px">Couverture</span>' : ''}
+            <button type="button" class="remove-img" onclick="removeFile(${idx})">&times;</button>
+          </div>`);
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+
+  function removeFile(idx) {
+    selectedFiles.splice(idx, 1);
+    document.getElementById(`preview-${idx}`)?.remove();
+    // Re-render remaining previews
+    document.getElementById('previews').innerHTML = '';
+    const tmp = [...selectedFiles];
+    selectedFiles = [];
+    addFiles(tmp);
+  }
+
+  // ── Wilayas / Communes ────────────────────────────────────
+  CategoriesAPI.wilayas().then(wl => {
+    const sel = document.getElementById('wilaya_id');
+    wl.forEach(w => sel.insertAdjacentHTML('beforeend', `<option value="${w.id}">${w.id} - ${w.name_fr}</option>`));
+  });
+
+  async function loadCommunes() {
+    const wilayaId = document.getElementById('wilaya_id').value;
+    const sel = document.getElementById('commune');
+    sel.innerHTML = '<option value="">Chargement…</option>';
+    if (!wilayaId) { sel.innerHTML = '<option value="">Sélectionnez d\'abord la wilaya</option>'; return; }
+    try {
+      const communes = await CategoriesAPI.communes(wilayaId);
+      sel.innerHTML = '<option value="">Toute la wilaya</option>' +
+        communes.map(c => `<option value="${c.name_fr}">${c.name_fr}</option>`).join('');
+    } catch {
+      sel.innerHTML = '<option value="">Erreur chargement communes</option>';
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────
+  document.getElementById('listing-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn     = document.getElementById('submit-btn');
+    const spinner = document.getElementById('btn-spinner');
+    const btnText = document.getElementById('btn-text');
+    const errEl   = document.getElementById('form-error');
+    errEl.classList.remove('show');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    btnText.style.display = 'none';
+
+    // Collect attributes
+    const attributes = {};
+    document.querySelectorAll('[data-attr]').forEach(el => {
+      const key = el.dataset.attr;
+      const val = el.type === 'checkbox' ? el.checked : el.value.trim();
+      if (val !== '' && val !== false) attributes[key] = val;
+    });
+
+    const body = {
+      category_id:     parseInt(document.getElementById('category_id').value),
+      title_fr:        document.getElementById('title_fr').value.trim(),
+      title_ar:        document.getElementById('title_ar').value.trim() || undefined,
+      description_fr:  document.getElementById('description_fr').value.trim() || undefined,
+      price:           parseFloat(document.getElementById('price').value) || undefined,
+      currency:        document.getElementById('currency').value,
+      price_on_contact: document.getElementById('price_on_contact').checked,
+      wilaya_id:       parseInt(document.getElementById('wilaya_id').value),
+      commune:         document.getElementById('commune').value || undefined,
+      brand:           document.getElementById('brand').value.trim() || undefined,
+      year:            parseInt(document.getElementById('year').value) || undefined,
+      condition:       document.getElementById('condition').value,
+      reference_num:   document.getElementById('reference_num').value.trim() || undefined,
+      attributes,
+    };
+
+    try {
+      const created = await ListingsAPI.create(body);
+      createdListingId = created.id;
+
+      // Upload photos if any
+      if (selectedFiles.length) {
+        const fd = new FormData();
+        selectedFiles.forEach(f => fd.append('images', f));
+        await MediaAPI.upload(createdListingId, fd);
+      }
+
+      document.getElementById('listing-form').style.display = 'none';
+      document.getElementById('success-state').style.display = '';
+    } catch (err) {
+      const msg = err.errors ? err.errors.map(e => e.msg).join(', ') : (err.error || 'Erreur lors de la soumission.');
+      errEl.textContent = msg;
+      errEl.classList.add('show');
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.style.display = 'inline-flex';
+    }
+  });
+</script>
+</body>
+</html>
+

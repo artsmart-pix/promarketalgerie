@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annonce — Pro Market Algérie</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body>
+<div id="site-header"></div>
+
+<!-- Loading state OUTSIDE page-wrapper so it's visible immediately -->
+<div id="loading-state" style="text-align:center;padding:80px">
+  <div class="spinner" style="width:48px;height:48px;border-color:var(--orange);border-top-color:transparent;margin:0 auto 20px"></div>
+  <p style="color:var(--gray-600)">Chargement de l'annonce…</p>
+</div>
+
+<div class="page-wrapper">
+
+<div class="container">
+    <div class="spinner" style="width:48px;height:48px;border-color:var(--orange);border-top-color:transparent;margin:0 auto 20px"></div>
+    <p style="color:var(--gray-600)">Chargement de l'annonce…</p>
+  </div>
+  <div id="error-state" class="empty-state" style="display:none">
+    <i class="fas fa-exclamation-circle" style="color:var(--red)"></i>
+    <p>Annonce introuvable ou expirée.</p>
+    <a href="../index.html" class="btn btn-outline-orange mt-3">Retour à l'accueil</a>
+  </div>
+
+  <!-- Detail layout (populated after load) -->
+  <!-- Admin toolbar (only if ?admin=1) -->
+  <div id="admin-toolbar" style="display:none;margin-bottom:20px;background:#fff;border-radius:var(--radius-lg);padding:16px;border-left:4px solid var(--orange)">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-weight:700;color:var(--orange)"><i class="fas fa-shield-alt"></i> Mode Admin</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-left:auto">
+        <button class="btn btn-green btn-sm" onclick="adminApprove()"><i class="fas fa-check"></i> Approuver</button>
+        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="adminReject()"><i class="fas fa-times"></i> Rejeter</button>
+        <button class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none" onclick="adminBoost()"><i class="fas fa-star"></i> Boost</button>
+        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="adminDelete()"><i class="fas fa-trash"></i> Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="detail-layout" class="listing-detail-layout" style="display:none">
+    <!-- LEFT: Gallery + Info -->
+    <div>
+      <!-- Gallery -->
+      <div class="listing-gallery" id="gallery-wrap">
+        <div class="gallery-main">
+          <img id="main-img" src="" alt="">
+        </div>
+        <div class="gallery-thumbs" id="thumbs"></div>
+      </div>
+
+      <!-- Description -->
+      <div style="background:#fff;border-radius:var(--radius-lg);padding:24px;margin-top:20px">
+        <h2 style="font-size:1.05rem;color:var(--blue);margin-bottom:12px">Description</h2>
+        <div id="description" style="font-size:15px;line-height:1.7;color:var(--dark)"></div>
+      </div>
+
+      <!-- Technical attributes -->
+      <div style="background:#fff;border-radius:var(--radius-lg);padding:24px;margin-top:16px">
+        <h2 style="font-size:1.05rem;color:var(--blue);margin-bottom:12px">Fiche technique</h2>
+        <table class="listing-attrs-table" id="attrs-table"><tbody></tbody></table>
+      </div>
+    </div>
+
+    <!-- RIGHT: Contact sidebar -->
+    <div>
+      <!-- Price + title -->
+      <div style="background:#fff;border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px" id="listing-badges"></div>
+        <h1 class="listing-title" id="listing-title"></h1>
+        <div id="listing-price"></div>
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:10px" id="listing-meta"></div>
+      </div>
+
+      <!-- Contact sidebar -->
+      <div class="contact-sidebar">
+        <div class="seller-info">
+          <div class="seller-avatar placeholder" id="seller-avatar-placeholder">?</div>
+          <div>
+            <div style="font-weight:700" id="seller-name"></div>
+            <div style="font-size:12px;color:var(--gray-600)" id="seller-type"></div>
+            <div id="seller-certified-badge"></div>
+          </div>
+        </div>
+        <div id="seller-stats" style="font-size:12px;color:var(--gray-600);margin-bottom:16px"></div>
+
+        <div class="contact-btn-group">
+          <button class="btn btn-call btn-lg btn-block" id="btn-call" onclick="revealPhone()">
+            <i class="fas fa-phone"></i> Appeler le vendeur
+          </button>
+          <button class="btn btn-whatsapp btn-lg btn-block" id="btn-whatsapp" onclick="openWhatsApp()">
+            <i class="fab fa-whatsapp"></i> Contacter sur WhatsApp
+          </button>
+        </div>
+
+        <div style="margin-top:16px;padding-top:16px;border-top:2px solid var(--gray-200)">
+          <div style="font-size:12px;color:var(--gray-600);display:flex;align-items:center;gap:6px">
+            <i class="fas fa-shield-alt" style="color:var(--blue)"></i>
+            Coordonnées masquées — dévoilées uniquement sur demande
+          </div>
+        </div>
+      </div>
+
+      <!-- Share -->
+      <div style="background:#fff;border-radius:var(--radius-lg);padding:16px;margin-top:16px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--gray-600)">Partager</div>
+        <div style="display:flex;gap:8px">
+          <a onclick="shareFB()" href="#" class="btn btn-sm" style="background:#1877f2;color:#fff;flex:1;justify-content:center"><i class="fab fa-facebook"></i> Facebook</a>
+          <a onclick="shareWA()" href="#" class="btn btn-sm" style="background:#25D366;color:#fff;flex:1;justify-content:center"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile sticky contact bar -->
+<div class="mobile-contact-bar" id="mobile-contact-bar" style="display:none">
+  <button onclick="revealPhone()" style="background:var(--green);color:#fff;border-radius:var(--radius);flex:1;padding:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
+    <i class="fas fa-phone"></i> Appeler
+  </button>
+  <button onclick="openWhatsApp()" style="background:#25D366;color:#fff;border-radius:var(--radius);flex:1;padding:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
+    <i class="fab fa-whatsapp"></i> WhatsApp
+  </button>
+</div>
+
+<div id="site-footer"></div>
+
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  const listingId = new URLSearchParams(location.search).get('id');
+  const isAdminMode = new URLSearchParams(location.search).get('admin') === '1';
+  let listing = null;
+  let phoneRevealed = null;
+
+  if (isAdminMode) {
+    document.getElementById('admin-toolbar').style.display = '';
+  }
+
+  async function loadListing() {
+    if (!listingId) { showError(); return; }
+    try {
+      listing = await ListingsAPI.get(listingId);
+      renderDetail(listing);
+    } catch {
+      showError();
+    }
+  }
+
+  function showError() {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = '';
+  }
+
+  function renderDetail(l) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('detail-layout').style.display = '';
+    document.getElementById('mobile-contact-bar').classList.add('is-visible');
+    document.title = `${l.title_fr} — Pro Market Algérie`;
+
+    // Gallery
+    if (l.media?.length) {
+      document.getElementById('main-img').src = l.media.find(m => m.is_cover)?.url || l.media[0].url;
+      document.getElementById('main-img').alt = l.title_fr || '';
+      document.getElementById('thumbs').innerHTML = l.media.map((m, i) => `
+        <img src="${escapeHtml(m.url_thumb || m.url)}" alt=""
+          class="${i === 0 ? 'active' : ''}"
+          onclick="setMainImg(this,'${escapeHtml(m.url)}')">
+      `).join('');
+    } else {
+      document.getElementById('gallery-wrap').innerHTML = '<div style="height:300px;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--gray-400)"><i class="fas fa-image"></i></div>';
+    }
+
+    // Title + price
+    document.getElementById('listing-title').textContent = l.title_fr;
+    document.getElementById('listing-price').innerHTML = formatPrice(l.price, l.currency, l.price_on_contact);
+
+    // Badges
+    const badges = [];
+    if (l.is_boosted) badges.push('<span class="badge badge-orange">Top annonce</span>');
+    if (l.is_premium) badges.push('<span class="badge badge-premium">Premium</span>');
+    document.getElementById('listing-badges').innerHTML = badges.join('');
+
+    // Meta
+    document.getElementById('listing-meta').innerHTML = [
+      l.wilaya_name ? `<span style="font-size:13px;color:var(--gray-600)"><i class="fas fa-map-marker-alt" style="color:var(--orange)"></i> ${escapeHtml(l.wilaya_name)}${l.commune ? ', ' + escapeHtml(l.commune) : ''}</span>` : '',
+      l.year        ? `<span style="font-size:13px;color:var(--gray-600)"><i class="fas fa-calendar"></i> ${l.year}</span>` : '',
+      l.brand       ? `<span style="font-size:13px;color:var(--gray-600)"><i class="fas fa-tag"></i> ${escapeHtml(l.brand)}</span>` : '',
+      l.condition   ? `<span style="font-size:13px;color:var(--gray-600)"><i class="fas fa-star"></i> ${escapeHtml(l.condition)}</span>` : '',
+      `<span style="font-size:13px;color:var(--gray-600)"><i class="fas fa-eye"></i> ${l.view_count} vues</span>`,
+      `<span style="font-size:13px;color:var(--gray-600)"><i class="fas fa-clock"></i> ${timeAgo(l.created_at)}</span>`,
+    ].filter(Boolean).join('');
+
+    // Description
+    document.getElementById('description').innerHTML = l.description_fr
+      ? escapeHtml(l.description_fr).replace(/\n/g, '<br>')
+      : '<span style="color:var(--gray-400)">Aucune description fournie.</span>';
+
+    // Attributes table
+    const attrs = l.attributes || {};
+    const rows = Object.entries(attrs).map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${escapeHtml(String(v))}</td></tr>`);
+    if (l.brand)  rows.unshift(`<tr><td>Marque</td><td>${escapeHtml(l.brand)}</td></tr>`);
+    if (l.year)   rows.unshift(`<tr><td>Année</td><td>${l.year}</td></tr>`);
+    if (l.condition) rows.unshift(`<tr><td>État</td><td>${escapeHtml(l.condition)}</td></tr>`);
+    document.querySelector('#attrs-table tbody').innerHTML = rows.length
+      ? rows.join('')
+      : '<tr><td colspan="2" style="text-align:center;color:var(--gray-400)">Aucun attribut technique renseigné</td></tr>';
+
+    // Seller
+    const sellerInitial = (l.seller_name || '?')[0].toUpperCase();
+    const avatarEl = document.getElementById('seller-avatar-placeholder');
+    if (l.logo_url) {
+      avatarEl.outerHTML = `<img class="seller-avatar" id="seller-avatar-placeholder" src="${escapeHtml(l.logo_url)}" alt="">`;
+    } else {
+      avatarEl.textContent = sellerInitial;
+    }
+    document.getElementById('seller-name').textContent = l.company_name || l.seller_name || 'Vendeur';
+    document.getElementById('seller-type').textContent = l.account_type === 'professional' ? 'Vendeur professionnel' : 'Vendeur particulier';
+    if (l.seller_certified) {
+      document.getElementById('seller-certified-badge').innerHTML = '<span class="badge badge-blue" style="margin-top:4px"><i class="fas fa-shield-alt"></i> Certifié</span>';
+    }
+    document.getElementById('seller-stats').innerHTML =
+      `Membre depuis ${formatDate(l.seller_since)} · ${l.seller_listings_count || 0} annonces actives`;
+  }
+
+  function setMainImg(thumb, url) {
+    document.getElementById('main-img').src = url;
+    document.querySelectorAll('#thumbs img').forEach(img => img.classList.remove('active'));
+    thumb.classList.add('active');
+  }
+
+  async function revealPhone() {
+    if (phoneRevealed) {
+      window.location.href = `tel:${phoneRevealed}`;
+      return;
+    }
+    try {
+      const data = await ListingsAPI.revealPhone(listingId);
+      phoneRevealed = data.phone;
+      const btn = document.getElementById('btn-call');
+      btn.innerHTML = `<i class="fas fa-phone"></i> ${escapeHtml(data.phone)}`;
+      btn.onclick = () => window.location.href = `tel:${data.phone}`;
+      showToast('Numéro révélé !', 'success');
+    } catch {
+      showToast('Impossible d\'afficher le numéro.', 'error');
+    }
+  }
+
+  async function openWhatsApp() {
+    if (!phoneRevealed) {
+      try {
+        const data = await ListingsAPI.revealPhone(listingId);
+        phoneRevealed = data.phone;
+      } catch { showToast('Impossible d\'obtenir le numéro.', 'error'); return; }
+    }
+    window.open(whatsappUrl(phoneRevealed, listing?.title_fr || ''), '_blank');
+  }
+
+  function shareFB()  { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}`, '_blank'); return false; }
+  function shareWA()  { window.open(`https://wa.me/?text=${encodeURIComponent(listing?.title_fr + ' — ' + location.href)}`, '_blank'); return false; }
+
+  async function adminApprove() {
+    try { await apiFetch(`/admin/listings/${listingId}/approve`, { method: 'PATCH' }); showToast('Annonce approuvée.', 'success'); } catch { showToast('Erreur.', 'error'); }
+  }
+  async function adminReject() {
+    const reason = prompt('Raison du rejet ?');
+    if (!reason) return;
+    try { await apiFetch(`/admin/listings/${listingId}/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }); showToast('Annonce rejetée.', 'info'); } catch { showToast('Erreur.', 'error'); }
+  }
+  async function adminBoost() {
+    const days = prompt('Durée du boost (jours) ?', '7');
+    if (!days) return;
+    try { await apiFetch(`/admin/listings/${listingId}/boost`, { method: 'PATCH', body: JSON.stringify({ days: parseInt(days), is_premium: true }) }); showToast('Boost activé.', 'success'); } catch { showToast('Erreur.', 'error'); }
+  }
+  async function adminDelete() {
+    if (!confirm('Supprimer définitivement cette annonce ?')) return;
+    try { await apiFetch(`/admin/listings/${listingId}`, { method: 'DELETE' }); showToast('Annonce supprimée.', 'info'); setTimeout(() => window.close(), 1000); } catch { showToast('Erreur.', 'error'); }
+  }
+
+  loadListing();
+</script>
+</body>
+</html>
+

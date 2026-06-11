@@ -1,0 +1,63 @@
+/* ============================================================
+   PRO MARKET ALGÉRIE — Arabic / RTL Stylesheet
+   Applied when <html dir="rtl"> (lang="ar")
+   ============================================================ */
+
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Segoe UI', 'Arabic Typesetting', Arial, sans-serif;
+}
+
+/* Header search reversed */
+[dir="rtl"] .header-search select { border-right: none; border-left: 2px solid var(--gray-200); }
+[dir="rtl"] .cat-nav-list { flex-direction: row-reverse; }
+
+/* Cards */
+[dir="rtl"] .listing-card .badges { left: auto; right: 8px; }
+[dir="rtl"] .listing-card .fav-btn { right: auto; left: 8px; }
+[dir="rtl"] .listing-card.is-premium .premium-ribbon {
+  left: auto; right: -2px;
+  clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Filter sidebar */
+[dir="rtl"] .filter-sidebar { border-left: none; border-right: 2px solid var(--gray-200); }
+[dir="rtl"] .filter-group label { text-align: right; }
+
+/* Listing detail contact */
+[dir="rtl"] .stat-card { border-left: none; border-right: 4px solid var(--blue); }
+[dir="rtl"] .stat-card.orange { border-right-color: var(--orange); }
+[dir="rtl"] .stat-card.green  { border-right-color: var(--green); }
+[dir="rtl"] .stat-card.red    { border-right-color: var(--red); }
+
+/* Toast */
+[dir="rtl"] .toast-container { right: auto; left: 20px; }
+[dir="rtl"] .toast { border-left: none; border-right: 4px solid var(--blue); }
+[dir="rtl"] .toast.success { border-right-color: var(--green); }
+[dir="rtl"] .toast.error   { border-right-color: var(--red); }
+
+/* Dashboard nav */
+[dir="rtl"] .dashboard-nav a { flex-direction: row-reverse; }
+
+/* Chat */
+[dir="rtl"] .msg-bubble.mine  { border-radius: 14px 14px 14px 4px; align-self: flex-start; }
+[dir="rtl"] .msg-bubble.theirs { border-radius: 14px 14px 4px 14px; align-self: flex-end; }
+
+/* Step wizard */
+[dir="rtl"] .steps-wizard { flex-direction: row-reverse; }
+
+/* Form */
+[dir="rtl"] .form-text { text-align: right; }
+
+/* Section title underline */
+[dir="rtl"] .section-title h2::after { margin-right: 0; margin-left: auto; }
+
+/* Footer */
+[dir="rtl"] .footer-col a { text-align: right; }
+
+/* Data table */
+[dir="rtl"] .data-table th, [dir="rtl"] .data-table td { text-align: right; }
+
+/* Arabic numbers — keep Latin numerals for prices */
+[dir="rtl"] .price, [dir="rtl"] .stat-val { font-variant-numeric: lining-nums; }

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Market Algérie — Achat & Vente Équipement Professionnel et Fonds de Commerce</title>
+  <meta name="description" content="Marketplace B2B de référence en Algérie. Achetez et vendez équipements industriels, matériels BTP, matériels agricoles et fonds de commerce.">
+  <meta name="keywords" content="marketplace algérie, équipement professionnel, BTP algérie, matériel industriel, fonds de commerce algérie">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Pro Market Algérie">
+  <meta property="og:description" content="Achetez, vendez, entreprenez plus facilement. Équipez votre succès.">
+  <meta property="og:type" content="website">
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<!-- HEADER (injected by JS) -->
+<div id="site-header"></div>
+
+<!-- HERO ─────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-particles">
+    <div class="hero-particle" style="left:10%;top:80%"></div>
+    <div class="hero-particle" style="left:25%;top:60%"></div>
+    <div class="hero-particle" style="left:70%;top:70%"></div>
+    <div class="hero-particle" style="left:85%;top:50%"></div>
+    <div class="hero-particle" style="left:50%;top:85%"></div>
+    <div class="hero-particle" style="left:15%;top:40%"></div>
+    <div class="hero-particle" style="left:40%;top:90%"></div>
+    <div class="hero-particle" style="left:60%;top:30%"></div>
+    <div class="hero-particle" style="left:80%;top:75%"></div>
+    <div class="hero-particle" style="left:5%;top:55%"></div>
+    <div class="hero-particle" style="left:95%;top:35%"></div>
+    <div class="hero-particle" style="left:35%;top:15%"></div>
+  </div>
+  <div class="container">
+    <h1 class="hero-title">
+      <span class="hero-title-line">Achat & Vente</span>
+      <span class="hero-title-line">
+        <span class="gradient-text-anim">Équipement Professionnel</span>
+      </span>
+      <span class="hero-title-line">et Fonds de Commerce</span>
+    </h1>
+    <div class="hero-dream-line" aria-label="Votre rêve d'entreprendre commence ici">
+      <span class="dream-word">Votre</span>
+      <span class="dream-word dream-highlight">rêve</span>
+      <span class="dream-word">d'entreprendre</span> 
+      <span class="dream-word dream-highlight">commence</span>
+      <span class="dream-word">ici</span>
+      <span class="dream-dot"></span>
+    </div>
+    <p class="hero-subtitle"><span class="typing-text">La marketplace B2B de référence en Algérie</span></p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-number" data-counter="12500">0</span>
+        <span class="hero-stat-label">Annonces</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-number" data-counter="850">0</span>
+        <span class="hero-stat-label">Vendeurs</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-number" data-counter="58">0</span>
+        <span class="hero-stat-label">Wilayas</span>
+      </div>
+    </div>
+    <div class="hero-search modern-search">
+      <div class="search-icon">
+        <i class="fas fa-search"></i>
+      </div>
+      <input type="text" id="hero-search-input" placeholder="Que recherchez-vous ? (ex: Pelle hydraulique Caterpillar…)">
+      <div class="search-divider"></div>
+      <select id="hero-cat-select">
+        <option value="">Toutes rubriques</option>
+      </select>
+      <button class="btn btn-orange btn-lg btn-ripple" onclick="doHeroSearch()">
+        <span>Rechercher</span>
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+    <div class="hero-trust" style="margin-top:28px;display:flex;justify-content:center;gap:32px;flex-wrap:wrap">
+      <span class="hero-trust-badge">
+        <span class="hero-trust-icon"><i class="fas fa-shield-alt"></i></span>
+        <span class="hero-trust-text">Vendeurs certifiés</span>
+      </span>
+      <span class="hero-trust-badge">
+        <span class="hero-trust-icon" style="--trust-color:#25D366"><i class="fab fa-whatsapp"></i></span>
+        <span class="hero-trust-text">Contact direct WhatsApp</span>
+      </span>
+      <span class="hero-trust-badge">
+        <span class="hero-trust-icon"><i class="fas fa-map-marker-alt"></i></span>
+        <span class="hero-trust-text">Toutes les wilayas</span>
+      </span>
+    </div>
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" style="margin-top:48px">
+      <div class="mouse"></div>
+    </div>
+  </div>
+  <!-- Wave Separator -->
+  <div class="wave-separator hero-wave">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#f8fafc" d="M0,40 C360,90 1080,0 1440,40 L1440,80 L0,80 Z"></path>
+    </svg>
+  </div>
+</section>
+
+<!-- ADVERTISEMENTS BANNER ────────────────────────────────── -->
+<section class="reveal" id="ads-banner-section" style="display:none;padding:20px 0;background:var(--gray-100)">
+  <div class="container">
+    <div id="ads-banner-container" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center"></div>
+  </div>
+</section>
+
+<!-- PREMIUM CAROUSEL ──────────────────────────────────────── -->
+<section class="carousel-section reveal" id="carousel-section" style="display:none">
+  <div class="container">
+    <div class="section-title">
+      <h2><i class="fas fa-star" style="color:var(--orange)"></i> Annonces Premium</h2>
+      <a href="pages/category.html?is_boosted=true" class="btn btn-outline-orange btn-sm">Voir tout</a>
+    </div>
+    <div class="carousel-track" id="carousel-track"></div>
+  </div>
+</section>
+
+<!-- CATEGORIES GRID ──────────────────────────────────────── -->
+<section class="categories-section reveal" id="categories">
+  <div class="categories-bg-effects">
+    <div class="cat-bg-blob blob-1"></div>
+    <div class="cat-bg-blob blob-2"></div>
+    <div class="cat-bg-blob blob-3"></div>
+  </div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="section-title section-title-animated">
+      <div class="title-wrapper">
+        <span class="section-badge">Explorer</span>
+        <h2>Nos <span class="gradient-text-anim">10 Rubriques</span> Professionnelles</h2>
+        <p class="section-subtitle">Choisissez votre secteur d'activité et trouvez les meilleures opportunités</p>
+      </div>
+    </div>
+    <div class="categories-grid stagger-children" id="categories-grid">
+      <!-- injected by JS -->
+      <div class="empty-state"><div class="spinner" style="width:30px;height:30px;border-color:var(--blue);border-top-color:transparent"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT LISTINGS ──────────────────────────────────────── -->
+<section class="listings-section reveal reveal-listings">
+  <div class="listings-bg-decoration">
+    <div class="listing-bg-shape shape-1"></div>
+    <div class="listing-bg-shape shape-2"></div>
+    <div class="listing-bg-shape shape-3"></div>
+  </div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="section-title section-title-animated listings-title">
+      <div class="title-wrapper">
+        <span class="section-badge badge-listings">
+          <span class="pulse-dot"></span>
+          Nouveautés
+        </span>
+        <h2>Annonces <span class="gradient-text-anim">Récentes</span></h2>
+        <p class="section-subtitle">Découvrez les dernières opportunités ajoutées par nos vendeurs</p>
+      </div>
+      <div class="listings-tabs">
+        <button class="tab-btn active" id="sort-recent" onclick="setSortRecent()">
+          <span class="tab-icon"><i class="fas fa-clock"></i></span>
+          <span class="tab-text">Récentes</span>
+          <span class="tab-indicator"></span>
+        </button>
+        <button class="tab-btn" id="sort-boosted" onclick="setSortBoosted()">
+          <span class="tab-icon"><i class="fas fa-fire"></i></span>
+          <span class="tab-text">En vedette</span>
+          <span class="tab-indicator"></span>
+        </button>
+      </div>
+    </div>
+    <div class="listings-grid stagger-children listings-animated-grid" id="recent-listings">
+      <div style="grid-column:1/-1;text-align:center;padding:40px">
+        <div class="loading-skeleton-grid">
+          <div class="skeleton-listing-card"></div>
+          <div class="skeleton-listing-card"></div>
+          <div class="skeleton-listing-card"></div>
+          <div class="skeleton-listing-card"></div>
+          <div class="skeleton-listing-card"></div>
+          <div class="skeleton-listing-card"></div>
+        </div>
+      </div>
+    </div>
+    <div class="listings-footer">
+      <a href="pages/category.html" class="btn btn-view-all btn-ripple">
+        <span>Voir toutes les annonces</span>
+        <i class="fas fa-arrow-right"></i>
+        <span class="btn-shine"></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- WHATSAPP CTA SECTION ────────────────────────────── -->
+<section class="reveal whatsapp-cta-section" id="whatsapp-cta">
+  <div class="whatsapp-bg-effects">
+    <div class="whatsapp-blob blob-1"></div>
+    <div class="whatsapp-blob blob-2"></div>
+    <div class="whatsapp-particle"></div>
+    <div class="whatsapp-particle"></div>
+    <div class="whatsapp-particle"></div>
+  </div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="whatsapp-cta-content">
+      <div class="whatsapp-cta-badge">
+        <span class="pulse-ring"></span>
+        <i class="fab fa-whatsapp"></i>
+        Contact Direct
+      </div>
+      <h2 class="whatsapp-cta-title">
+        Vous avez un équipement à vendre ?
+      </h2>
+      <p class="whatsapp-cta-subtitle">
+        Contactez-nous sur WhatsApp avec les détails de votre matériel. 
+        Notre équipe crée et publie votre annonce professionnelle.
+      </p>
+      <div class="whatsapp-cta-features">
+        <div class="whatsapp-feature">
+          <div class="feature-icon">
+            <i class="fas fa-camera"></i>
+          </div>
+          <span>Envoyez photos & infos</span>
+        </div>
+        <div class="whatsapp-feature">
+          <div class="feature-icon">
+            <i class="fas fa-credit-card"></i>
+          </div>
+          <span>Paiement sécurisé</span>
+        </div>
+        <div class="whatsapp-feature">
+          <div class="feature-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <span>Publication par nos experts</span>
+        </div>
+      </div>
+      <a href="#" onclick="window.open(getWhatsAppPublishUrl(), '_blank'); return false;" 
+         class="btn btn-whatsapp-cta btn-ripple" 
+         rel="noopener noreferrer">
+        <span class="whatsapp-icon-wrap">
+          <i class="fab fa-whatsapp"></i>
+        </span>
+        <span class="btn-text">
+          <span class="btn-label">Publier via</span>
+          <span class="btn-brand">WhatsApp</span>
+        </span>
+        <i class="fas fa-arrow-right btn-arrow"></i>
+      </a>
+      <p class="whatsapp-cta-note">
+        <i class="fas fa-clock"></i>
+        Réponse rapide — Service professionnel
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS ─────────────────────────────────────────── -->
+<section class="reveal" style="padding:60px 0;background:#fff">
+  <div class="container">
+    <div class="section-title" style="justify-content:center;text-align:center"><h2>Comment ça marche ?</h2></div>
+    <div class="stagger-children" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-top:32px;text-align:center">
+      <div class="how-step">
+        <div class="step-icon" style="width:70px;height:70px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.6rem;color:#fff"><i class="fab fa-whatsapp"></i></div>
+        <h3>1. Contactez-nous</h3>
+        <p style="color:var(--gray-600);font-size:13px;margin-top:8px">Envoyez-nous les photos et détails de votre matériel sur WhatsApp.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-icon" style="width:70px;height:70px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.6rem;color:#fff"><i class="fas fa-credit-card"></i></div>
+        <h3>2. Paiement</h3>
+        <p style="color:var(--gray-600);font-size:13px;margin-top:8px">Réglez les frais de publication. Paiement sécurisé via CCP, CIB ou Espèces.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-icon" style="width:70px;height:70px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.6rem;color:#fff"><i class="fas fa-bullhorn"></i></div>
+        <h3>3. Publication pro</h3>
+        <p style="color:var(--gray-600);font-size:13px;margin-top:8px">Notre équipe crée et publie votre annonce professionnelle sur la plateforme.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-icon" style="width:70px;height:70px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.6rem;color:#fff"><i class="fas fa-handshake"></i></div>
+        <h3>4. Concluez l'affaire</h3>
+        <p style="color:var(--gray-600);font-size:13px;margin-top:8px">Recevez les appels des acheteurs intéressés et vendez votre équipement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div id="site-footer"></div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/main.js"></script>
+<script>
+  // ── Catégories statiques (toujours visibles) ──────────────
+  const STATIC_CATS = [
+    { slug:'industrie-usines',         name_fr:'Industrie & Usines',            name_ar:'الصناعة والمصانع',    icon:'fa-industry'   },
+    { slug:'restauration-hotellerie',  name_fr:'Restauration & Hôtellerie',     name_ar:'الإطعام والضيافة',    icon:'fa-utensils'   },
+    { slug:'commerce-services',        name_fr:'Commerce & Services',           name_ar:'التجارة والخدمات',    icon:'fa-store'      },
+    { slug:'sante-medical',            name_fr:'Santé & Médical',               name_ar:'الصحة والطب',         icon:'fa-heartbeat'  },
+    { slug:'agriculture-peche',        name_fr:'Agriculture & Pêche',           name_ar:'الزراعة والصيد',      icon:'fa-tractor'    },
+    { slug:'construction-btp',         name_fr:'Construction & BTP',            name_ar:'البناء والأشغال',     icon:'fa-hard-hat'   },
+    { slug:'transport-logistique',     name_fr:'Transport & Logistique',        name_ar:'النقل واللوجستيك',    icon:'fa-truck'      },
+    { slug:'informatique-electronique',name_fr:'Informatique & Électronique',   name_ar:'الإعلام الآلي',       icon:'fa-server'     },
+    { slug:'evenementiel-loisirs',     name_fr:'Évènementiel & Loisirs',        name_ar:'الفعاليات والترفيه',  icon:'fa-music'      },
+    { slug:'divers-fonds-commerce',    name_fr:'Divers Pro & Fonds de Commerce',name_ar:'متنوع ومحلات تجارية', icon:'fa-building'   },
+    { slug:'sport-loisirs',            name_fr:'Sport et Loisir',               name_ar:'الرياضة والترفيه',    icon:'fa-running'    },
+    { slug:'beaute-esthetique-soins',  name_fr:'Beauté, Esthétique & Soins',    name_ar:'التجميل والعناية',    icon:'fa-spa'        },
+    { slug:'divers-equipement-pro',    name_fr:'Divers Équipement Professionnel',name_ar:'معدات مهنية متنوعة', icon:'fa-tools'      },
+  ];
+
+  // Populate hero select immediately
+  const heroSel = document.getElementById('hero-cat-select');
+  STATIC_CATS.forEach(c => {
+    heroSel?.insertAdjacentHTML('beforeend', `<option value="${c.slug}">${c.name_fr}</option>`);
+  });
+
+  // Render categories grid immediately (no backend needed)
+  document.getElementById('categories-grid').innerHTML = STATIC_CATS.map((c, index) => `
+    <a class="cat-card" href="pages/category.html?slug=${c.slug}" style="transition-delay: ${index * 0.05}s">
+      <div class="card-particle"></div>
+      <div class="card-particle"></div>
+      <div class="card-particle"></div>
+      <div class="icon-wrapper">
+        <i class="fas ${c.icon}"></i>
+      </div>
+      <span class="cat-name">${c.name_fr}</span>
+      <small class="cat-name-ar">${c.name_ar}</small>
+    </a>`).join('');
+
+  // Try to reload from API (enrich with counts etc.)
+  CategoriesAPI.list().catch(() => {});
+
+  // Load carousel
+  ListingsAPI.carousel().then(items => {
+    if (!items.length) return;
+    document.getElementById('carousel-section').style.display = '';
+    document.getElementById('carousel-track').innerHTML = items.map(l => `
+      <div class="carousel-card" onclick="location.href='pages/listing-detail.html?id=${String(l.id).replace(/'/g, '\\\'')}'">
+        <div class="premium-ribbon">Premium</div>
+        ${l.cover_image ? `<img src="${escapeHtml(l.cover_image)}" alt="">` : `<div style="height:150px;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gray-400)"><i class="fas fa-image"></i></div>`}
+        <div class="card-body">
+          <div class="card-title">${escapeHtml(l.title_fr)}</div>
+          <div class="card-price">${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Prix sur contact'}</div>
+          <div style="font-size:12px;color:var(--gray-600);margin-top:4px"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(l.wilaya_name || '')}</div>
+        </div>
+      </div>`).join('');
+  }).catch(() => {});
+
+  // ── Annonces de démonstration (affichées quand le backend est absent) ──
+  const DEMO_LISTINGS = [
+    { id:'demo-1', title_fr:'Pelle hydraulique Caterpillar 320 — 2019 — 4500h', price:9500000, currency:'DZD', wilaya_name:'Alger', condition:'Bon état', year:2019, brand:'Caterpillar', cover_image:'assets/img/listings/listing-1.webp', seller_name:'SaRL BTP Algérie', seller_certified:true,  is_boosted:true,  is_premium:true,  created_at: new Date(Date.now()-3600000).toISOString() },
+    { id:'demo-2', title_fr:'Chariot élévateur Toyota 3 tonnes — GPL — 2020',   price:1800000, currency:'DZD', wilaya_name:'Oran',  condition:'Très bon', year:2020, brand:'Toyota',     cover_image:'assets/img/listings/listing-2.webp', seller_name:'EURL Manutention', seller_certified:false, is_boosted:false, is_premium:false, created_at: new Date(Date.now()-7200000).toISOString() },
+    { id:'demo-3', title_fr:'Camion benne Mercedes 1840 — 2017 — 280 000 km',   price:6500000, currency:'DZD', wilaya_name:'Constantine', condition:'Bon état', year:2017, brand:'Mercedes', cover_image:'assets/img/listings/listing-3.webp', seller_name:'Transport DZ', seller_certified:false, is_boosted:false, is_premium:false, created_at: new Date(Date.now()-86400000).toISOString() },
+    { id:'demo-4', title_fr:'Tracteur John Deere 5075E — 2021 — 800h moteur',   price:4200000, currency:'DZD', wilaya_name:'Sétif',  condition:'Excellent', year:2021, brand:'John Deere', cover_image:'assets/img/listings/listing-4.webp', seller_name:'Agri Sétif', seller_certified:true,  is_boosted:false, is_premium:true,  created_at: new Date(Date.now()-172800000).toISOString() },
+    { id:'demo-5', title_fr:'Four professionnel Rational SelfCooking — Neuf',    price:420000,  currency:'DZD', wilaya_name:'Annaba', condition:'Neuf',     year:2024, brand:'Rational',   cover_image:'assets/img/listings/listing-5.webp', seller_name:'Équip Resto', seller_certified:false, is_boosted:false, is_premium:false, created_at: new Date(Date.now()-259200000).toISOString() },
+    { id:'demo-6', title_fr:'Centrale à béton ELKON 60 m³/h — 2018',            price:0,       currency:'DZD', wilaya_name:'Blida',  condition:'Bon état', year:2018, brand:'ELKON',     cover_image:'assets/img/listings/listing-6.webp', seller_name:'BTP Construct', seller_certified:false, is_boosted:false, is_premium:false, price_on_contact:true, created_at: new Date(Date.now()-345600000).toISOString() },
+  ];
+
+  // Load recent listings
+  let currentSort = 'recent';
+  function loadRecentListings() {
+    const params = { sort: currentSort, limit: 12 };
+    ListingsAPI.search(params).then(res => {
+      const grid = document.getElementById('recent-listings');
+      const data = res.data.length ? res.data : DEMO_LISTINGS;
+      grid.innerHTML = data.map(renderListingCard).join('');
+      // Réinitialiser les animations après chargement
+      setTimeout(() => {
+        if (window.initListingCards) window.initListingCards();
+      }, 100);
+    }).catch(() => {
+      // Afficher les annonces démo si le backend n'est pas disponible
+      const grid = document.getElementById('recent-listings');
+      grid.innerHTML = DEMO_LISTINGS.map(renderListingCard).join('') +
+        `<div style="grid-column:1/-1;text-align:center;padding:16px;font-size:13px;color:var(--gray-400)">
+          <i class="fas fa-info-circle"></i> Exemples d'annonces — Connectez le backend pour voir les vraies données
+        </div>`;
+      // Réinitialiser les animations
+      setTimeout(() => {
+        if (window.initListingCards) window.initListingCards();
+      }, 100);
+    });
+  }
+
+  function setSortRecent() {
+    currentSort = 'recent';
+    document.getElementById('sort-recent').classList.add('active');
+    document.getElementById('sort-boosted').classList.remove('active');
+    loadRecentListings();
+  }
+
+  function setSortBoosted() {
+    document.getElementById('sort-recent').classList.remove('active');
+    document.getElementById('sort-boosted').classList.add('active');
+    ListingsAPI.search({ is_boosted: true, limit: 12 }).then(res => {
+      const grid = document.getElementById('recent-listings');
+      const data = res.data.length ? res.data : DEMO_LISTINGS.filter(l => l.is_boosted);
+      grid.innerHTML = data.map(renderListingCard).join('');
+    }).catch(() => {
+      document.getElementById('recent-listings').innerHTML = DEMO_LISTINGS.filter(l => l.is_boosted).map(renderListingCard).join('');
+    });
+  }
+
+  function doHeroSearch() {
+    const q   = document.getElementById('hero-search-input')?.value.trim();
+    const cat = document.getElementById('hero-cat-select')?.value;
+    const p   = new URLSearchParams();
+    if (q)   p.set('q', q);
+    if (cat) p.set('category', cat);
+    window.location.href = `pages/category.html?${p}`;
+  }
+
+  document.getElementById('hero-search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doHeroSearch();
+  });
+
+  loadRecentListings();
+
+  // ── Load advertisements ────────────────────────────────────
+  AdsAPI.list('homepage').then(ads => {
+    if (!ads.length) return;
+    const container = document.getElementById('ads-banner-container');
+    document.getElementById('ads-banner-section').style.display = '';
+    container.innerHTML = ads.map(ad => `
+      <a href="${escapeHtml(ad.link_url || '#')}" target="_blank" rel="noopener noreferrer"
+         class="ad-banner-card" data-ad-id="${String(ad.id).replace(/'/g, '\\\'')} "
+         style="flex:1;min-width:280px;max-width:400px;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);transition:transform .2s;background:#fff;display:block;text-decoration:none"
+         onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''"
+         onclick="AdsAPI.click('${String(ad.id).replace(/'/g, '\\\'')}').catch(()=>{})">
+        <img src="${escapeHtml(ad.image_url)}" alt="${escapeHtml(ad.title)}" style="width:100%;height:180px;object-fit:cover;display:block">
+        <div style="padding:12px 16px">
+          <div style="font-weight:600;font-size:14px;color:var(--gray-900)">${escapeHtml(ad.title)}</div>
+        </div>
+      </a>
+    `).join('');
+  }).catch(() => {});
+</script>
+</body>
+</html>
+

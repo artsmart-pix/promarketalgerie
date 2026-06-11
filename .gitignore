@@ -1,0 +1,36 @@
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
+node_modules/
+
+# Environment variables
+backend/.env
+.env
+.env.local
+
+# Database
+backend/database.sqlite
+*.sqlite
+*.sqlite3
+
+# Uploads
+backend/uploads/
+!backend/uploads/.gitkeep
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# AI tooling artifacts (if generated)
+.opencode/node_modules/

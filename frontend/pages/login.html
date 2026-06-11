@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — Pro Market Algérie</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-wrapper">
+<div style="min-height:calc(100vh - 200px);display:flex;align-items:center;padding:40px 16px">
+  <div class="form-card" style="max-width:440px;width:100%">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:2.5rem;color:var(--orange);margin-bottom:8px"><i class="fas fa-shield-alt"></i></div>
+      <h2 style="color:var(--dark)">Espace Administrateur</h2>
+      <p style="color:var(--gray-600);font-size:14px">Connexion réservée à l'équipe Pro Market</p>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email <span class="required">*</span></label>
+        <input type="email" id="email" class="form-control" placeholder="votre@email.com" required autocomplete="email" inputmode="email">
+        <div class="error-msg" id="email-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe <span class="required">*</span></label>
+        <div style="position:relative">
+          <input type="password" id="password" class="form-control" placeholder="Votre mot de passe" required autocomplete="current-password">
+          <button type="button" onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gray-400)">
+            <i class="fas fa-eye" id="pwd-eye"></i>
+          </button>
+        </div>
+        <div class="error-msg" id="pwd-error"></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="remember"> Se souvenir de moi
+        </label>
+        <a href="#" style="font-size:13px">Mot de passe oublié ?</a>
+      </div>
+
+      <div id="form-error" class="error-msg" style="margin-bottom:12px;font-size:14px"></div>
+
+      <button type="submit" class="btn btn-orange btn-block btn-lg" id="submit-btn">
+        <span id="btn-text"><i class="fas fa-sign-in-alt"></i> Se connecter</span>
+        <div class="spinner" id="btn-spinner" style="display:none"></div>
+      </button>
+    </form>
+
+    <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:2px solid var(--gray-200)">
+      <div style="background:var(--gray-100);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+        <i class="fas fa-info-circle" style="color:var(--blue)"></i>
+        <span style="font-size:13px;color:var(--gray-600)">
+          <strong>Accès réservé aux administrateurs.</strong><br>
+          Les clients peuvent <a href="#" onclick="window.open(getWhatsAppPublishUrl(), '_blank'); return false;" style="color:var(--orange)" rel="noopener noreferrer">publier via WhatsApp</a>.
+        </span>
+      </div>
+      <a href="#" onclick="window.open(getWhatsAppPublishUrl(), '_blank'); return false;"
+         class="btn btn-outline-orange" style="font-size:13px"
+         rel="noopener noreferrer">
+        <i class="fab fa-whatsapp"></i> Publier via WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  // Redirect if already logged in
+  if (Auth.isLoggedIn()) window.location.href = 'admin-publish.html';
+
+  // Diagnostic: show which API URL is being used
+  console.log('API_BASE:', API_BASE);
+  console.log('Page origin:', window.location.origin);
+
+  function togglePwd() {
+    const inp = document.getElementById('password');
+    const eye = document.getElementById('pwd-eye');
+    if (inp.type === 'password') { inp.type = 'text'; eye.className = 'fas fa-eye-slash'; }
+    else { inp.type = 'password'; eye.className = 'fas fa-eye'; }
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errEl    = document.getElementById('form-error');
+    const btn      = document.getElementById('submit-btn');
+    const spinner  = document.getElementById('btn-spinner');
+    const btnText  = document.getElementById('btn-text');
+
+    errEl.classList.remove('show');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    btnText.style.display = 'none';
+
+    try {
+      const data = await AuthAPI.login({ email, password });
+      Auth.setToken(data.token);
+      Auth.setUser(data.user);
+      showToast('Connexion réussie !', 'success');
+      const redirect = new URLSearchParams(location.search).get('redirect') || 'admin-publish.html';
+      setTimeout(() => window.location.href = redirect, 800);
+    } catch (err) {
+      console.error('Login error:', err);
+      let msg = 'Email ou mot de passe incorrect.';
+      if (err.status === 0 || err.message?.includes('fetch')) {
+        msg = 'Impossible de contacter le serveur. Vérifiez que le backend tourne sur le port 3001.';
+      } else if (err.error) {
+        msg = err.error;
+      } else if (err.message) {
+        msg = err.message;
+      }
+      errEl.textContent = msg;
+      errEl.classList.add('show');
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.style.display = 'inline-flex';
+    }
+  });
+</script>
+</body>
+</html>
+

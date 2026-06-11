@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2022",
+    "checkJs": false,
+    "noEmit": true,
+    "baseUrl": "."
+  },
+  "exclude": ["node_modules"]
+}

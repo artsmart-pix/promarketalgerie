@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annonces — Pro Market Algérie</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-wrapper">
+
+<div class="container" style="padding-top:24px">
+  <!-- Breadcrumb + title -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-size:12px;color:var(--gray-600);margin-bottom:4px">
+        <a href="../index.html">Accueil</a> › <span id="page-title-bc">Annonces</span>
+      </div>
+      <h1 style="font-size:1.4rem" id="page-title">Toutes les annonces</h1>
+      <span style="font-size:13px;color:var(--gray-600)" id="result-count"></span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-ghost btn-sm" id="toggle-filters-btn" onclick="toggleMobileFilters()">
+        <i class="fas fa-sliders-h"></i> Filtres
+      </button>
+      <select class="form-control" style="width:auto;padding:8px 12px;font-size:13px" id="sort-select" onchange="applyFilters()">
+        <option value="recent">Plus récentes</option>
+        <option value="price_asc">Prix croissant</option>
+        <option value="price_desc">Prix décroissant</option>
+        <option value="views">Les plus vues</option>
+      </select>
+      <button class="btn btn-orange btn-sm" id="save-alert-btn" onclick="saveSearchAlert()">
+        <i class="fas fa-bell"></i> Créer une alerte
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Filters Chips ──────────────────────────────────── -->
+  <div class="active-filters-bar" id="active-filters-bar" style="display:none;margin-bottom:16px">
+    <div class="active-filters-label"><i class="fas fa-filter"></i> Filtres actifs :</div>
+    <div class="active-filters-chips" id="active-filters-chips"></div>
+    <button class="btn btn-ghost btn-xs" onclick="resetFilters()" style="margin-left:auto">
+      <i class="fas fa-times"></i> Tout effacer
+    </button>
+  </div>
+
+  <div class="listings-layout">
+    <!-- FILTERS SIDEBAR ──────────────────────────────────────── -->
+    <aside class="filter-sidebar" id="filter-sidebar">
+      <div class="filter-sidebar-header">
+        <h3><i class="fas fa-sliders-h"></i> Filtres</h3>
+        <button class="btn btn-ghost btn-sm filter-sidebar-close" onclick="toggleMobileFilters()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <label>Mots-clés</label>
+        <div class="search-input-wrap">
+          <i class="fas fa-search search-input-icon"></i>
+          <input type="text" class="form-control" id="f-q" placeholder="Recherche…" oninput="debounceFilter()">
+          <button class="search-input-clear" id="clear-q" onclick="clearFilter('f-q')" style="display:none">
+            <i class="fas fa-times-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group" id="dynamic-filters">
+        <!-- injected by JS based on category -->
+      </div>
+
+      <div class="filter-group">
+        <label>Wilaya</label>
+        <select class="form-control" id="f-wilaya" onchange="applyFilters()">
+          <option value="">Toutes les wilayas</option>
+          <option value="1">01 — Adrar</option>
+          <option value="2">02 — Chlef</option>
+          <option value="3">03 — Laghouat</option>
+          <option value="4">04 — Oum El Bouaghi</option>
+          <option value="5">05 — Batna</option>
+          <option value="6">06 — Béjaïa</option>
+          <option value="7">07 — Biskra</option>
+          <option value="8">08 — Béchar</option>
+          <option value="9">09 — Blida</option>
+          <option value="10">10 — Bouira</option>
+          <option value="11">11 — Tamanrasset</option>
+          <option value="12">12 — Tébessa</option>
+          <option value="13">13 — Tlemcen</option>
+          <option value="14">14 — Tiaret</option>
+          <option value="15">15 — Tizi Ouzou</option>
+          <option value="16">16 — Alger</option>
+          <option value="17">17 — Djelfa</option>
+          <option value="18">18 — Jijel</option>
+          <option value="19">19 — Sétif</option>
+          <option value="20">20 — Saïda</option>
+          <option value="21">21 — Skikda</option>
+          <option value="22">22 — Sidi Bel Abbès</option>
+          <option value="23">23 — Annaba</option>
+          <option value="24">24 — Guelma</option>
+          <option value="25">25 — Constantine</option>
+          <option value="26">26 — Médéa</option>
+          <option value="27">27 — Mostaganem</option>
+          <option value="28">28 — M'Sila</option>
+          <option value="29">29 — Mascara</option>
+          <option value="30">30 — Ouargla</option>
+          <option value="31">31 — Oran</option>
+          <option value="32">32 — El Bayadh</option>
+          <option value="33">33 — Illizi</option>
+          <option value="34">34 — Bordj Bou Arreridj</option>
+          <option value="35">35 — Boumerdès</option>
+          <option value="36">36 — El Tarf</option>
+          <option value="37">37 — Tindouf</option>
+          <option value="38">38 — Tissemsilt</option>
+          <option value="39">39 — El Oued</option>
+          <option value="40">40 — Khenchela</option>
+          <option value="41">41 — Souk Ahras</option>
+          <option value="42">42 — Tipaza</option>
+          <option value="43">43 — Mila</option>
+          <option value="44">44 — Aïn Defla</option>
+          <option value="45">45 — Naâma</option>
+          <option value="46">46 — Aïn Témouchent</option>
+          <option value="47">47 — Ghardaïa</option>
+          <option value="48">48 — Relizane</option>
+          <option value="49">49 — El M'ghair</option>
+          <option value="50">50 — El Menia</option>
+          <option value="51">51 — Ouled Djellal</option>
+          <option value="52">52 — Bordj Baji Mokhtar</option>
+          <option value="53">53 — Béni Abbès</option>
+          <option value="54">54 — Timimoun</option>
+          <option value="55">55 — Touggourt</option>
+          <option value="56">56 — Djanet</option>
+          <option value="57">57 — In Salah</option>
+          <option value="58">58 — In Guezzam</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Prix maximum (DZD)</label>
+        <div class="search-input-wrap">
+          <i class="fas fa-tag search-input-icon"></i>
+          <input type="number" class="form-control" id="f-max-price" placeholder="Ex: 5000000" oninput="debounceFilter()">
+          <button class="search-input-clear" id="clear-price" onclick="clearFilter('f-max-price')" style="display:none">
+            <i class="fas fa-times-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>État du matériel</label>
+        <select class="form-control" id="f-condition" onchange="applyFilters()">
+          <option value="">Tous</option>
+          <option value="new">Neuf</option>
+          <option value="excellent">Très bon état</option>
+          <option value="good">Bon état</option>
+          <option value="fair">Correct</option>
+          <option value="for_parts">Pour pièces</option>
+        </select>
+      </div>
+
+      <div class="filter-sidebar-footer">
+        <button class="btn btn-outline-orange btn-block btn-sm" onclick="resetFilters()">
+          <i class="fas fa-undo"></i> Réinitialiser
+        </button>
+        <button class="btn btn-orange btn-block btn-sm" onclick="toggleMobileFilters()">
+          <i class="fas fa-check"></i> Voir les résultats
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile Filter Overlay -->
+    <div class="filter-overlay" id="filter-overlay" onclick="toggleMobileFilters()"></div>
+
+    <!-- LISTINGS ──────────────────────────────────────────────── -->
+    <div>
+      <div class="listings-grid" id="listings-grid">
+        <!-- Skeleton loading injected by JS -->
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Save Alert Modal -->
+<div class="modal-overlay" id="alert-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('alert-modal')">&times;</button>
+    <h3><i class="fas fa-bell" style="color:var(--orange)"></i> Créer une alerte</h3>
+    <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">
+      Recevez une notification dès qu'une annonce correspond à vos critères actuels.
+    </p>
+    <div class="form-group">
+      <label>Nom de l'alerte</label>
+      <input type="text" class="form-control" id="alert-label" placeholder="ex: Chariot élévateur Sétif">
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer">
+        <input type="checkbox" id="alert-email" checked> Notification par email
+      </label>
+    </div>
+    <button class="btn btn-orange btn-block" onclick="confirmSaveAlert()">
+      <i class="fas fa-bell"></i> Enregistrer l'alerte
+    </button>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  const urlParams   = new URLSearchParams(location.search);
+  let currentPage   = 1;
+  let currentCat    = null;
+  let debounceTimer = null;
+  let isLoading     = false;
+
+  // ── URL State Synchronization ─────────────────────────────
+  function syncFiltersToURL(filters) {
+    const params = new URLSearchParams(location.search);
+    const keys = ['q','wilaya','max_price','condition','sort','slug','category'];
+
+    // Clear existing filter params
+    keys.forEach(k => params.delete(k));
+    params.delete('page');
+
+    // Set new values (skip empty)
+    Object.entries(filters).forEach(([key, val]) => {
+      if (val !== '' && val != null && val !== false && key !== 'limit' && key !== 'page') {
+        if (key.startsWith('attr_')) {
+          params.set(key, val);
+        } else if (keys.includes(key) || key === 'slug' || key === 'category') {
+          params.set(key, val);
+        }
+      }
+    });
+
+    if (filters.page > 1) params.set('page', filters.page);
+
+    const newUrl = `${location.pathname}?${params.toString()}`;
+    window.history.replaceState({ filters }, '', newUrl);
+  }
+
+  function readFiltersFromURL() {
+    const p = new URLSearchParams(location.search);
+    return {
+      q:         p.get('q') || '',
+      wilaya:    p.get('wilaya') || '',
+      max_price: p.get('max_price') || '',
+      condition: p.get('condition') || '',
+      sort:      p.get('sort') || 'recent',
+      page:      parseInt(p.get('page')) || 1,
+    };
+  }
+
+  function applyURLFiltersToInputs() {
+    const f = readFiltersFromURL();
+    if (f.q)         document.getElementById('f-q').value         = f.q;
+    if (f.wilaya)    document.getElementById('f-wilaya').value    = f.wilaya;
+    if (f.max_price) document.getElementById('f-max-price').value = f.max_price;
+    if (f.condition) document.getElementById('f-condition').value = f.condition;
+    if (f.sort)      document.getElementById('sort-select').value = f.sort;
+    currentPage = f.page;
+    updateClearButtons();
+  }
+
+  // ── Debounce ──────────────────────────────────────────────
+  function debounceFilter() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => applyFilters(true), 400);
+  }
+
+  // ── Build Filters ─────────────────────────────────────────
+  function buildFilters() {
+    const filters = {
+      q:          document.getElementById('f-q')?.value.trim() || '',
+      wilaya:     document.getElementById('f-wilaya')?.value || '',
+      max_price:  document.getElementById('f-max-price')?.value || '',
+      condition:  document.getElementById('f-condition')?.value || '',
+      sort:       document.getElementById('sort-select')?.value || 'recent',
+      page:       currentPage,
+      limit:      24,
+    };
+    if (currentCat) filters.category = currentCat.slug;
+
+    document.querySelectorAll('[data-attr-key]').forEach(el => {
+      const val = el.type === 'checkbox' ? el.checked : el.value;
+      if (val) filters[`attr_${el.dataset.attrKey}`] = val;
+    });
+
+    return filters;
+  }
+
+  // ── Apply / Reset ─────────────────────────────────────────
+  function applyFilters(resetPage = true) {
+    if (resetPage) currentPage = 1;
+    const filters = buildFilters();
+    syncFiltersToURL(filters);
+    renderActiveChips(filters);
+    loadListings();
+  }
+
+  function resetFilters() {
+    document.getElementById('f-q').value = '';
+    document.getElementById('f-wilaya').value = '';
+    document.getElementById('f-max-price').value = '';
+    document.getElementById('f-condition').value = '';
+    document.getElementById('sort-select').value = 'recent';
+    document.querySelectorAll('[data-attr-key]').forEach(el => {
+      if (el.type === 'checkbox') el.checked = false; else el.value = '';
+    });
+    applyFilters(true);
+  }
+
+  function clearFilter(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = '';
+    applyFilters(true);
+  }
+
+  function updateClearButtons() {
+    const qVal = document.getElementById('f-q')?.value;
+    const pVal = document.getElementById('f-max-price')?.value;
+    document.getElementById('clear-q').style.display = qVal ? 'flex' : 'none';
+    const clearP = document.getElementById('clear-price');
+    if (clearP) clearP.style.display = pVal ? 'flex' : 'none';
+  }
+
+  // ── Active Filter Chips ───────────────────────────────────
+  const FILTER_LABELS = {
+    q: 'Recherche', wilaya: 'Wilaya', max_price: 'Prix max',
+    condition: 'État', sort: 'Tri',
+    new: 'Neuf', excellent: 'Très bon état', good: 'Bon état', fair: 'Correct', for_parts: 'Pour pièces',
+    recent: 'Récentes', price_asc: 'Prix ↑', price_desc: 'Prix ↓', views: 'Plus vues'
+  };
+
+  function renderActiveChips(filters) {
+    const container = document.getElementById('active-filters-chips');
+    const bar = document.getElementById('active-filters-bar');
+    const chips = [];
+
+    const addChip = (key, label, value, onRemove) => {
+      chips.push(`<span class="filter-chip">${escapeHtml(label)}: <strong>${escapeHtml(value)}</strong><button onclick="${onRemove}" aria-label="Retirer le filtre"><i class="fas fa-times"></i></button></span>`);
+    };
+
+    if (filters.q) addChip('q', 'Recherche', filters.q, `clearFilter('f-q')`);
+    if (filters.wilaya) {
+      const sel = document.getElementById('f-wilaya');
+      const text = sel?.options[sel.selectedIndex]?.text || filters.wilaya;
+      addChip('wilaya', 'Wilaya', text, `clearFilter('f-wilaya')`);
+    }
+    if (filters.max_price) addChip('max_price', 'Prix max', Number(filters.max_price).toLocaleString('fr-DZ') + ' DZD', `clearFilter('f-max-price')`);
+    if (filters.condition) addChip('condition', 'État', FILTER_LABELS[filters.condition] || filters.condition, `clearFilter('f-condition')`);
+
+    // Dynamic attr chips
+    document.querySelectorAll('[data-attr-key]').forEach(el => {
+      const val = el.type === 'checkbox' ? el.checked : el.value;
+      if (!val) return;
+      const label = el.closest('.filter-group')?.querySelector('label')?.textContent?.trim() || el.dataset.attrKey;
+      const displayVal = el.type === 'checkbox' ? 'Oui' : val;
+      chips.push(`<span class="filter-chip">${escapeHtml(label)}: <strong>${escapeHtml(displayVal)}</strong><button onclick="clearDynamicFilter('${el.dataset.attrKey}')" aria-label="Retirer le filtre"><i class="fas fa-times"></i></button></span>`);
+    });
+
+    if (chips.length) {
+      container.innerHTML = chips.join('');
+      bar.style.display = 'flex';
+    } else {
+      bar.style.display = 'none';
+      container.innerHTML = '';
+    }
+  }
+
+  window.clearDynamicFilter = function(key) {
+    const el = document.querySelector(`[data-attr-key="${key}"]`);
+    if (el) { if (el.type === 'checkbox') el.checked = false; else el.value = ''; }
+    applyFilters(true);
+  };
+
+  // ── Skeleton Loading ──────────────────────────────────────
+  function renderSkeletonGrid(count = 8) {
+    return `
+      <div class="listings-skeleton-grid" style="grid-column:1/-1">
+        ${Array(count).fill(0).map(() => `
+          <div class="skeleton-card-v2">
+            <div class="skeleton-img-v2"></div>
+            <div class="skeleton-body-v2">
+              <div class="skeleton-line title"></div>
+              <div class="skeleton-line price"></div>
+              <div class="skeleton-line meta"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  // ── Load Listings ─────────────────────────────────────────
+  async function loadListings() {
+    if (isLoading) return;
+    isLoading = true;
+
+    const grid = document.getElementById('listings-grid');
+    const pag = document.getElementById('pagination');
+
+    // Show skeleton on first load, fade on subsequent
+    if (!grid.innerHTML.includes('listing-card')) {
+      grid.innerHTML = renderSkeletonGrid(8);
+    } else {
+      grid.classList.add('is-loading');
+    }
+
+    try {
+      const params = buildFilters();
+      const res = await ListingsAPI.search(params);
+      document.getElementById('result-count').textContent = `${res.pagination.total.toLocaleString('fr-DZ')} annonce${res.pagination.total > 1 ? 's' : ''} trouvée${res.pagination.total > 1 ? 's' : ''}`;
+
+      grid.classList.remove('is-loading');
+
+      if (!res.data.length) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <i class="fas fa-search" style="font-size:3rem;color:var(--gray-300)"></i>
+            <p style="font-size:1.1rem;font-weight:600;margin-top:12px">Aucune annonce trouvée</p>
+            <p style="font-size:13px;color:var(--gray-500);margin-top:4px">Essayez d'élargir vos critères de recherche.</p>
+            <button class="btn btn-outline-orange mt-3" onclick="resetFilters()">
+              <i class="fas fa-undo"></i> Réinitialiser les filtres
+            </button>
+          </div>`;
+        pag.innerHTML = '';
+        isLoading = false;
+        return;
+      }
+
+      grid.innerHTML = res.data.map((l, i) => renderListingCard(l)).join('');
+      renderPagination(res.pagination);
+
+      // Re-init card animations
+      setTimeout(() => { if (window.initListingCards) window.initListingCards(); }, 50);
+
+    } catch (err) {
+      grid.classList.remove('is-loading');
+      console.error('Erreur chargement annonces:', err);
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <i class="fas fa-exclamation-circle" style="font-size:3rem;color:var(--red)"></i>
+          <p style="font-size:1.1rem;font-weight:600;margin-top:12px">Erreur de chargement</p>
+          <p style="font-size:13px;color:var(--gray-500);margin-top:4px">Impossible de récupérer les annonces. Vérifiez votre connexion.</p>
+          <button class="btn btn-orange mt-3" onclick="loadListings()">
+            <i class="fas fa-redo"></i> Réessayer
+          </button>
+        </div>`;
+      pag.innerHTML = '';
+    }
+
+    isLoading = false;
+  }
+
+  // ── Pagination ────────────────────────────────────────────
+  function renderPagination({ page, pages, total }) {
+    const pag = document.getElementById('pagination');
+    if (pages <= 1) { pag.innerHTML = ''; return; }
+
+    let html = '';
+    // Prev
+    if (page > 1) {
+      html += `<a href="#" onclick="goPage(${page-1});return false" aria-label="Page précédente"><i class="fas fa-chevron-left"></i></a>`;
+    } else {
+      html += `<span class="disabled" aria-disabled="true"><i class="fas fa-chevron-left"></i></span>`;
+    }
+
+    // First page + ellipsis
+    if (page > 3) {
+      html += `<a href="#" onclick="goPage(1);return false">1</a>`;
+      if (page > 4) html += `<span class="dots">…</span>`;
+    }
+
+    // Window around current
+    for (let p = Math.max(1, page-2); p <= Math.min(pages, page+2); p++) {
+      if (p === page) {
+        html += `<span class="active" aria-current="page">${p}</span>`;
+      } else {
+        html += `<a href="#" onclick="goPage(${p});return false">${p}</a>`;
+      }
+    }
+
+    // Last page + ellipsis
+    if (page < pages - 2) {
+      if (page < pages - 3) html += `<span class="dots">…</span>`;
+      html += `<a href="#" onclick="goPage(${pages});return false">${pages}</a>`;
+    }
+
+    // Next
+    if (page < pages) {
+      html += `<a href="#" onclick="goPage(${page+1});return false" aria-label="Page suivante"><i class="fas fa-chevron-right"></i></a>`;
+    } else {
+      html += `<span class="disabled" aria-disabled="true"><i class="fas fa-chevron-right"></i></span>`;
+    }
+
+    pag.innerHTML = html;
+  }
+
+  function goPage(p) {
+    currentPage = p;
+    const filters = buildFilters();
+    syncFiltersToURL(filters);
+    loadListings();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Mobile Filters ────────────────────────────────────────
+  function toggleMobileFilters() {
+    const sidebar = document.getElementById('filter-sidebar');
+    const overlay = document.getElementById('filter-overlay');
+    const isOpen = sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('active', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  // ── Alert ─────────────────────────────────────────────────
+  function saveSearchAlert() {
+    if (!Auth.isLoggedIn()) { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.href); return; }
+    const label = currentCat ? currentCat.name_fr : 'Recherche';
+    document.getElementById('alert-label').value = label;
+    openModal('alert-modal');
+  }
+
+  async function confirmSaveAlert() {
+    const label       = document.getElementById('alert-label').value.trim();
+    const notifyEmail = document.getElementById('alert-email').checked;
+    const filters = buildFilters();
+    delete filters.page; delete filters.limit; delete filters.sort;
+    try {
+      await AlertsAPI.create({ label: label || 'Mon alerte', filters, notify_email: notifyEmail });
+      closeModal('alert-modal');
+      showToast('Alerte créée ! Vous serez notifié par email.', 'success');
+    } catch {
+      showToast('Erreur lors de la création de l\'alerte.', 'error');
+    }
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  async function init() {
+    // Category from URL
+    const slug = urlParams.get('slug') || urlParams.get('category');
+    if (slug) {
+      try {
+        currentCat = await CategoriesAPI.get(slug);
+        document.getElementById('page-title').textContent = currentCat.name_fr;
+        document.getElementById('page-title-bc').textContent = currentCat.name_fr;
+        document.title = `${currentCat.name_fr} — Pro Market Algérie`;
+
+        if (currentCat.filters?.length) {
+          const dynEl = document.getElementById('dynamic-filters');
+          dynEl.innerHTML = currentCat.filters.map(f => {
+            if (f.type === 'select') {
+              return `<div class="filter-group">
+                <label>${escapeHtml(f.label_fr)}</label>
+                <select class="form-control" data-attr-key="${f.key}" onchange="applyFilters()">
+                  <option value="">Tous</option>
+                  ${f.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}
+                </select></div>`;
+            } else if (f.type === 'number') {
+              return `<div class="filter-group">
+                <label>${escapeHtml(f.label_fr)}</label>
+                <input type="number" class="form-control" data-attr-key="${f.key}" placeholder="${escapeHtml(f.label_fr)}" oninput="debounceFilter()">
+              </div>`;
+            } else if (f.type === 'boolean') {
+              return `<div class="filter-group">
+                <label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer">
+                  <input type="checkbox" data-attr-key="${f.key}" onchange="applyFilters()">
+                  ${escapeHtml(f.label_fr)}
+                </label></div>`;
+            }
+            return `<div class="filter-group">
+              <label>${escapeHtml(f.label_fr)}</label>
+              <input type="text" class="form-control" data-attr-key="${f.key}" placeholder="${escapeHtml(f.label_fr)}" oninput="debounceFilter()">
+            </div>`;
+          }).join('');
+        }
+      } catch {}
+    }
+
+    // Apply URL filters to inputs
+    applyURLFiltersToInputs();
+
+    // Update chips
+    renderActiveChips(buildFilters());
+
+    // Load listings
+    loadListings();
+
+    // Watch search input for clear button
+    document.getElementById('f-q')?.addEventListener('input', updateClearButtons);
+  }
+
+  init();
+</script>
+</body>
+</html>
+

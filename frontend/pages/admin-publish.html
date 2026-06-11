@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publier une annonce — Admin Pro Market</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+  <style>
+    /* ========== FIX VIBRAGE SUBMIT-BAR — Approche radicale ========== */
+    
+    /* 1. Désactiver TOUTES les animations/transforms globales sur cette page */
+    .page-wrapper {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    /* 2. Le header NE DOIT PAS bouger/animer sur cette page */
+    .site-header {
+      transition: none !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    .site-header.scrolled,
+    .site-header.hidden {
+      transform: none !important;
+      transition: none !important;
+    }
+    
+    /* 3. La preview panel ne doit pas être sticky (évite les recalculs de layers) */
+    .preview-panel {
+      position: static !important;
+      align-self: flex-start;
+    }
+    
+    /* 4. Wrapper fixed isolé du flux — ANCÊTRE SANS TRANSFORM */
+    .submit-bar-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      /* PAS de transform ici — transform sur ancêtre = fixed cassé */
+    }
+    
+    .submit-bar {
+      background: #fff;
+      border-top: 1px solid var(--gray-200);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+      /* PAS de position ici — c'est le wrap qui est fixed */
+      /* PAS de transform ici non plus */
+    }
+    
+    /* 5. Boutons de la barre : transitions très restreintes, pas de transform */
+    .submit-bar .btn {
+      transition-property: background-color, color, border-color, box-shadow, opacity !important;
+      transition-duration: 0.15s !important;
+      transform: none !important;
+    }
+    
+    .submit-bar .btn:active {
+      opacity: 0.85 !important;
+      transform: none !important;
+    }
+    
+    .submit-bar .btn::before {
+      display: none !important;
+    }
+    
+    .submit-bar .info {
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+    
+    .submit-bar .info strong {
+      color: var(--dark);
+    }
+    
+    .publish-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      align-items: start;
+    }
+    
+    @media (max-width: 1024px) {
+      .publish-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .publish-form {
+      background: #fff;
+      border-radius: var(--r-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .publish-form h2 {
+      font-size: 1.3rem;
+      margin-bottom: 24px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-divider {
+      height: 1px;
+      background: var(--gray-200);
+      margin: 24px 0;
+    }
+    
+    .form-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .form-section-title i {
+      color: var(--orange);
+    }
+    
+    .preview-panel {
+      background: #fff;
+      border-radius: var(--r-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 24px;
+    }
+    
+    .preview-panel h3 {
+      font-size: 1rem;
+      margin-bottom: 16px;
+      color: var(--dark);
+    }
+    
+    .preview-card {
+      border: 2px solid var(--gray-200);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .preview-card:hover {
+      border-color: var(--orange);
+    }
+    
+    .preview-img {
+      height: 200px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      font-size: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .preview-img img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 10px 0;
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .preview-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--gray-300);
+      background: #fff;
+      color: var(--dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .preview-nav-btn:hover {
+      background: var(--orange);
+      color: #fff;
+      border-color: var(--orange);
+    }
+
+    .preview-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #fff;
+      color: var(--gray-400);
+      border-color: var(--gray-200);
+    }
+
+    .preview-counter {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-600);
+      min-width: 50px;
+      text-align: center;
+    }
+    
+    .preview-body {
+      padding: 16px;
+    }
+    
+    .preview-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--dark);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    
+    .preview-price {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+    
+    .preview-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+    
+    .upload-zone-v2 {
+      border: 2px dashed var(--gray-300);
+      border-radius: var(--r-lg);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--gray-50);
+    }
+    
+    .upload-zone-v2:hover {
+      border-color: var(--orange);
+      background: rgba(242, 101, 34, 0.02);
+    }
+    
+    .upload-zone-v2.has-files {
+      border-color: var(--green);
+      background: rgba(16, 185, 129, 0.02);
+    }
+    
+    .upload-zone-v2 i {
+      font-size: 2.5rem;
+      color: var(--gray-400);
+      margin-bottom: 12px;
+      transition: color 0.3s ease;
+    }
+    
+    .upload-zone-v2:hover i {
+      color: var(--orange);
+    }
+    
+    .upload-previews {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    .upload-preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      border: 2px solid var(--gray-200);
+    }
+    
+    .upload-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .upload-preview-item .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .upload-preview-item:hover .remove-btn {
+      opacity: 1;
+    }
+    
+    .upload-preview-item:first-child::after {
+      content: 'Couverture';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 8px 4px 4px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+    
+    .success-overlay.active {
+      display: flex;
+    }
+    
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 3rem;
+      margin-bottom: 24px;
+      animation: success-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    @keyframes success-pop {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    
+    .opt-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 12px 16px;
+      background: var(--gray-100);
+      border-radius: var(--r-md);
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .opt-label:hover {
+      border-color: var(--orange);
+    }
+    
+    .quick-actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-wrapper" style="padding-bottom: 80px;">
+<div class="container" style="padding: 32px 16px">
+
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+    <div style="font-size:2rem;color:var(--orange)"><i class="fas fa-bullhorn"></i></div>
+    <div>
+      <h1 style="font-size:1.5rem">Publier une annonce</h1>
+      <span style="font-size:13px;color:var(--gray-600)">Créez et publiez une annonce pour un client</span>
+    </div>
+    <div style="margin-left:auto">
+      <a href="admin.html" class="btn btn-ghost btn-sm">
+        <i class="fas fa-arrow-left"></i> Retour au back-office
+      </a>
+    </div>
+  </div>
+
+  <div class="publish-layout">
+    <!-- FORM -->
+    <div class="publish-form">
+      <h2><i class="fas fa-edit" style="color:var(--orange)"></i> Informations de l'annonce</h2>
+      
+      <form id="publish-form">
+        <!-- Client Info -->
+        <div class="form-section-title"><i class="fas fa-user"></i> Informations client (WhatsApp)</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nom du client <span class="required">*</span></label>
+            <input type="text" id="client-name" class="form-control" placeholder="Prénom NOM" required>
+          </div>
+          <div class="form-group">
+            <label>Téléphone WhatsApp <span class="required">*</span></label>
+            <input type="tel" id="client-phone" class="form-control" placeholder="+213 5XX XXX XXX" required>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Category -->
+        <div class="form-section-title"><i class="fas fa-folder"></i> Classification</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Rubrique <span class="required">*</span></label>
+            <select id="category" class="form-control" required>
+              <option value="">Sélectionnez une rubrique…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Wilaya <span class="required">*</span></label>
+            <select id="wilaya" class="form-control" required>
+              <option value="">Sélectionnez…</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Content -->
+        <div class="form-section-title"><i class="fas fa-align-left"></i> Contenu de l'annonce</div>
+        <div class="form-group">
+          <label>Titre de l'annonce <span class="required">*</span></label>
+          <input type="text" id="title" class="form-control" placeholder="Ex: Pelle hydraulique Caterpillar 320 — 2019 — 4500h" maxlength="300" required>
+          <div class="form-text">Soyez précis : marque, modèle, année, état</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Marque / Fabricant</label>
+            <input type="text" id="brand" class="form-control" placeholder="Caterpillar, Komatsu, Mercedes…">
+          </div>
+          <div class="form-group">
+            <label>Année de fabrication</label>
+            <input type="number" id="year" class="form-control" min="1950" max="2030" placeholder="Ex: 2019">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>État <span class="required">*</span></label>
+            <select id="condition" class="form-control" required>
+              <option value="">Sélectionnez…</option>
+              <option value="new">Neuf</option>
+              <option value="excellent">Très bon état</option>
+              <option value="good">Bon état</option>
+              <option value="fair">État correct</option>
+              <option value="for_parts">Pour pièces</option>
+            </select>
+          </div>
+         
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prix</label>
+            <input type="number" id="price" class="form-control" min="0" placeholder="0">
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">
+              <input type="checkbox" id="price-contact" style="width:18px;height:18px">
+              <span>Prix sur contact</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description détaillée</label>
+          <textarea id="description" class="form-control" rows="5" placeholder="Décrivez l'équipement, son état, son historique, les raisons de la vente…"></textarea>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Photos -->
+        <div class="form-section-title"><i class="fas fa-camera"></i> Photos (max 10)</div>
+        <input type="file" id="file-input" accept="image/*" multiple style="display:none">
+        <label for="file-input" class="upload-zone-v2" id="upload-zone" style="display:block;cursor:pointer;width:100%">
+          <div id="upload-zone-content">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p style="font-weight:600;color:var(--dark);margin-bottom:4px">Cliquez ou glissez vos photos ici</p>
+            <p style="font-size:13px;color:var(--gray-600)">JPEG, PNG, WebP — Max 10 Mo par photo</p>
+          </div>
+        </label>
+        <div class="upload-previews" id="upload-previews"></div>
+
+        <div class="section-divider"></div>
+
+      </form>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-panel">
+      <h3><i class="fas fa-eye" style="color:var(--blue)"></i> Aperçu</h3>
+      <div class="preview-card" id="preview-card">
+        <div class="preview-img" id="preview-img">
+          <i class="fas fa-image"></i>
+        </div>
+        <div class="preview-nav" id="preview-nav" style="display:none">
+          <button type="button" class="preview-nav-btn prev" id="preview-prev"><i class="fas fa-chevron-left"></i></button>
+          <span class="preview-counter" id="preview-counter">1 / 1</span>
+          <button type="button" class="preview-nav-btn next" id="preview-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="preview-body">
+          <div class="preview-title" id="preview-title">Titre de l'annonce</div>
+          <div class="preview-price" id="preview-price">Prix sur contact</div>
+          <div class="preview-meta">
+            <span id="preview-wilaya"><i class="fas fa-map-marker-alt"></i> Wilaya</span>
+            <span id="preview-condition"><i class="fas fa-star"></i> État</span>
+            <span id="preview-year"><i class="fas fa-calendar"></i> Année</span>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top:20px;padding:16px;background:var(--gray-100);border-radius:var(--r-md)">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-600);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Contact vendeur</div>
+        <div style="font-size:14px;color:var(--dark);font-weight:600" id="preview-seller">Nom du client</div>
+        <div style="font-size:13px;color:var(--gray-600)" id="preview-phone">+213 5XX XXX XXX</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Submit Bar -->
+<div class="submit-bar-wrap">
+  <div class="submit-bar">
+    <div class="info">
+      <i class="fas fa-info-circle" style="color:var(--blue)"></i>
+      L'annonce sera publiée <strong>immédiatement</strong> sans modération
+    </div>
+    <div style="display:flex;gap:12px">
+      <button type="button" class="btn btn-ghost" id="reset-btn">
+        <i class="fas fa-undo"></i> Réinitialiser
+      </button>
+      <button type="button" class="btn btn-orange btn-lg" id="publish-btn">
+        <span id="btn-text"><i class="fas fa-paper-plane"></i> Publier l'annonce</span>
+        <div class="spinner" id="btn-spinner" style="display:none;width:20px;height:20px;border-width:2px"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Overlay -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-icon">
+    <i class="fas fa-check"></i>
+  </div>
+  <h2 style="color:var(--green);font-size:1.8rem;margin-bottom:12px">Annonce publiée !</h2>
+  <p style="color:var(--gray-600);margin-bottom:8px;max-width:400px">L'annonce est maintenant en ligne et visible par tous les visiteurs.</p>
+  <div id="success-link" style="margin-bottom:32px"></div>
+  <div class="quick-actions" style="max-width:400px;width:100%">
+    <button id="new-listing-btn" class="btn btn-orange">
+      <i class="fas fa-plus"></i> Nouvelle annonce
+    </button>
+    <a href="admin.html" class="btn btn-blue">
+      <i class="fas fa-shield-alt"></i> Back-office
+    </a>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  // Guard — admin only
+  const user = Auth.getUser();
+  if (!Auth.isLoggedIn() || user?.role !== 'admin') {
+    window.location.href = 'login.html';
+  }
+
+  let selectedFiles = [];
+  let createdListingId = null;
+  let previewDataUrls = [];
+  let currentPreviewIndex = 0;
+
+  function updatePreviewImage() {
+    const previewImg = document.getElementById('preview-img');
+    const previewNav = document.getElementById('preview-nav');
+    const previewCounter = document.getElementById('preview-counter');
+    const previewPrev = document.getElementById('preview-prev');
+    const previewNext = document.getElementById('preview-next');
+
+    if (previewDataUrls.length === 0) {
+      previewImg.innerHTML = '<i class="fas fa-image"></i>';
+      previewNav.style.display = 'none';
+      return;
+    }
+
+    // Clamp index
+    currentPreviewIndex = Math.max(0, Math.min(currentPreviewIndex, previewDataUrls.length - 1));
+
+    previewImg.innerHTML = `<img src="${previewDataUrls[currentPreviewIndex]}" alt="">`;
+    previewNav.style.display = 'flex';
+    previewCounter.textContent = `${currentPreviewIndex + 1} / ${previewDataUrls.length}`;
+    previewPrev.disabled = currentPreviewIndex === 0;
+    previewNext.disabled = currentPreviewIndex === previewDataUrls.length - 1;
+  }
+
+  // ── CATEGORIES STATIQUES (13 rubriques) ─────────────────────
+  const STATIC_CATS = [
+    { id: 1, name_fr: 'Industrie & Usines' },
+    { id: 2, name_fr: 'Restauration & Hôtellerie' },
+    { id: 3, name_fr: 'Commerce & Services' },
+    { id: 4, name_fr: 'Santé & Médical' },
+    { id: 5, name_fr: 'Agriculture & Pêche' },
+    { id: 6, name_fr: 'Construction & BTP' },
+    { id: 7, name_fr: 'Transport & Logistique' },
+    { id: 8, name_fr: 'Informatique & Électronique' },
+    { id: 9, name_fr: 'Évènementiel & Loisirs' },
+    { id: 10, name_fr: 'Divers Pro & Fonds de Commerce' },
+    { id: 11, name_fr: 'Sport et Loisir' },
+    { id: 12, name_fr: 'Beauté, Esthétique & Soins' },
+    { id: 13, name_fr: 'Divers Équipement Professionnel' }
+  ];
+
+  // ── WILAYAS STATIQUES (58 wilayas) ──────────────────────────
+  const STATIC_WILAYAS = [
+    { id: 1, name_fr: 'Adrar' },
+    { id: 2, name_fr: 'Chlef' },
+    { id: 3, name_fr: 'Laghouat' },
+    { id: 4, name_fr: 'Oum El Bouaghi' },
+    { id: 5, name_fr: 'Batna' },
+    { id: 6, name_fr: 'Béjaïa' },
+    { id: 7, name_fr: 'Biskra' },
+    { id: 8, name_fr: 'Béchar' },
+    { id: 9, name_fr: 'Blida' },
+    { id: 10, name_fr: 'Bouira' },
+    { id: 11, name_fr: 'Tamanrasset' },
+    { id: 12, name_fr: 'Tébessa' },
+    { id: 13, name_fr: 'Tlemcen' },
+    { id: 14, name_fr: 'Tiaret' },
+    { id: 15, name_fr: 'Tizi Ouzou' },
+    { id: 16, name_fr: 'Alger' },
+    { id: 17, name_fr: 'Djelfa' },
+    { id: 18, name_fr: 'Jijel' },
+    { id: 19, name_fr: 'Sétif' },
+    { id: 20, name_fr: 'Saïda' },
+    { id: 21, name_fr: 'Skikda' },
+    { id: 22, name_fr: 'Sidi Bel Abbès' },
+    { id: 23, name_fr: 'Annaba' },
+    { id: 24, name_fr: 'Guelma' },
+    { id: 25, name_fr: 'Constantine' },
+    { id: 26, name_fr: 'Médéa' },
+    { id: 27, name_fr: 'Mostaganem' },
+    { id: 28, name_fr: "M'Sila" },
+    { id: 29, name_fr: 'Mascara' },
+    { id: 30, name_fr: 'Ouargla' },
+    { id: 31, name_fr: 'Oran' },
+    { id: 32, name_fr: 'El Bayadh' },
+    { id: 33, name_fr: 'Illizi' },
+    { id: 34, name_fr: 'Bordj Bou Arréridj' },
+    { id: 35, name_fr: 'Boumerdès' },
+    { id: 36, name_fr: 'El Tarf' },
+    { id: 37, name_fr: 'Tindouf' },
+    { id: 38, name_fr: 'Tissemsilt' },
+    { id: 39, name_fr: 'El Oued' },
+    { id: 40, name_fr: 'Khenchela' },
+    { id: 41, name_fr: 'Souk Ahras' },
+    { id: 42, name_fr: 'Tipaza' },
+    { id: 43, name_fr: 'Mila' },
+    { id: 44, name_fr: 'Aïn Defla' },
+    { id: 45, name_fr: 'Naâma' },
+    { id: 46, name_fr: 'Aïn Témouchent' },
+    { id: 47, name_fr: 'Ghardaïa' },
+    { id: 48, name_fr: 'Relizane' },
+    { id: 49, name_fr: "El M'ghair" },
+    { id: 50, name_fr: 'El Meniaa' },
+    { id: 51, name_fr: 'Ouled Djellal' },
+    { id: 52, name_fr: 'Bordj Baji Mokhtar' },
+    { id: 53, name_fr: 'Béni Abbès' },
+    { id: 54, name_fr: 'Timimoun' },
+    { id: 55, name_fr: 'Touggourt' },
+    { id: 56, name_fr: 'Djanet' },
+    { id: 57, name_fr: 'In Salah' },
+    { id: 58, name_fr: 'In Guezzam' }
+  ];
+
+  // Remplir les sélecteurs
+  const catSel = document.getElementById('category');
+  STATIC_CATS.forEach(c => {
+    catSel.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.id} - ${c.name_fr}</option>`);
+  });
+
+  const wilSel = document.getElementById('wilaya');
+  STATIC_WILAYAS.forEach(w => {
+    wilSel.insertAdjacentHTML('beforeend', `<option value="${w.id}">${w.id} - ${w.name_fr}</option>`);
+  });
+
+  // Live preview updates
+  document.getElementById('title').addEventListener('input', updatePreview);
+  document.getElementById('price').addEventListener('input', updatePreview);
+  const currencyEl = document.getElementById('currency');
+  if (currencyEl) currencyEl.addEventListener('change', updatePreview);
+  const priceContactEl = document.getElementById('price-contact');
+  if (priceContactEl) priceContactEl.addEventListener('change', updatePreview);
+  document.getElementById('wilaya').addEventListener('change', updatePreview);
+  document.getElementById('condition').addEventListener('change', updatePreview);
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.addEventListener('input', updatePreview);
+  document.getElementById('client-name').addEventListener('input', updatePreview);
+  document.getElementById('client-phone').addEventListener('input', updatePreview);
+
+  function updatePreview() {
+    const title = document.getElementById('title').value || 'Titre de l\'annonce';
+    const price = document.getElementById('price').value;
+    const currency = document.getElementById('currency')?.value || 'DZD';
+    const priceContact = document.getElementById('price-contact')?.checked || false;
+    const wilaya = document.getElementById('wilaya');
+    const wilayaText = wilaya.options[wilaya.selectedIndex]?.text?.split(' - ')[1] || 'Wilaya';
+    const condition = document.getElementById('condition');
+    const conditionText = condition.options[condition.selectedIndex]?.text || 'État';
+    const year = document.getElementById('year')?.value || '';
+    const clientName = document.getElementById('client-name').value || 'Nom du client';
+    const clientPhone = document.getElementById('client-phone').value || '+213 5XX XXX XXX';
+
+    document.getElementById('preview-title').textContent = title;
+    document.getElementById('preview-price').textContent = priceContact ? 'Prix sur contact' : (price ? new Intl.NumberFormat('fr-DZ').format(price) + ' ' + currency : 'Prix non précisé');
+    document.getElementById('preview-wilaya').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${wilayaText}`;
+    document.getElementById('preview-condition').innerHTML = `<i class="fas fa-star"></i> ${conditionText}`;
+    document.getElementById('preview-year').style.display = year ? '' : 'none';
+    document.getElementById('preview-year').innerHTML = `<i class="fas fa-calendar"></i> ${year}`;
+    document.getElementById('preview-seller').textContent = clientName;
+    document.getElementById('preview-phone').textContent = clientPhone;
+  }
+
+  // File upload
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const uploadPreviews = document.getElementById('upload-previews');
+  
+  fileInput.addEventListener('change', handleFiles);
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--orange)'; });
+  uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = ''; });
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.style.borderColor = '';
+    handleFiles({ target: { files: e.dataTransfer.files } });
+  });
+  
+  // Delegate remove clicks
+  uploadPreviews.addEventListener('click', e => {
+    const btn = e.target.closest('.remove-btn');
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.idx, 10);
+    if (!isNaN(idx)) removeFile(idx);
+  });
+
+  function handleFiles(e) {
+    const files = Array.from(e.target.files);
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    
+    files.forEach(f => {
+      if (!allowed.includes(f.type)) { showToast(`${f.name} — format non supporté`, 'warning'); return; }
+      if (f.size > 10 * 1024 * 1024) { showToast(`${f.name} — trop volumineux`, 'warning'); return; }
+      if (selectedFiles.length >= 10) { showToast('Maximum 10 photos', 'warning'); return; }
+      
+      selectedFiles.push(f);
+      const idx = selectedFiles.length - 1;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        previewDataUrls.push(dataUrl);
+        currentPreviewIndex = previewDataUrls.length - 1;
+
+        const div = document.createElement('div');
+        div.className = 'upload-preview-item';
+        div.id = `preview-${idx}`;
+        div.innerHTML = `
+          <img src="${dataUrl}" alt="">
+          <button type="button" class="remove-btn" data-idx="${idx}"><i class="fas fa-times"></i></button>
+        `;
+        uploadPreviews.appendChild(div);
+        updatePreviewImage();
+      };
+      reader.onerror = () => {
+        showToast(`Erreur de lecture: ${f.name}`, 'error');
+        selectedFiles.splice(idx, 1);
+      };
+      reader.readAsDataURL(f);
+    });
+    
+    if (selectedFiles.length > 0) {
+      uploadZone.classList.add('has-files');
+      document.getElementById('upload-zone-content').innerHTML = `
+        <i class="fas fa-check-circle" style="color:var(--green)"></i>
+        <p style="font-weight:600;color:var(--dark)">${selectedFiles.length} photo(s) sélectionnée(s)</p>
+        <p style="font-size:13px;color:var(--gray-600)">Cliquez pour ajouter d'autres photos</p>
+      `;
+    }
+    
+    // Reset input to allow re-selecting same files
+    document.getElementById('file-input').value = '';
+  }
+
+  function removeFile(idx) {
+    // Remove from arrays
+    selectedFiles.splice(idx, 1);
+    previewDataUrls.splice(idx, 1);
+    
+    // Adjust current index if needed
+    if (currentPreviewIndex >= previewDataUrls.length) {
+      currentPreviewIndex = Math.max(0, previewDataUrls.length - 1);
+    }
+    
+    // Re-render thumbnails (simpler than trying to patch IDs)
+    uploadPreviews.innerHTML = '';
+    selectedFiles.forEach((f, i) => {
+      const div = document.createElement('div');
+      div.className = 'upload-preview-item';
+      div.id = `preview-${i}`;
+      div.innerHTML = `
+        <img src="${previewDataUrls[i]}" alt="">
+        <button type="button" class="remove-btn" data-idx="${i}"><i class="fas fa-times"></i></button>
+      `;
+      uploadPreviews.appendChild(div);
+    });
+    
+    if (selectedFiles.length === 0) {
+      uploadZone.classList.remove('has-files');
+      document.getElementById('upload-zone-content').innerHTML = `
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p style="font-weight:600;color:var(--dark);margin-bottom:4px">Cliquez ou glissez vos photos ici</p>
+        <p style="font-size:13px;color:var(--gray-600)">JPEG, PNG, WebP — Max 10 Mo par photo</p>
+      `;
+    }
+    
+    updatePreviewImage();
+  }
+
+  async function publishListing() {
+    const btn = document.getElementById('publish-btn');
+    const spinner = document.getElementById('btn-spinner');
+    const btnText = document.getElementById('btn-text');
+    
+    // Validation
+    const required = ['client-name', 'client-phone', 'category', 'wilaya', 'title', 'condition'];
+    let valid = true;
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.style.borderColor = 'var(--red)';
+        valid = false;
+        setTimeout(() => el.style.borderColor = '', 2000);
+      }
+    });
+    
+    if (!valid) {
+      showToast('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+    
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    btnText.style.display = 'none';
+    
+    const priceContactEl = document.getElementById('price-contact');
+    const priceContact = priceContactEl ? priceContactEl.checked : false;
+    const currencyEl = document.getElementById('currency');
+    const yearEl = document.getElementById('year');
+    const body = {
+      category_id: parseInt(document.getElementById('category').value),
+      title_fr: document.getElementById('title').value.trim(),
+      price: parseFloat(document.getElementById('price').value) || 0,
+      currency: currencyEl ? currencyEl.value : 'DZD',
+      wilaya_id: parseInt(document.getElementById('wilaya').value),
+      brand: document.getElementById('brand').value.trim() || undefined,
+      year: yearEl ? (parseInt(yearEl.value) || undefined) : undefined,
+      condition: document.getElementById('condition').value,
+      description_fr: document.getElementById('description').value.trim() || undefined,
+      seller_name: document.getElementById('client-name').value.trim(),
+      seller_phone: document.getElementById('client-phone').value.trim(),
+      is_premium: false,
+      is_boosted: false,
+      is_carousel: false,
+    };
+    
+    try {
+      const created = await AdminAPI.createListing(body);
+      createdListingId = created.id;
+      
+      // Upload photos if any
+      if (selectedFiles.length) {
+        const fd = new FormData();
+        selectedFiles.forEach(f => fd.append('images', f));
+        await MediaAPI.upload(createdListingId, fd);
+      }
+      
+      // Show success
+      const link = `listing-detail.html?id=${createdListingId}`;
+      document.getElementById('success-link').innerHTML = `
+        <a href="${link}" target="_blank" class="btn btn-ghost btn-sm">
+          <i class="fas fa-external-link-alt"></i> Voir l'annonce publiée
+        </a>
+      `;
+      document.getElementById('success-overlay').classList.add('active');
+      
+    } catch (err) {
+      const msg = err.errors ? err.errors.map(e => e.msg).join(', ') : (err.error || 'Erreur lors de la publication.');
+      showToast(msg, 'error');
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.style.display = 'inline-flex';
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('publish-form').reset();
+    selectedFiles = [];
+    previewDataUrls = [];
+    currentPreviewIndex = 0;
+    document.getElementById('upload-previews').innerHTML = '';
+    updatePreviewImage();
+    updatePreview();
+    
+    const uploadZone = document.getElementById('upload-zone');
+    uploadZone.classList.remove('has-files');
+    document.getElementById('upload-zone-content').innerHTML = `
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p style="font-weight:600;color:var(--dark);margin-bottom:4px">Cliquez ou glissez vos photos ici</p>
+      <p style="font-size:13px;color:var(--gray-600)">JPEG, PNG, WebP — Max 10 Mo par photo</p>
+    `;
+  }
+
+  function newListing() {
+    document.getElementById('success-overlay').classList.remove('active');
+    resetForm();
+    const btn = document.getElementById('publish-btn');
+    const spinner = document.getElementById('btn-spinner');
+    const btnText = document.getElementById('btn-text');
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    btnText.style.display = 'inline-flex';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Event listeners for static buttons (CSP-safe)
+  document.getElementById('reset-btn').addEventListener('click', resetForm);
+  document.getElementById('publish-btn').addEventListener('click', publishListing);
+  document.getElementById('new-listing-btn').addEventListener('click', newListing);
+  
+  // Preview carousel navigation
+  document.getElementById('preview-prev').addEventListener('click', () => {
+    if (currentPreviewIndex > 0) {
+      currentPreviewIndex--;
+      updatePreviewImage();
+    }
+  });
+  document.getElementById('preview-next').addEventListener('click', () => {
+    if (currentPreviewIndex < previewDataUrls.length - 1) {
+      currentPreviewIndex++;
+      updatePreviewImage();
+    }
+  });
+  
+  // Init preview
+  updatePreview();
+</script>
+</body>
+</html>
+

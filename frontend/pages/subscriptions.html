@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Packs & Abonnements — Pro Market Algérie</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-wrapper">
+
+<div class="container" style="padding:40px 16px">
+  <div style="text-align:center;margin-bottom:40px">
+    <h1>Packs & Abonnements Professionnels</h1>
+    <p style="color:var(--gray-600);font-size:15px;max-width:600px;margin:10px auto 0">
+      Publiez plus d'annonces, boostez votre visibilité et obtenez votre badge <strong>"Vendeur Certifié"</strong>.
+      Paiement par CCP, CIB, ou Edahabia.
+    </p>
+  </div>
+
+  <!-- PACKS GRID -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;margin-bottom:48px" id="packs-grid">
+    <div style="text-align:center;padding:40px;grid-column:1/-1">
+      <div class="spinner" style="width:36px;height:36px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div>
+    </div>
+  </div>
+
+  <!-- ORDER FORM -->
+  <div id="order-section" style="display:none;max-width:580px;margin:0 auto">
+    <div class="form-card" style="margin:0">
+      <h2 style="color:var(--blue);margin-bottom:8px">Commander un pack</h2>
+      <p id="order-pack-summary" style="font-size:14px;color:var(--gray-600);margin-bottom:24px"></p>
+
+      <div class="form-group">
+        <label>Mode de paiement <span class="required">*</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="payment-methods">
+          <label class="payment-opt">
+            <input type="radio" name="payment" value="ccp"> CCP (Virement postal)
+          </label>
+          <label class="payment-opt">
+            <input type="radio" name="payment" value="cib"> CIB (Carte interbancaire)
+          </label>
+          <label class="payment-opt">
+            <input type="radio" name="payment" value="edahabia"> Edahabia
+          </label>
+          <label class="payment-opt">
+            <input type="radio" name="payment" value="cash"> Espèces (bureau Alger)
+          </label>
+        </div>
+      </div>
+
+      <div id="ccp-info" style="display:none;background:var(--gray-100);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px">
+        <strong>Compte CCP :</strong> 1234567890 / Clé 12 — Nom : Pro Market Algérie SARL<br>
+        Indiquez votre email en motif du virement.
+      </div>
+
+      <div class="form-group">
+        <label>Reçu de paiement (optionnel)</label>
+        <input type="file" id="receipt-file" class="form-control" accept="image/*,.pdf">
+        <div class="form-text">Photo ou scan du reçu pour accélérer la validation.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Notes (optionnel)</label>
+        <textarea id="order-notes" class="form-control" rows="2" placeholder="Numéro de virement, précisions…"></textarea>
+      </div>
+
+      <div id="order-error" class="error-msg" style="margin-bottom:12px;font-size:14px"></div>
+
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-ghost" onclick="cancelOrder()">Annuler</button>
+        <button class="btn btn-orange" onclick="submitOrder()">
+          <i class="fas fa-paper-plane"></i> Soumettre la commande
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOSTS SECTION -->
+  <div style="margin-top:60px">
+    <h2 style="text-align:center;margin-bottom:8px">Options de Boost</h2>
+    <p style="text-align:center;color:var(--gray-600);font-size:14px;margin-bottom:32px">Augmentez la visibilité d'une annonce spécifique</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px" id="boosts-grid">
+      <div style="text-align:center;padding:40px;grid-column:1/-1">
+        <div class="spinner" style="width:36px;height:36px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT INFO -->
+  <div style="margin-top:60px;background:#fff;border-radius:var(--radius-lg);padding:32px;box-shadow:var(--shadow-sm)">
+    <h2 style="margin-bottom:20px">Comment payer ?</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px">
+      <div>
+        <div style="font-size:1.5rem;color:var(--blue);margin-bottom:8px"><i class="fas fa-university"></i></div>
+        <h4>Virement CCP</h4>
+        <p style="font-size:13px;color:var(--gray-600)">Effectuez un virement vers notre compte CCP et envoyez le reçu avec votre commande.</p>
+      </div>
+      <div>
+        <div style="font-size:1.5rem;color:var(--blue);margin-bottom:8px"><i class="fas fa-credit-card"></i></div>
+        <h4>CIB / Edahabia</h4>
+        <p style="font-size:13px;color:var(--gray-600)">Paiement par carte interbancaire algérienne ou Edahabia.</p>
+      </div>
+      <div>
+        <div style="font-size:1.5rem;color:var(--blue);margin-bottom:8px"><i class="fas fa-check-circle"></i></div>
+        <h4>Activation rapide</h4>
+        <p style="font-size:13px;color:var(--gray-600)">Votre pack est activé sous 24h ouvrées après validation du paiement.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<style>
+.pack-card { background: #fff; border-radius: var(--radius-lg); padding: 28px; text-align: center;
+  border: 2px solid var(--gray-200); box-shadow: var(--shadow-sm); position: relative; }
+.pack-card.featured { border-color: var(--orange); transform: scale(1.03); }
+.pack-card .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--orange); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 16px; border-radius: 12px; }
+.pack-features li { padding: 5px 0; font-size: 14px; border-bottom: 1px solid var(--gray-200); list-style: none; }
+.pack-features li::before { content: '✓ '; color: var(--green); font-weight: 700; }
+.payment-opt { display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  border: 2px solid var(--gray-200); border-radius: var(--radius); cursor: pointer; font-size: 14px; }
+.payment-opt:hover, .payment-opt:has(input:checked) { border-color: var(--orange); background: rgba(242,101,34,.04); }
+</style>
+
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  let selectedPack = new URLSearchParams(location.search).get('pack') || '';
+
+  // Load packs
+  SubscriptionsAPI.packs().then(packs => {
+    const packOrder = ['free','starter_pro','business_pro','concessionnaire_elite'];
+    const packLabels = { free: 'Gratuit', starter_pro: 'Starter Pro', business_pro: 'Business Pro', concessionnaire_elite: 'Concessionnaire Élite' };
+    document.getElementById('packs-grid').innerHTML = packOrder.map((key, i) => {
+      const p = packs[key];
+      if (!p) return '';
+      const isFeatured = key === 'business_pro';
+      return `
+        <div class="pack-card ${isFeatured ? 'featured' : ''}">
+          ${isFeatured ? '<div class="popular-badge">⭐ Populaire</div>' : ''}
+          <div style="font-weight:800;font-size:15px;color:var(--blue);margin-bottom:12px">${packLabels[key]}</div>
+          <div style="font-size:2rem;font-weight:800;color:var(--orange)">${p.price_dzd ? p.price_dzd.toLocaleString('fr-DZ') + ' DZD' : 'Gratuit'}</div>
+          <div style="font-size:13px;color:var(--gray-600);margin-bottom:16px">${p.price_dzd ? '/ mois' : 'Pour toujours'}</div>
+          <ul class="pack-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul>
+          ${key !== 'free'
+            ? `<button class="btn btn-orange btn-block mt-3" onclick="selectPack('${key}','${packLabels[key]}',${p.price_dzd})">Choisir ce pack</button>`
+            : `<a href="#" onclick="window.open(getWhatsAppPublishUrl(), '_blank'); return false;" class="btn btn-ghost btn-block mt-3" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> Contacter via WhatsApp</a>`}
+        </div>`;
+    }).join('');
+
+    if (selectedPack) {
+      const p = packs[selectedPack];
+      if (p) selectPack(selectedPack, p.name, p.price_dzd);
+    }
+  });
+
+  // Load boosts
+  SubscriptionsAPI.boosts().then(boosts => {
+    const boostLabels = { top_list: 'Top de Liste', premium_badge: 'Badge Premium Orange', carousel: 'Carrousel Accueil' };
+    const boostIcons  = { top_list: 'fa-arrow-up', premium_badge: 'fa-star', carousel: 'fa-images' };
+    document.getElementById('boosts-grid').innerHTML = Object.entries(boosts).map(([key, b]) => `
+      <div style="background:#fff;border-radius:var(--radius-lg);padding:24px;text-align:center;border:2px solid var(--gray-200);box-shadow:var(--shadow-sm)">
+        <div style="font-size:2rem;color:var(--orange);margin-bottom:10px"><i class="fas ${boostIcons[key] || 'fa-bolt'}"></i></div>
+        <div style="font-weight:700;margin-bottom:6px">${b.name}</div>
+        <div style="font-size:1.3rem;font-weight:800;color:var(--orange)">${b.price_dzd.toLocaleString('fr-DZ')} DZD</div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:16px">${b.duration_days} jours</div>
+        <button class="btn btn-outline-orange btn-block btn-sm" onclick="orderBoost('${key}','${b.name}')">Commander</button>
+      </div>`).join('');
+  });
+
+  let orderPack = null;
+  function selectPack(key, name, price) {
+    if (!Auth.isLoggedIn()) { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.href); return; }
+    orderPack = key;
+    document.getElementById('order-pack-summary').innerHTML =
+      `Pack sélectionné : <strong>${name}</strong> — <strong style="color:var(--orange)">${price ? price.toLocaleString('fr-DZ') + ' DZD/mois' : 'Gratuit'}</strong>`;
+    document.getElementById('order-section').style.display = '';
+    document.getElementById('order-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function cancelOrder() {
+    document.getElementById('order-section').style.display = 'none';
+    orderPack = null;
+  }
+
+  document.querySelectorAll('input[name="payment"]').forEach(el => {
+    el.addEventListener('change', () => {
+      document.getElementById('ccp-info').style.display = el.value === 'ccp' ? '' : 'none';
+    });
+  });
+
+  async function submitOrder() {
+    const payment = document.querySelector('input[name="payment"]:checked')?.value;
+    if (!payment) { showToast('Choisissez un mode de paiement.', 'warning'); return; }
+    const errEl = document.getElementById('order-error');
+    errEl.classList.remove('show');
+    try {
+      const fd = new FormData();
+      fd.append('pack', orderPack);
+      fd.append('payment_method', payment);
+      const notes = document.getElementById('order-notes').value.trim();
+      if (notes) fd.append('notes', notes);
+      const receipt = document.getElementById('receipt-file').files[0];
+      if (receipt) fd.append('receipt', receipt);
+
+      const res = await SubscriptionsAPI.order(fd);
+      showToast(res.message, 'success');
+      cancelOrder();
+    } catch (err) {
+      errEl.textContent = err.error || 'Erreur lors de la commande.';
+      errEl.classList.add('show');
+    }
+  }
+
+  function orderBoost(boostType, name) {
+    if (!Auth.isLoggedIn()) { window.location.href = 'login.html'; return; }
+    const listingId = prompt('Entrez l\'ID de l\'annonce à booster :');
+    if (!listingId) return;
+    SubscriptionsAPI.boost({ listing_id: listingId, boost_type: boostType })
+      .then(r => showToast(r.message, 'success'))
+      .catch(e => showToast(e.error || 'Erreur.', 'error'));
+  }
+</script>
+</body>
+</html>
+

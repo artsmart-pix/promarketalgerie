@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Espace — Pro Market Algérie</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-wrapper">
+
+<div class="container">
+  <div class="dashboard-layout">
+    <!-- Sidebar Nav -->
+    <aside class="dashboard-sidebar">
+      <div class="user-info">
+        <img src="/assets/img/avatar-placeholder.svg" id="dash-avatar" class="user-avatar" alt="Avatar" onerror="this.src='/assets/img/avatar-placeholder.svg'">
+        <div id="dash-username" style="font-weight:700;font-size:15px">Chargement…</div>
+        <div id="dash-pack" style="margin-top:6px"></div>
+      </div>
+      <nav class="dashboard-nav">
+        <a href="#overview" class="active" onclick="showTab('overview',this)">
+          <i class="fas fa-tachometer-alt"></i> Tableau de bord
+        </a>
+        <a href="#listings" onclick="showTab('listings',this)">
+          <i class="fas fa-list-alt"></i> Mes annonces
+        </a>
+        <a href="#messages" onclick="showTab('messages',this)">
+          <i class="fas fa-comment-dots"></i> Messagerie <span id="nav-unread" style="background:var(--red);color:#fff;border-radius:10px;font-size:11px;padding:1px 6px;margin-left:4px;display:none">0</span>
+        </a>
+        <a href="#favorites" onclick="showTab('favorites',this)">
+          <i class="fas fa-heart"></i> Favoris
+        </a>
+        <a href="#alerts" onclick="showTab('alerts',this)">
+          <i class="fas fa-bell"></i> Alertes
+        </a>
+        <a href="#subscription" onclick="showTab('subscription',this)">
+          <i class="fas fa-crown"></i> Abonnement
+        </a>
+        <a href="#profile" onclick="showTab('profile',this)">
+          <i class="fas fa-user-cog"></i> Profil
+        </a>
+        <hr style="margin:12px 0;border-color:var(--gray-200)">
+        <a onclick="Auth.logout()" style="color:var(--red);cursor:pointer">
+          <i class="fas fa-sign-out-alt"></i> Déconnexion
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main content area -->
+    <main>
+
+      <!-- ── OVERVIEW ───────────────────────────────────────── -->
+      <div id="tab-overview">
+        <h2 style="margin-bottom:20px">Tableau de bord</h2>
+        <div class="stat-cards" id="stat-cards">
+          <div class="stat-card"><div class="stat-val" id="stat-listings">—</div><div class="stat-lbl">Annonces actives</div></div>
+          <div class="stat-card orange"><div class="stat-val" id="stat-views">—</div><div class="stat-lbl">Vues totales</div></div>
+          <div class="stat-card green"><div class="stat-val" id="stat-contacts">—</div><div class="stat-lbl">Contacts reçus</div></div>
+          <div class="stat-card red"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">En attente</div></div>
+        </div>
+
+        <div style="background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)">
+          <h3 style="margin-bottom:16px;color:var(--blue)">Mes dernières annonces</h3>
+          <div id="overview-listings">
+            <div style="text-align:center;padding:20px"><div class="spinner" style="width:28px;height:28px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+          </div>
+          <div style="text-align:right;margin-top:12px">
+            <a onclick="showTab('listings',null)" style="font-size:13px;color:var(--blue);cursor:pointer">Voir toutes mes annonces →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MY LISTINGS ────────────────────────────────────── -->
+      <div id="tab-listings" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <h2>Mes annonces</h2>
+        </div>
+        <div id="my-listings-content">
+          <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+        </div>
+      </div>
+
+      <!-- ── MESSAGES ───────────────────────────────────────── -->
+      <div id="tab-messages" style="display:none">
+        <h2 style="margin-bottom:20px">Messagerie</h2>
+        <div class="chat-layout" id="chat-layout">
+          <div class="conv-list" id="conv-list">
+            <div style="text-align:center;padding:30px"><div class="spinner" style="width:28px;height:28px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+          </div>
+          <div class="chat-window" id="chat-window">
+            <div style="display:flex;align-items:center;justify-content:center;flex:1;color:var(--gray-400)">
+              <div style="text-align:center">
+                <i class="fas fa-comment-dots" style="font-size:3rem;margin-bottom:12px"></i>
+                <p>Sélectionnez une conversation</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FAVORITES ──────────────────────────────────────── -->
+      <div id="tab-favorites" style="display:none">
+        <h2 style="margin-bottom:20px">Mes favoris</h2>
+        <div class="listings-grid" id="favorites-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+        </div>
+      </div>
+
+      <!-- ── ALERTS ─────────────────────────────────────────── -->
+      <div id="tab-alerts" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <h2>Mes alertes de recherche</h2>
+        </div>
+        <div id="alerts-content">
+          <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+        </div>
+      </div>
+
+      <!-- ── SUBSCRIPTION ───────────────────────────────────── -->
+      <div id="tab-subscription" style="display:none">
+        <h2 style="margin-bottom:20px">Abonnement</h2>
+        <div id="subscription-content">
+          <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+        </div>
+      </div>
+
+      <!-- ── PROFILE ────────────────────────────────────────── -->
+      <div id="tab-profile" style="display:none">
+        <h2 style="margin-bottom:20px">Mon profil</h2>
+        <div class="form-card" style="margin:0;max-width:100%">
+          <form id="profile-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nom complet</label>
+                <input type="text" id="prof-name" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="prof-phone" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Nom de l'entreprise</label>
+              <input type="text" id="prof-company" class="form-control">
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="prof-phone-visible"> Rendre mon numéro visible publiquement
+              </label>
+            </div>
+            <button type="submit" class="btn btn-orange"><i class="fas fa-save"></i> Enregistrer</button>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  // Dashboard désactivé pour les clients — admin uniquement
+  const currentUser = Auth.getUser();
+  if (!Auth.isLoggedIn() || currentUser?.role !== 'admin') {
+    window.location.href = '../index.html';
+  }
+
+  // ── Tab routing ───────────────────────────────────────────
+  const TABS = ['overview','listings','messages','favorites','alerts','subscription','profile'];
+  let activeTab = location.hash.replace('#','').split('/')[0] || 'overview';
+
+  function showTab(tab, navLink) {
+    TABS.forEach(t => document.getElementById(`tab-${t}`).style.display = 'none');
+    document.getElementById(`tab-${tab}`).style.display = '';
+    document.querySelectorAll('.dashboard-nav a').forEach(a => a.classList.remove('active'));
+    if (navLink) navLink.classList.add('active');
+    activeTab = tab;
+    location.hash = tab;
+    loadTabData(tab);
+  }
+
+  function loadTabData(tab) {
+    if (tab === 'overview')      loadOverview();
+    if (tab === 'listings')      loadMyListings();
+    if (tab === 'messages')      loadConversations();
+    if (tab === 'favorites')     loadFavorites();
+    if (tab === 'alerts')        loadAlerts();
+    if (tab === 'subscription')  loadSubscription();
+    if (tab === 'profile')       loadProfile();
+  }
+
+  // ── Load user info ────────────────────────────────────────
+  AuthAPI.me().then(user => {
+    Auth.setUser(user);
+    document.getElementById('dash-username').textContent = user.full_name;
+    if (user.logo_url) document.getElementById('dash-avatar').src = user.logo_url;
+    const packLabels = { free: 'Plan Gratuit', starter_pro: 'Starter Pro', business_pro: 'Business Pro', concessionnaire_elite: 'Élite' };
+    document.getElementById('dash-pack').innerHTML = `<span class="badge ${user.pack !== 'free' ? 'badge-orange' : 'badge-gray'}">${packLabels[user.pack] || user.pack}</span>`;
+
+    // Pre-fill profile form
+    document.getElementById('prof-name').value = user.full_name || '';
+    document.getElementById('prof-phone').value = user.phone || '';
+    document.getElementById('prof-company').value = user.company_name || '';
+  }).catch(() => Auth.logout());
+
+  // ── OVERVIEW ─────────────────────────────────────────────
+  async function loadOverview() {
+    try {
+      const listings = await ListingsAPI.mine();
+      const active  = listings.filter(l => l.status === 'active').length;
+      const pending = listings.filter(l => l.status === 'pending').length;
+      const views   = listings.reduce((s, l) => s + (l.view_count || 0), 0);
+      const contacts= listings.reduce((s, l) => s + (l.contact_clicks || 0), 0);
+      document.getElementById('stat-listings').textContent = active;
+      document.getElementById('stat-views').textContent = views;
+      document.getElementById('stat-contacts').textContent = contacts;
+      document.getElementById('stat-pending').textContent = pending;
+
+      const recent = listings.slice(0, 5);
+      document.getElementById('overview-listings').innerHTML = recent.length
+        ? `<table class="data-table">
+            <thead><tr><th>Annonce</th><th>Prix</th><th>Statut</th><th>Vues</th></tr></thead>
+            <tbody>${recent.map(l => `
+              <tr>
+                <td><a href="listing-detail.html?id=${l.id}">${escapeHtml(l.title_fr)}</a></td>
+                <td>${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Sur contact'}</td>
+                <td>${statusBadge(l.status)}</td>
+                <td>${l.view_count}</td>
+              </tr>`).join('')}
+            </tbody></table>`
+        : '<div class="empty-state"><i class="fas fa-inbox"></i><p>Aucune annonce publiée.</p></div>';
+    } catch {}
+  }
+
+  // ── MY LISTINGS ───────────────────────────────────────────
+  async function loadMyListings() {
+    try {
+      const listings = await ListingsAPI.mine();
+      document.getElementById('my-listings-content').innerHTML = listings.length
+        ? `<table class="data-table">
+            <thead><tr><th>Photo</th><th>Titre</th><th>Prix</th><th>Statut</th><th>Vues</th><th>Contacts</th><th>Actions</th></tr></thead>
+            <tbody>${listings.map(l => `
+              <tr>
+                <td>${l.cover_image ? `<img src="${escapeHtml(l.cover_image)}" class="thumb-img">` : '<i class="fas fa-image" style="color:var(--gray-400);font-size:1.5rem"></i>'}</td>
+                <td><a href="listing-detail.html?id=${l.id}" style="font-weight:600">${escapeHtml(l.title_fr)}</a><br><small style="color:var(--gray-400)">${formatDate(l.created_at)}</small></td>
+                <td>${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Sur contact'}</td>
+                <td>${statusBadge(l.status)}</td>
+                <td>${l.view_count}</td>
+                <td>${l.contact_clicks}</td>
+                <td>
+                  <div style="display:flex;gap:6px">
+                    <a href="listing-detail.html?id=${l.id}" class="btn btn-ghost btn-sm" title="Voir"><i class="fas fa-eye"></i></a>
+                    <button class="btn btn-sm btn-outline-orange" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\')}'}',this)" title="Supprimer"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody></table>`
+        : '<div class="empty-state"><i class="fas fa-inbox"></i><p>Aucune annonce.</p></div>';
+    } catch {
+      document.getElementById('my-listings-content').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement.</p></div>';
+    }
+  }
+
+  async function deleteListing(id, btn) {
+    if (!confirm('Supprimer cette annonce définitivement ?')) return;
+    try {
+      await ListingsAPI.delete(id);
+      btn.closest('tr').remove();
+      showToast('Annonce supprimée.', 'success');
+    } catch { showToast('Erreur lors de la suppression.', 'error'); }
+  }
+
+  // ── CONVERSATIONS ─────────────────────────────────────────
+  let ws = null;
+  async function loadConversations() {
+    try {
+      const convs = await MessagesAPI.conversations();
+      const totalUnread = convs.reduce((s, c) => s + parseInt(c.unread_count || 0), 0);
+      if (totalUnread) {
+        document.getElementById('nav-unread').textContent = totalUnread;
+        document.getElementById('nav-unread').style.display = 'inline';
+      }
+
+      document.getElementById('conv-list').innerHTML = convs.length
+        ? convs.map(c => `
+            <div class="conv-item" onclick="openConversation('${String(c.id).replace(/'/g, '\\\'')}', this)">
+              <div class="conv-avatar">${(c.buyer_name || '?')[0].toUpperCase()}</div>
+              <div style="flex:1;min-width:0">
+                <div class="conv-name">${escapeHtml(c.seller_id === Auth.getUser()?.id ? c.buyer_name : c.seller_name) || 'Contact'}</div>
+                <div class="conv-preview">${escapeHtml(c.listing_title || '')} — ${escapeHtml(c.last_message || 'Pas de message')}</div>
+              </div>
+              ${parseInt(c.unread_count) > 0 ? `<span class="unread-badge">${c.unread_count}</span>` : ''}
+            </div>`).join('')
+        : '<div class="empty-state" style="padding:30px"><i class="fas fa-comment-slash"></i><p style="font-size:13px">Aucune conversation</p></div>';
+
+      // Check hash for auto-open
+      const hash = location.hash;
+      if (hash.includes('/')) {
+        const convId = hash.split('/')[1];
+        const el = document.querySelector(`[onclick*="${convId}"]`);
+        if (el) el.click();
+      }
+    } catch {}
+
+    // WebSocket for real-time messages
+    if (!ws) {
+      ws = createWSClient((msg) => {
+        if (msg.type === 'new_message') { showToast('Nouveau message !', 'info'); loadConversations(); }
+      });
+    }
+  }
+
+  async function openConversation(id, el) {
+    document.querySelectorAll('.conv-item').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    el.querySelector('.unread-badge')?.remove();
+    try {
+      const data = await MessagesAPI.thread(id);
+      const userId = Auth.getUser()?.id;
+      document.getElementById('chat-window').innerHTML = `
+        <div class="chat-header">
+          <div style="font-weight:700">${escapeHtml(data.conversation.buyer_id === userId ? data.conversation.seller_name : data.conversation.buyer_name) || 'Contact'}</div>
+          <div style="font-size:13px;color:var(--gray-600)">${escapeHtml(data.conversation.listing_title || 'Annonce concernée')}</div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          ${data.messages.map(m => `
+            <div>
+              <div class="msg-bubble ${m.sender_id === userId ? 'mine' : 'theirs'}">
+                ${m.attachment_url ? `<a href="${escapeHtml(m.attachment_url)}" target="_blank" style="color:inherit"><i class="fas fa-paperclip"></i> Pièce jointe</a><br>` : ''}
+                ${m.body ? escapeHtml(m.body) : ''}
+                <div class="msg-time">${timeAgo(m.created_at)}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="chat-input">
+          <input type="text" id="chat-input-box" placeholder="Écrivez votre message…" onkeydown="if(event.key==='Enter') sendChatMsg('${String(id).replace(/'/g, '\\\'')}')">
+          <button class="btn btn-blue btn-sm" onclick="sendChatMsg('${String(id).replace(/'/g, '\\\'')}')"><i class="fas fa-paper-plane"></i></button>
+        </div>`;
+
+      // Scroll to bottom
+      const msgs = document.getElementById('chat-messages');
+      if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    } catch { showToast('Erreur chargement conversation.', 'error'); }
+  }
+
+  async function sendChatMsg(convId) {
+    const input = document.getElementById('chat-input-box');
+    const body  = input?.value.trim();
+    if (!body) return;
+    input.value = '';
+    try {
+      const fd = new FormData();
+      fd.append('body', body);
+      const msg = await MessagesAPI.send(convId, fd);
+      const msgs = document.getElementById('chat-messages');
+      const userId = Auth.getUser()?.id;
+      msgs.insertAdjacentHTML('beforeend', `
+        <div><div class="msg-bubble mine">${escapeHtml(msg.body)}<div class="msg-time">À l'instant</div></div></div>`);
+      msgs.scrollTop = msgs.scrollHeight;
+    } catch { showToast('Erreur envoi.', 'error'); }
+  }
+
+  // ── FAVORITES ─────────────────────────────────────────────
+  async function loadFavorites() {
+    try {
+      const favs = await FavoritesAPI.list();
+      document.getElementById('favorites-grid').innerHTML = favs.length
+        ? favs.map(l => renderListingCard({ ...l, _fav: true })).join('')
+        : '<div class="empty-state" style="grid-column:1/-1"><i class="far fa-heart"></i><p>Aucun favori.</p><a href="../index.html" class="btn btn-outline-orange mt-3">Explorer les annonces</a></div>';
+    } catch {}
+  }
+
+  // ── ALERTS ────────────────────────────────────────────────
+  async function loadAlerts() {
+    try {
+      const alerts = await AlertsAPI.list();
+      document.getElementById('alerts-content').innerHTML = alerts.length
+        ? `<table class="data-table">
+            <thead><tr><th>Nom</th><th>Critères</th><th>Email</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>${alerts.map(a => `
+              <tr>
+                <td style="font-weight:600">${escapeHtml(a.label)}</td>
+                <td style="font-size:12px;color:var(--gray-600)">${Object.entries(a.filters).map(([k,v]) => `${k}: ${v}`).join(', ')}</td>
+                <td>${a.notify_email ? '<i class="fas fa-check" style="color:var(--green)"></i>' : '—'}</td>
+                <td><span class="badge ${a.is_active ? 'badge-green' : 'badge-gray'}">${a.is_active ? 'Active' : 'Désactivée'}</span></td>
+                <td>
+                  <div style="display:flex;gap:6px">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleAlert('${String(a.id).replace(/'/g, '\\\'')}',this)">${a.is_active ? 'Désactiver' : 'Activer'}</button>
+                    <button class="btn btn-sm btn-outline-orange" onclick="deleteAlert('${String(a.id).replace(/'/g, '\\\'')}',this)"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody></table>`
+        : '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>Aucune alerte.<br><a href="category.html" class="btn btn-outline-orange btn-sm mt-3">Créer une alerte depuis une recherche</a></p></div>';
+    } catch {}
+  }
+
+  async function toggleAlert(id, btn) {
+    try {
+      const res = await AlertsAPI.toggle(id);
+      showToast(res.is_active ? 'Alerte activée.' : 'Alerte désactivée.', 'success');
+      loadAlerts();
+    } catch {}
+  }
+  async function deleteAlert(id, btn) {
+    if (!confirm('Supprimer cette alerte ?')) return;
+    try { await AlertsAPI.delete(id); btn.closest('tr').remove(); showToast('Alerte supprimée.', 'info'); } catch {}
+  }
+
+  // ── SUBSCRIPTION ──────────────────────────────────────────
+  async function loadSubscription() {
+    try {
+      const [packs, orders, user] = await Promise.all([
+        SubscriptionsAPI.packs(),
+        SubscriptionsAPI.myOrders(),
+        AuthAPI.me(),
+      ]);
+      const packNames = { free: 'Gratuit', starter_pro: 'Starter Pro', business_pro: 'Business Pro', concessionnaire_elite: 'Élite' };
+      document.getElementById('subscription-content').innerHTML = `
+        <div style="background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:20px">
+          <h3 style="color:var(--blue);margin-bottom:8px">Votre abonnement actuel</h3>
+          <div style="font-size:1.2rem;font-weight:700">${packNames[user.pack] || user.pack}</div>
+          ${user.pack_expires ? `<div style="font-size:13px;color:var(--gray-600)">Expire le ${formatDate(user.pack_expires)}</div>` : ''}
+        </div>
+        <h3 style="margin-bottom:16px">Passer à un pack supérieur</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          ${Object.entries(packs).filter(([k]) => k !== 'free').map(([key, p]) => `
+            <div style="background:#fff;border-radius:var(--radius-lg);padding:20px;border:2px solid ${key === user.pack ? 'var(--orange)' : 'var(--gray-200)'};text-align:center">
+              <div style="font-weight:700;font-size:14px;color:var(--blue);margin-bottom:8px">${p.name}</div>
+              <div style="font-size:1.4rem;font-weight:800;color:var(--orange)">${p.price_dzd?.toLocaleString('fr-DZ')} DZD</div>
+              <div style="font-size:12px;color:var(--gray-600);margin-bottom:12px">/mois</div>
+              <ul style="font-size:13px;text-align:left;margin-bottom:16px">${p.features.map(f => `<li>✓ ${f}</li>`).join('')}</ul>
+              ${key !== user.pack ? `<a href="subscriptions.html?pack=${key}" class="btn btn-orange btn-block btn-sm">Souscrire</a>` : '<span class="badge badge-green">Plan actuel</span>'}
+            </div>`).join('')}
+        </div>`;
+    } catch {}
+  }
+
+  // ── PROFILE ───────────────────────────────────────────────
+  function loadProfile() {
+    const user = Auth.getUser();
+    if (user) {
+      document.getElementById('prof-name').value = user.full_name || '';
+      document.getElementById('prof-phone').value = user.phone || '';
+      document.getElementById('prof-company').value = user.company_name || '';
+    }
+  }
+
+  document.getElementById('profile-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    try {
+      const updated = await AuthAPI.updateProfile({
+        full_name:     document.getElementById('prof-name').value.trim(),
+        phone:         document.getElementById('prof-phone').value.trim(),
+        company_name:  document.getElementById('prof-company').value.trim(),
+        phone_visible: document.getElementById('prof-phone-visible').checked,
+      });
+      Auth.setUser({ ...Auth.getUser(), ...updated });
+      showToast('Profil mis à jour !', 'success');
+    } catch { showToast('Erreur lors de la mise à jour.', 'error'); }
+  });
+
+  // ── Helpers ───────────────────────────────────────────────
+  function statusBadge(status) {
+    const map = { active: ['badge-green','Actif'], pending: ['badge-gray','En attente'], rejected: ['badge-red','Rejeté'], sold: ['badge-blue','Vendu'], expired: ['badge-gray','Expiré'] };
+    const [cls, label] = map[status] || ['badge-gray', status];
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+
+  // Init
+  const hashTab = location.hash.replace('#','').split('/')[0];
+  if (hashTab && TABS.includes(hashTab)) {
+    showTab(hashTab, document.querySelector(`.dashboard-nav a[href="#${hashTab}"]`));
+  } else {
+    loadOverview();
+  }
+</script>
+</body>
+</html>
+
