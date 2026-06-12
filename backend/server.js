@@ -26,6 +26,12 @@ app.use(helmet({
     },
   },
 }));
+
+// ── Request encoding for Arabic / UTF-8 ─────────────────────
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
 const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
   .split(',')
   .map(o => o.trim())

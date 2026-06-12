@@ -3825,7 +3825,7 @@
   }
   
   .container {
-    padding: 0 12px;
+    padding: 0 16px;
   }
   
   /* Hero */
@@ -4389,7 +4389,7 @@
   font-size: 24px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .bottom-nav {
     display: flex;
   }

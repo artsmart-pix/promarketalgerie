@@ -2,7 +2,7 @@
 <html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Packs & Abonnements — Pro Market Algérie</title>
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/animations.css">
@@ -13,7 +13,7 @@
 
 <div class="page-wrapper">
 
-<div class="container" style="padding:40px 16px">
+<div class="container" style="padding-top:40px">
   <div style="text-align:center;margin-bottom:40px">
     <h1>Packs & Abonnements Professionnels</h1>
     <p style="color:var(--gray-600);font-size:15px;max-width:600px;margin:10px auto 0">
@@ -37,7 +37,7 @@
 
       <div class="form-group">
         <label>Mode de paiement <span class="required">*</span></label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="payment-methods">
+        <div class="payment-methods" id="payment-methods">
           <label class="payment-opt">
             <input type="radio" name="payment" value="ccp"> CCP (Virement postal)
           </label>
@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <div id="ccp-info" style="display:none;background:var(--gray-100);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px">
+      <div id="ccp-info" style="display:none;background:var(--gray-100);border-radius:var(--r-md);padding:14px;margin-bottom:16px;font-size:13px">
         <strong>Compte CCP :</strong> 1234567890 / Clé 12 — Nom : Pro Market Algérie SARL<br>
         Indiquez votre email en motif du virement.
       </div>
@@ -92,7 +92,7 @@
   </div>
 
   <!-- PAYMENT INFO -->
-  <div style="margin-top:60px;background:#fff;border-radius:var(--radius-lg);padding:32px;box-shadow:var(--shadow-sm)">
+  <div style="margin-top:60px;background:#fff;border-radius:var(--r-lg);padding:32px;box-shadow:var(--shadow-sm)">
     <h2 style="margin-bottom:20px">Comment payer ?</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px">
       <div>
@@ -117,15 +117,17 @@
 <div id="site-footer"></div>
 
 <style>
-.pack-card { background: #fff; border-radius: var(--radius-lg); padding: 28px; text-align: center;
+.pack-card { background: #fff; border-radius: var(--r-lg); padding: 28px; text-align: center;
   border: 2px solid var(--gray-200); box-shadow: var(--shadow-sm); position: relative; }
-.pack-card.featured { border-color: var(--orange); transform: scale(1.03); }
+.pack-card.featured { border-color: var(--orange); }
+.payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 480px) { .payment-methods { grid-template-columns: 1fr; } }
 .pack-card .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
   background: var(--orange); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 16px; border-radius: 12px; }
 .pack-features li { padding: 5px 0; font-size: 14px; border-bottom: 1px solid var(--gray-200); list-style: none; }
 .pack-features li::before { content: '✓ '; color: var(--green); font-weight: 700; }
 .payment-opt { display: flex; align-items: center; gap: 8px; padding: 10px 14px;
-  border: 2px solid var(--gray-200); border-radius: var(--radius); cursor: pointer; font-size: 14px; }
+  border: 2px solid var(--gray-200); border-radius: var(--r-md); cursor: pointer; font-size: 14px; }
 .payment-opt:hover, .payment-opt:has(input:checked) { border-color: var(--orange); background: rgba(242,101,34,.04); }
 </style>
 
@@ -168,7 +170,7 @@
     const boostLabels = { top_list: 'Top de Liste', premium_badge: 'Badge Premium Orange', carousel: 'Carrousel Accueil' };
     const boostIcons  = { top_list: 'fa-arrow-up', premium_badge: 'fa-star', carousel: 'fa-images' };
     document.getElementById('boosts-grid').innerHTML = Object.entries(boosts).map(([key, b]) => `
-      <div style="background:#fff;border-radius:var(--radius-lg);padding:24px;text-align:center;border:2px solid var(--gray-200);box-shadow:var(--shadow-sm)">
+      <div style="background:#fff;border-radius:var(--r-lg);padding:24px;text-align:center;border:2px solid var(--gray-200);box-shadow:var(--shadow-sm)">
         <div style="font-size:2rem;color:var(--orange);margin-bottom:10px"><i class="fas ${boostIcons[key] || 'fa-bolt'}"></i></div>
         <div style="font-weight:700;margin-bottom:6px">${b.name}</div>
         <div style="font-size:1.3rem;font-weight:800;color:var(--orange)">${b.price_dzd.toLocaleString('fr-DZ')} DZD</div>
@@ -179,6 +181,10 @@
 
   let orderPack = null;
   function selectPack(key, name, price) {
+    if (key === 'free') {
+      window.open(getWhatsAppPublishUrl(), '_blank');
+      return;
+    }
     if (!Auth.isLoggedIn()) { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.href); return; }
     orderPack = key;
     document.getElementById('order-pack-summary').innerHTML =
@@ -199,6 +205,7 @@
   });
 
   async function submitOrder() {
+    if (!orderPack || orderPack === 'free') { showToast('Aucun pack sélectionné.', 'warning'); return; }
     const payment = document.querySelector('input[name="payment"]:checked')?.value;
     if (!payment) { showToast('Choisissez un mode de paiement.', 'warning'); return; }
     const errEl = document.getElementById('order-error');

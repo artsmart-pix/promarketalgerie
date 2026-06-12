@@ -2,7 +2,7 @@
 <html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Publier une annonce — Admin Pro Market</title>
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/animations.css">
@@ -53,6 +53,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
       box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
       /* PAS de position ici — c'est le wrap qui est fixed */
       /* PAS de transform ici non plus */
@@ -94,6 +96,11 @@
       .publish-layout {
         grid-template-columns: 1fr;
       }
+    }
+    
+    @media (max-width: 640px) {
+      .publish-form { padding: 20px; }
+      .preview-panel { padding: 16px; }
     }
     
     .publish-form {
@@ -387,6 +394,7 @@
     .quick-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
       margin-top: 16px;
     }
     
@@ -416,9 +424,9 @@
 <div id="site-header"></div>
 
 <div class="page-wrapper" style="padding-bottom: 80px;">
-<div class="container" style="padding: 32px 16px">
+<div class="container" style="padding-top:32px">
 
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px;flex-wrap:wrap">
     <div style="font-size:2rem;color:var(--orange)"><i class="fas fa-bullhorn"></i></div>
     <div>
       <h1 style="font-size:1.5rem">Publier une annonce</h1>
@@ -509,6 +517,13 @@
           <div class="form-group">
             <label>Prix</label>
             <input type="number" id="price" class="form-control" min="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Devise</label>
+            <select id="currency" class="form-control">
+              <option value="DZD">DZD</option>
+              <option value="EUR">EUR</option>
+            </select>
           </div>
           <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">

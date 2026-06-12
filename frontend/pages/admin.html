@@ -2,7 +2,7 @@
 <html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Back-Office — Pro Market Algérie</title>
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/animations.css">
@@ -13,7 +13,7 @@
 
 <div class="page-wrapper">
 
-<div class="container" style="padding:24px 16px">
+<div class="container" style="padding-top:24px">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
     <div style="font-size:1.8rem;color:var(--blue)"><i class="fas fa-shield-alt"></i></div>
     <div>
@@ -75,7 +75,7 @@
 
   <!-- Pending listings -->
   <div id="admin-pending">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
       <h2 style="font-size:1.1rem">Annonces en attente de modération</h2>
       <button class="btn btn-ghost btn-sm" onclick="loadPending()"><i class="fas fa-sync"></i> Rafraîchir</button>
     </div>
@@ -87,7 +87,7 @@
   <!-- Users -->
   <div id="admin-users" style="display:none">
     <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      <input type="text" class="form-control" style="max-width:280px" id="user-search" placeholder="Rechercher email / nom…" oninput="searchUsers()">
+      <input type="text" class="form-control" style="flex:1;max-width:100%" id="user-search" placeholder="Rechercher email / nom…" oninput="searchUsers()">
       <select class="form-control" style="width:auto" id="user-role-filter" onchange="searchUsers()">
         <option value="">Tous les rôles</option>
         <option value="buyer">Acheteur</option>
@@ -102,7 +102,7 @@
 
   <!-- Orders -->
   <div id="admin-orders" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
       <h2 style="font-size:1.1rem">Commandes en attente de validation</h2>
       <button class="btn btn-ghost btn-sm" onclick="loadOrders()"><i class="fas fa-sync"></i> Rafraîchir</button>
     </div>
@@ -233,7 +233,7 @@
       const listings = await AdminAPI.pendingListings();
       document.getElementById('pending-count').textContent = listings.length;
       document.getElementById('pending-list').innerHTML = listings.length
-        ? `<table class="data-table">
+        ? `<div class="table-responsive"><table class="data-table">
             <thead><tr><th>Titre</th><th>Catégorie</th><th>Vendeur</th><th>Prix</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody>${listings.map(l => `
               <tr id="pending-row-${l.id}">
@@ -247,7 +247,7 @@
                 <td>${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Sur contact'}</td>
                 <td style="font-size:12px;color:var(--gray-600)">${formatDate(l.created_at)}</td>
                 <td>
-                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <div class="table-actions">
                     <button class="btn btn-green btn-sm" onclick="approveListing('${String(l.id).replace(/'/g, '\\\'')}')">
                       <i class="fas fa-check"></i> Valider
                     </button>
@@ -266,7 +266,7 @@
                   </div>
                 </td>
               </tr>`).join('')}
-            </tbody></table>`
+            </tbody></table></div>`
         : '<div class="empty-state"><i class="fas fa-check-double" style="color:var(--green)"></i><p>Aucune annonce en attente. Tout est à jour !</p></div>';
     } catch { showToast('Erreur chargement.', 'error'); }
   }
@@ -323,7 +323,7 @@
     try {
       const users = await AdminAPI.users({ search, role });
       document.getElementById('users-list').innerHTML = users.length
-        ? `<table class="data-table">
+        ? `<div class="table-responsive"><table class="data-table">
             <thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Pack</th><th>Certifié</th><th>Actions</th></tr></thead>
             <tbody>${users.map(u => `
               <tr id="user-row-${u.id}">
@@ -333,7 +333,7 @@
                 <td><span class="badge ${u.pack !== 'free' ? 'badge-orange' : 'badge-gray'}">${u.pack}</span></td>
                 <td>${u.is_certified ? '<i class="fas fa-shield-alt" style="color:var(--blue)"></i>' : '—'}</td>
                 <td>
-                  <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  <div class="table-actions">
                     ${!u.is_certified ? `<button class="btn btn-sm btn-blue" onclick="certifyUser('${String(u.id).replace(/'/g, '\\\'')}',this)"><i class="fas fa-shield-alt"></i></button>` : ''}
                     <button class="btn btn-ghost btn-sm" onclick="toggleUser('${String(u.id).replace(/'/g, '\\\'')}',this)" title="${u.is_active ? 'Suspendre' : 'Réactiver'}">
                       <i class="fas ${u.is_active ? 'fa-ban' : 'fa-check'}"></i>
@@ -342,7 +342,7 @@
                   </div>
                 </td>
               </tr>`).join('')}
-            </tbody></table>`
+            </tbody></table></div>`
         : '<div class="empty-state"><i class="fas fa-users"></i><p>Aucun utilisateur trouvé.</p></div>';
     } catch { showToast('Erreur chargement.', 'error'); }
   }
@@ -368,7 +368,7 @@
     try {
       const orders = await AdminAPI.pendingOrders();
       document.getElementById('orders-list').innerHTML = orders.length
-        ? `<table class="data-table">
+        ? `<div class="table-responsive"><table class="data-table">
             <thead><tr><th>Utilisateur</th><th>Pack</th><th>Montant</th><th>Paiement</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody>${orders.map(o => `
               <tr id="order-row-${o.id}">
@@ -390,7 +390,7 @@
                   </button>
                 </td>
               </tr>`).join('')}
-            </tbody></table>`
+            </tbody></table></div>`
         : '<div class="empty-state"><i class="fas fa-check-double" style="color:var(--green)"></i><p>Aucune commande en attente.</p></div>';
     } catch { showToast('Erreur chargement.', 'error'); }
   }
@@ -411,11 +411,11 @@
     try {
       const ads = await AdsAPI.adminList();
       document.getElementById('ads-list').innerHTML = ads.length
-        ? `<table class="data-table">
+        ? `<div class="table-responsive"><table class="data-table">
             <thead><tr><th>Image</th><th>Titre</th><th>Position</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody>${ads.map(a => `
               <tr id="ad-row-${a.id}">
-                <td><img src="${escapeHtml(a.image_url)}" style="width:80px;height:50px;object-fit:cover;border-radius:4px" alt=""></td>
+                <td><img src="${escapeHtml(a.image_url)}" style="max-width:80px;max-height:50px;width:100%;height:auto;object-fit:cover;border-radius:4px" alt=""></td>
                 <td>
                   <div style="font-weight:600">${escapeHtml(a.title)}</div>
                   ${a.link_url ? `<a href="${escapeHtml(a.link_url)}" target="_blank" style="font-size:12px;color:var(--blue)">${escapeHtml(a.link_url)}</a>` : ''}
@@ -423,14 +423,14 @@
                 <td><span class="badge badge-gray">${escapeHtml(a.position)}</span></td>
                 <td>${a.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}</td>
                 <td>
-                  <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  <div class="table-actions">
                     <button class="btn btn-sm btn-blue" onclick="editAd('${String(a.id).replace(/'/g, '\\\'')}')" title="Modifier"><i class="fas fa-edit"></i></button>
                     <button class="btn btn-ghost btn-sm" onclick="toggleAd('${String(a.id).replace(/'/g, '\\\'')}')" title="${a.is_active ? 'Désactiver' : 'Activer'}"><i class="fas ${a.is_active ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
                     <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="deleteAd('${String(a.id).replace(/'/g, '\\\'')}')" title="Supprimer"><i class="fas fa-trash"></i></button>
                   </div>
                 </td>
               </tr>`).join('')}
-            </tbody></table>`
+            </tbody></table></div>`
         : '<div class="empty-state"><i class="fas fa-ad" style="color:var(--gray-400)"></i><p>Aucune publicité créée.</p></div>';
     } catch { showToast('Erreur chargement publicités.', 'error'); }
   }

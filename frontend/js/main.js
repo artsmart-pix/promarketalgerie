@@ -275,6 +275,7 @@ function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// IMPORTANT: remplacer par le numéro WhatsApp du client avant mise en production
 window.WHATSAPP_NUMBER = '213549129811';
 
 function getWhatsAppPublishUrl() {

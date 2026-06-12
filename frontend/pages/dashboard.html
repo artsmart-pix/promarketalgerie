@@ -2,7 +2,7 @@
 <html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mon Espace — Pro Market Algérie</title>
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/animations.css">
@@ -64,7 +64,7 @@
           <div class="stat-card red"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">En attente</div></div>
         </div>
 
-        <div style="background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)">
+        <div style="background:#fff;border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-sm)">
           <h3 style="margin-bottom:16px;color:var(--blue)">Mes dernières annonces</h3>
           <div id="overview-listings">
             <div style="text-align:center;padding:20px"><div class="spinner" style="width:28px;height:28px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
@@ -228,7 +228,7 @@
 
       const recent = listings.slice(0, 5);
       document.getElementById('overview-listings').innerHTML = recent.length
-        ? `<table class="data-table">
+        ? `<div class="table-responsive"><table class="data-table">
             <thead><tr><th>Annonce</th><th>Prix</th><th>Statut</th><th>Vues</th></tr></thead>
             <tbody>${recent.map(l => `
               <tr>
@@ -237,7 +237,7 @@
                 <td>${statusBadge(l.status)}</td>
                 <td>${l.view_count}</td>
               </tr>`).join('')}
-            </tbody></table>`
+            </tbody></table></div>`
         : '<div class="empty-state"><i class="fas fa-inbox"></i><p>Aucune annonce publiée.</p></div>';
     } catch {}
   }
@@ -247,7 +247,7 @@
     try {
       const listings = await ListingsAPI.mine();
       document.getElementById('my-listings-content').innerHTML = listings.length
-        ? `<table class="data-table">
+        ? `<div class="table-responsive"><table class="data-table">
             <thead><tr><th>Photo</th><th>Titre</th><th>Prix</th><th>Statut</th><th>Vues</th><th>Contacts</th><th>Actions</th></tr></thead>
             <tbody>${listings.map(l => `
               <tr>
@@ -258,13 +258,13 @@
                 <td>${l.view_count}</td>
                 <td>${l.contact_clicks}</td>
                 <td>
-                  <div style="display:flex;gap:6px">
+                  <div class="table-actions">
                     <a href="listing-detail.html?id=${l.id}" class="btn btn-ghost btn-sm" title="Voir"><i class="fas fa-eye"></i></a>
-                    <button class="btn btn-sm btn-outline-orange" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\')}'}',this)" title="Supprimer"><i class="fas fa-trash"></i></button>
+                    <button class="btn btn-sm btn-outline-orange" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\'')}',this)" title="Supprimer"><i class="fas fa-trash"></i></button>
                   </div>
                 </td>
               </tr>`).join('')}
-            </tbody></table>`
+            </tbody></table></div>`
         : '<div class="empty-state"><i class="fas fa-inbox"></i><p>Aucune annonce.</p></div>';
     } catch {
       document.getElementById('my-listings-content').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement.</p></div>';
@@ -385,22 +385,22 @@
     try {
       const alerts = await AlertsAPI.list();
       document.getElementById('alerts-content').innerHTML = alerts.length
-        ? `<table class="data-table">
+        ? `<div class="table-responsive"><table class="data-table">
             <thead><tr><th>Nom</th><th>Critères</th><th>Email</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody>${alerts.map(a => `
               <tr>
                 <td style="font-weight:600">${escapeHtml(a.label)}</td>
-                <td style="font-size:12px;color:var(--gray-600)">${Object.entries(a.filters).map(([k,v]) => `${k}: ${v}`).join(', ')}</td>
+                <td style="font-size:12px;color:var(--gray-600)">${(() => { let f = a.filters; try { if (typeof f === 'string') f = JSON.parse(f); } catch { f = {}; } return Object.entries(f || {}).map(([k,v]) => `${k}: ${v}`).join(', '); })()}</td>
                 <td>${a.notify_email ? '<i class="fas fa-check" style="color:var(--green)"></i>' : '—'}</td>
                 <td><span class="badge ${a.is_active ? 'badge-green' : 'badge-gray'}">${a.is_active ? 'Active' : 'Désactivée'}</span></td>
                 <td>
-                  <div style="display:flex;gap:6px">
+                  <div class="table-actions">
                     <button class="btn btn-ghost btn-sm" onclick="toggleAlert('${String(a.id).replace(/'/g, '\\\'')}',this)">${a.is_active ? 'Désactiver' : 'Activer'}</button>
                     <button class="btn btn-sm btn-outline-orange" onclick="deleteAlert('${String(a.id).replace(/'/g, '\\\'')}',this)"><i class="fas fa-trash"></i></button>
                   </div>
                 </td>
               </tr>`).join('')}
-            </tbody></table>`
+            </tbody></table></div>`
         : '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>Aucune alerte.<br><a href="category.html" class="btn btn-outline-orange btn-sm mt-3">Créer une alerte depuis une recherche</a></p></div>';
     } catch {}
   }
@@ -427,15 +427,15 @@
       ]);
       const packNames = { free: 'Gratuit', starter_pro: 'Starter Pro', business_pro: 'Business Pro', concessionnaire_elite: 'Élite' };
       document.getElementById('subscription-content').innerHTML = `
-        <div style="background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:20px">
+        <div style="background:#fff;border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:20px">
           <h3 style="color:var(--blue);margin-bottom:8px">Votre abonnement actuel</h3>
           <div style="font-size:1.2rem;font-weight:700">${packNames[user.pack] || user.pack}</div>
           ${user.pack_expires ? `<div style="font-size:13px;color:var(--gray-600)">Expire le ${formatDate(user.pack_expires)}</div>` : ''}
         </div>
         <h3 style="margin-bottom:16px">Passer à un pack supérieur</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
           ${Object.entries(packs).filter(([k]) => k !== 'free').map(([key, p]) => `
-            <div style="background:#fff;border-radius:var(--radius-lg);padding:20px;border:2px solid ${key === user.pack ? 'var(--orange)' : 'var(--gray-200)'};text-align:center">
+            <div style="background:#fff;border-radius:var(--r-lg);padding:20px;border:2px solid ${key === user.pack ? 'var(--orange)' : 'var(--gray-200)'};text-align:center">
               <div style="font-weight:700;font-size:14px;color:var(--blue);margin-bottom:8px">${p.name}</div>
               <div style="font-size:1.4rem;font-weight:800;color:var(--orange)">${p.price_dzd?.toLocaleString('fr-DZ')} DZD</div>
               <div style="font-size:12px;color:var(--gray-600);margin-bottom:12px">/mois</div>

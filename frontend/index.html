@@ -2,7 +2,7 @@
 <html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Pro Market Algérie — Achat & Vente Équipement Professionnel et Fonds de Commerce</title>
   <meta name="description" content="Marketplace B2B de référence en Algérie. Achetez et vendez équipements industriels, matériels BTP, matériels agricoles et fonds de commerce.">
   <meta name="keywords" content="marketplace algérie, équipement professionnel, BTP algérie, matériel industriel, fonds de commerce algérie">
@@ -84,7 +84,7 @@
         <i class="fas fa-arrow-right"></i>
       </button>
     </div>
-    <div class="hero-trust" style="margin-top:28px;display:flex;justify-content:center;gap:32px;flex-wrap:wrap">
+    <div class="hero-trust" style="margin-top:28px;display:flex;justify-content:center;flex-wrap:wrap">
       <span class="hero-trust-badge">
         <span class="hero-trust-icon"><i class="fas fa-shield-alt"></i></span>
         <span class="hero-trust-text">Vendeurs certifiés</span>
@@ -270,7 +270,7 @@
 <section class="reveal" style="padding:60px 0;background:#fff">
   <div class="container">
     <div class="section-title" style="justify-content:center;text-align:center"><h2>Comment ça marche ?</h2></div>
-    <div class="stagger-children" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-top:32px;text-align:center">
+    <div class="stagger-children how-it-works-grid" style="display:grid;margin-top:32px;text-align:center">
       <div class="how-step">
         <div class="step-icon" style="width:70px;height:70px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.6rem;color:#fff"><i class="fab fa-whatsapp"></i></div>
         <h3>1. Contactez-nous</h3>
@@ -349,7 +349,7 @@
     document.getElementById('carousel-track').innerHTML = items.map(l => `
       <div class="carousel-card" onclick="location.href='pages/listing-detail.html?id=${String(l.id).replace(/'/g, '\\\'')}'">
         <div class="premium-ribbon">Premium</div>
-        ${l.cover_image ? `<img src="${escapeHtml(l.cover_image)}" alt="">` : `<div style="height:150px;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gray-400)"><i class="fas fa-image"></i></div>`}
+        ${l.cover_image ? `<img src="${escapeHtml(l.cover_image)}" alt="">` : `<div style="min-height:150px;height:auto;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gray-400)"><i class="fas fa-image"></i></div>`}
         <div class="card-body">
           <div class="card-title">${escapeHtml(l.title_fr)}</div>
           <div class="card-price">${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Prix sur contact'}</div>
@@ -436,10 +436,10 @@
     container.innerHTML = ads.map(ad => `
       <a href="${escapeHtml(ad.link_url || '#')}" target="_blank" rel="noopener noreferrer"
          class="ad-banner-card" data-ad-id="${String(ad.id).replace(/'/g, '\\\'')} "
-         style="flex:1;min-width:280px;max-width:400px;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);transition:transform .2s;background:#fff;display:block;text-decoration:none"
+         style="flex:1;min-width:0;max-width:400px;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);transition:transform .2s;background:#fff;display:block;text-decoration:none"
          onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''"
          onclick="AdsAPI.click('${String(ad.id).replace(/'/g, '\\\'')}').catch(()=>{})">
-        <img src="${escapeHtml(ad.image_url)}" alt="${escapeHtml(ad.title)}" style="width:100%;height:180px;object-fit:cover;display:block">
+        <img src="${escapeHtml(ad.image_url)}" alt="${escapeHtml(ad.title)}" style="width:100%;min-height:180px;height:auto;object-fit:cover;display:block">
         <div style="padding:12px 16px">
           <div style="font-weight:600;font-size:14px;color:var(--gray-900)">${escapeHtml(ad.title)}</div>
         </div>
