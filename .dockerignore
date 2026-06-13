@@ -1,0 +1,28 @@
+# Dependencies (rebuilt inside the image)
+**/node_modules
+
+# Local databases & uploads (persisted via volume, never baked in)
+backend/database.sqlite
+**/*.sqlite
+**/*.sqlite3
+backend/uploads
+
+# Env files (provided at runtime via compose)
+**/.env
+**/.env.local
+
+# Git / IDE / OS
+.git
+.gitignore
+.vscode
+.idea
+**/.DS_Store
+
+# Docs & tooling artifacts
+*.md
+backend/*.md
+frontend/*.md
+.opencode
+BMAD-METHOD
+investigations
+.hintrc

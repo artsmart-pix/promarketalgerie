@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: promarket-algerie:latest
+    container_name: promarket-algerie
+    restart: unless-stopped
+    # Loads secrets (JWT_SECRET, SMTP, etc.) from backend/.env IF it exists.
+    # On a fresh clone it does not (gitignored) — the entrypoint then generates
+    # and persists a JWT secret on the volume, so `docker compose up` still works.
+    # The `environment:` block below overrides any conflicting keys.
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      # Persist DB + uploads on the named volume, not inside the image
+      SQLITE_PATH: /data/database.sqlite
+      UPLOAD_DIR: /data/uploads
+      # Public origin the app is reached from. Same-origin by default (API +
+      # frontend served together on 3001). For a VPS with a domain, override:
+      #   FRONTEND_URL: https://votre-domaine.tld
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
+    ports:
+      - "3001:3001"
+    volumes:
+      - pm_data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3001/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+volumes:
+  pm_data:
+    driver: local

@@ -7,7 +7,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcryptjs');
 
-const dbPath = path.join(__dirname, '..', 'database.sqlite');
+const dbPath = process.env.SQLITE_PATH || path.join(__dirname, '..', 'database.sqlite');
 
 // Supprimer l'ancienne DB si elle existe (pour réinitialiser)
 // Commenter cette ligne si tu veux garder les données
