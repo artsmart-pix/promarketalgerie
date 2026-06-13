@@ -373,8 +373,15 @@ function renderHeader() {
         </div>
       </div>
       
-      <div class="cat-nav">
+      <div class="cat-nav" id="cat-nav">
         <div class="container">
+          <!-- Mobile : bouton qui déroule la liste des rubriques (la barre
+               horizontale est masquée en CSS ≤768px) -->
+          <button class="cat-dropdown-toggle" id="cat-dropdown-toggle" type="button"
+                  aria-expanded="false" aria-controls="cat-nav-list" onclick="toggleCatDropdown()">
+            <span class="cat-dropdown-label"><i class="fas fa-layer-group"></i> Choisir une catégorie</span>
+            <i class="fas fa-chevron-down cat-dropdown-caret"></i>
+          </button>
           <div class="cat-nav-wrap">
             <button class="cat-nav-arrow cat-nav-arrow-left" id="cat-nav-prev" type="button" aria-label="Catégories précédentes">
               <i class="fas fa-chevron-left"></i>
@@ -472,6 +479,12 @@ function renderHeader() {
     navList?.querySelectorAll('a').forEach(a => {
       if (urlSlug && a.href.includes(urlSlug)) a.classList.add('active');
     });
+    // Sur une page catégorie : le bouton mobile affiche la rubrique courante
+    const activeCat = urlSlug && cats.find(c => c.slug === urlSlug);
+    if (activeCat) {
+      const lbl = document.querySelector('#cat-dropdown-toggle .cat-dropdown-label');
+      if (lbl) lbl.innerHTML = `<i class="fas ${escapeHtml(activeCat.icon)}"></i> ${escapeHtml(activeCat.name_fr)}`;
+    }
     setupCatNavScroll();
     // Centre la catégorie active si elle déborde hors écran
     navList?.querySelector('a.active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
@@ -509,6 +522,37 @@ function setupCatNavScroll() {
     document.getElementById('cat-nav-next'),
   );
 }
+
+// ── Liste déroulante des rubriques (mobile) ───────────────────
+// Le bouton « Choisir une catégorie » déroule/replie #cat-nav-list.
+function closeCatDropdown() {
+  const nav = document.getElementById('cat-nav');
+  if (!nav) return;
+  nav.classList.remove('open');
+  document.getElementById('cat-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+  document.removeEventListener('click', onCatDropdownOutsideClick);
+}
+
+function onCatDropdownOutsideClick(e) {
+  const nav = document.getElementById('cat-nav');
+  if (!nav) return;
+  // Ferme si on clique hors du panneau, OU sur une rubrique (un <a> → navigation)
+  if (!nav.contains(e.target) || e.target.closest('.cat-nav-list a')) closeCatDropdown();
+}
+
+function toggleCatDropdown() {
+  const nav = document.getElementById('cat-nav');
+  if (!nav) return;
+  const open = nav.classList.toggle('open');
+  document.getElementById('cat-dropdown-toggle')?.setAttribute('aria-expanded', String(open));
+  if (open) {
+    // setTimeout(0) : laisse le clic d'ouverture finir de remonter avant d'écouter
+    setTimeout(() => document.addEventListener('click', onCatDropdownOutsideClick), 0);
+  } else {
+    document.removeEventListener('click', onCatDropdownOutsideClick);
+  }
+}
+window.toggleCatDropdown = toggleCatDropdown;
 
 function toggleLanguage() {
   setLanguage(LANG === 'fr' ? 'ar' : 'fr');

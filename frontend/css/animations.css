@@ -2380,71 +2380,93 @@
   left: 10%;
 }
 
-/* ── Topbar Rubriques — design mobile (grille de pastilles) ───
-   Sur mobile la barre des rubriques devient une GRILLE à colonnes égales :
-   chaque pastille remplit toute sa cellule (largeur identique, hauteurs
-   alignées, texte centré qui peut passer à la ligne). Plus de « vide » à
-   droite des lignes ni de défilement/flèches — un rendu propre type grille
-   de catégories d'app mobile. Le nombre de colonnes s'adapte à la largeur
-   (auto-fill), la rubrique active devient une pastille orange pleine.
+/* ── Topbar Rubriques — design mobile (bouton + liste déroulante) ──
+   Sur mobile, la barre horizontale des rubriques est remplacée par un seul
+   bouton « Choisir une catégorie » qui déroule un panneau listant toutes les
+   rubriques (icône + libellé, item actif en orange). Gain de place : la
+   barre n'occupe plus qu'une ligne tant qu'on ne l'ouvre pas.
    Placé dans animations.css (chargé après main.css) pour gagner la cascade,
-   notamment neutraliser le ::after du soulignement défini ci-dessus. */
+   notamment neutraliser le ::after du soulignement desktop. */
+
+/* Le bouton n'existe qu'en mobile (réactivé dans le @media ci-dessous) */
+.cat-dropdown-toggle { display: none; }
+
 @media (max-width: 768px) {
-  /* Plus de défilement horizontal : les flèches ‹ › ne servent plus */
-  .cat-nav-arrow { display: none !important; }
+  .cat-nav { position: relative; }
+  .cat-nav .container { padding: 0; }        /* bouton + panneau pleine largeur */
+  .cat-nav-arrow { display: none !important; } /* plus de flèches ‹ › */
+
+  /* ── Bouton déclencheur ── */
+  .cat-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 13px 18px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font: 600 14px/1.2 inherit;
+    cursor: pointer;
+  }
+  .cat-dropdown-label {
+    display: flex; align-items: center; gap: 10px; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .cat-dropdown-label > i { color: var(--orange); font-size: 15px; flex: 0 0 auto; }
+  .cat-dropdown-caret { transition: transform .3s ease; opacity: .85; flex: 0 0 auto; }
+  .cat-nav.open .cat-dropdown-caret { transform: rotate(180deg); }
+
+  /* ── Panneau déroulant (= la liste) ── */
+  .cat-nav-wrap { display: block; position: static; }
 
   .cat-nav-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);   /* tablettes / grands mobiles */
-    align-items: stretch;        /* hauteurs de cellules uniformes par ligne */
-    gap: 8px;
-    padding: 12px 14px;
-    overflow-x: visible;         /* annule le scroll horizontal du desktop */
+    display: block;
+    list-style: none;
+    margin: 0;
+    overflow: hidden;
+    overflow-y: auto;
+    max-height: 0;                /* replié par défaut */
+    background: rgba(0, 0, 0, .18);
+    -webkit-overflow-scrolling: touch;
+    transition: max-height .35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cat-nav.open .cat-nav-list {
+    max-height: min(70vh, 560px); /* déplié, défilable si trop long */
+    border-top: 1px solid rgba(255, 255, 255, .12);
   }
 
-  /* chaque <li> est une cellule ; l'<a> la remplit entièrement */
-  .cat-nav-list li { display: flex; }
-
-  /* Élément orphelin sur la dernière ligne (nombre impair de rubriques) :
-     on l'étire sur toute la largeur pour ne pas laisser de vide. */
-  .cat-nav-list li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .cat-nav-list li { display: block; }
 
   .cat-nav-list a {
-    flex: 1;                     /* remplit la largeur ET la hauteur de la cellule */
-    justify-content: center;
-    text-align: center;
-    white-space: normal;         /* autorise le retour à la ligne des libellés longs */
-    padding: 10px 12px;
-    font-size: 12px;
-    line-height: 1.25;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, .18);
-    border-bottom: 1px solid rgba(255, 255, 255, .18);
-    background: rgba(255, 255, 255, .12);
-    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 18px;
+    font-size: 13.5px;
+    line-height: 1.3;
+    white-space: normal;          /* libellés longs autorisés à passer à la ligne */
+    color: rgba(255, 255, 255, .9);
+    border-bottom: 1px solid rgba(255, 255, 255, .07);
+    border-radius: 0;
   }
-  .cat-nav-list a i { font-size: 12px; opacity: .9; flex: 0 0 auto; }
-
+  .cat-nav-list a i {
+    font-size: 14px; width: 20px; text-align: center;
+    opacity: .85; flex: 0 0 auto;
+  }
   /* Neutralise le soulignement animé (::after) hérité du desktop */
   .cat-nav-list a::after { display: none; }
 
   .cat-nav-list a:hover,
-  .cat-nav-list a:focus-visible {
-    background: rgba(255, 255, 255, .22);
-    color: #fff;
-  }
+  .cat-nav-list a:focus-visible { background: rgba(255, 255, 255, .08); color: #fff; }
 
   .cat-nav-list a.active {
     background: var(--orange);
-    border-color: var(--orange);
     color: #fff;
     font-weight: 600;
+    border-bottom-color: transparent;
   }
-}
-
-/* Mobiles : 2 colonnes (3 serait trop serré pour les libellés longs) */
-@media (max-width: 520px) {
-  .cat-nav-list { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ── Header Scroll Shadow ─────────────────────────────────── */
