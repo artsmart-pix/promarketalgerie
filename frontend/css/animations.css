@@ -1739,11 +1739,10 @@
 .hero-subtitle .typing-text {
   overflow: hidden;
   white-space: nowrap;
-  border-right: 3px solid var(--orange);
+  border-right: none;
   display: inline-block;
   max-width: 100%;
-  animation: typing 2.5s steps(45, end) 2.3s both,
-             blink-caret 0.75s step-end infinite;
+  animation: typing 2.5s steps(45, end) 2.3s both;
   padding-right: 4px;
 }
 
@@ -4215,8 +4214,10 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: dream-shimmer 3s linear infinite;
-  animation-delay: 2.5s;
+  /* Conserve l'animation d'entrée (opacité 0→1) puis ajoute le shimmer ;
+     sans dream-word-in, ces mots restaient invisibles (opacity:0). */
+  animation: dream-word-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             dream-shimmer 3s linear 2.5s infinite;
 }
 
 @keyframes dream-shimmer {
