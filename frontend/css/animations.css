@@ -2202,14 +2202,13 @@
 }
 
 @keyframes header-entry {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  /* Opacité uniquement : aucun transform résiduel, sinon .site-header devient
+     un bloc conteneur + contexte d'empilement pour ses descendants
+     position:fixed (.header-mobile-menu, .bottom-nav). Le menu se retrouvait
+     alors sous l'overlay sombre (z-index) → clics captés par l'overlay,
+     menu « non cliquable ». */
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ── Logo Hover Animation ─────────────────────────────────── */

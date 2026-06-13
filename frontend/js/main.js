@@ -389,7 +389,10 @@ function renderHeader() {
         </div>
       </div>
       
-      <!-- Mobile Menu -->
+    </nav>
+
+      <!-- Mobile Menu (hors du <nav> sticky : sinon piégé dans son contexte
+           d'empilement → sous l'overlay sombre, clics captés par l'overlay) -->
       <div class="header-mobile-menu" id="header-mobile-menu">
         <div class="mobile-menu-header">
           <span class="mobile-menu-title">Menu</span>
@@ -447,8 +450,7 @@ function renderHeader() {
           <i class="fas fa-bars"></i>
           <span>Menu</span>
         </button>
-      </div>
-    </nav>`;
+      </div>`;
 
   // Load categories into nav
   CategoriesAPI.list().then(cats => {
