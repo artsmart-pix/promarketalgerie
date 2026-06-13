@@ -2380,11 +2380,13 @@
   left: 10%;
 }
 
-/* ── Topbar Rubriques — design mobile (pastilles multilignes) ──
-   Sur mobile la barre des rubriques devient une grille de pastilles
-   compactes qui se répartissent sur plusieurs lignes (flex-wrap) : tout est
-   visible d'un coup, sans défilement ni flèches. La rubrique active devient
-   une pastille orange pleine au lieu d'un soulignement.
+/* ── Topbar Rubriques — design mobile (grille de pastilles) ───
+   Sur mobile la barre des rubriques devient une GRILLE à colonnes égales :
+   chaque pastille remplit toute sa cellule (largeur identique, hauteurs
+   alignées, texte centré qui peut passer à la ligne). Plus de « vide » à
+   droite des lignes ni de défilement/flèches — un rendu propre type grille
+   de catégories d'app mobile. Le nombre de colonnes s'adapte à la largeur
+   (auto-fill), la rubrique active devient une pastille orange pleine.
    Placé dans animations.css (chargé après main.css) pour gagner la cascade,
    notamment neutraliser le ::after du soulignement défini ci-dessus. */
 @media (max-width: 768px) {
@@ -2392,30 +2394,43 @@
   .cat-nav-arrow { display: none !important; }
 
   .cat-nav-list {
-    flex-wrap: wrap;              /* les pastilles passent à la ligne */
-    overflow-x: visible;         /* annule le scroll horizontal du desktop */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);   /* tablettes / grands mobiles */
+    align-items: stretch;        /* hauteurs de cellules uniformes par ligne */
     gap: 8px;
     padding: 12px 14px;
+    overflow-x: visible;         /* annule le scroll horizontal du desktop */
   }
 
+  /* chaque <li> est une cellule ; l'<a> la remplit entièrement */
+  .cat-nav-list li { display: flex; }
+
+  /* Élément orphelin sur la dernière ligne (nombre impair de rubriques) :
+     on l'étire sur toute la largeur pour ne pas laisser de vide. */
+  .cat-nav-list li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
   .cat-nav-list a {
-    padding: 8px 15px;
-    font-size: 12.5px;
-    line-height: 1;
-    border-radius: 999px;
+    flex: 1;                     /* remplit la largeur ET la hauteur de la cellule */
+    justify-content: center;
+    text-align: center;
+    white-space: normal;         /* autorise le retour à la ligne des libellés longs */
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.25;
+    border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, .18);
     border-bottom: 1px solid rgba(255, 255, 255, .18);
-    background: rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .12);
     color: #fff;
   }
-  .cat-nav-list a i { font-size: 12px; opacity: .9; }
+  .cat-nav-list a i { font-size: 12px; opacity: .9; flex: 0 0 auto; }
 
   /* Neutralise le soulignement animé (::after) hérité du desktop */
   .cat-nav-list a::after { display: none; }
 
   .cat-nav-list a:hover,
   .cat-nav-list a:focus-visible {
-    background: rgba(255, 255, 255, .24);
+    background: rgba(255, 255, 255, .22);
     color: #fff;
   }
 
@@ -2427,9 +2442,9 @@
   }
 }
 
-/* Très petits écrans : pastilles encore un peu plus serrées */
-@media (max-width: 380px) {
-  .cat-nav-list a { padding: 6px 12px; font-size: 12px; }
+/* Mobiles : 2 colonnes (3 serait trop serré pour les libellés longs) */
+@media (max-width: 520px) {
+  .cat-nav-list { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ── Header Scroll Shadow ─────────────────────────────────── */
