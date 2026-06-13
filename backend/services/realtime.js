@@ -76,6 +76,8 @@ function initWebSocket(server) {
       }
     }
   }, 30000);
+  // Don't let the heartbeat keep the event loop alive (e.g. in tests).
+  heartbeat.unref();
   wss.on('close', () => clearInterval(heartbeat));
 
   return wss;

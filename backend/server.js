@@ -146,21 +146,27 @@ app.use((err, req, res, next) => {
 });
 
 // ── Start ────────────────────────────────────────────────────
+// Only listen when run directly (`node server.js`). When required from a test,
+// the app is used in-process (e.g. via supertest) without binding a port.
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`\n🚀  Pro Market Algérie API`);
-  console.log(`   Listening on http://localhost:${PORT}`);
-  console.log(`   WebSocket  on ws://localhost:${PORT}/ws`);
-  console.log(`   Env: ${process.env.NODE_ENV || 'development'}\n`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`\n🚀  Pro Market Algérie API`);
+    console.log(`   Listening on http://localhost:${PORT}`);
+    console.log(`   WebSocket  on ws://localhost:${PORT}/ws`);
+    console.log(`   Env: ${process.env.NODE_ENV || 'development'}\n`);
+  });
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`❌  Port ${PORT} is already in use.`);
-    console.error(`   Please stop the other process or set a different PORT in .env`);
-    process.exit(1);
-  } else {
-    console.error('❌  Server error:', err);
-    process.exit(1);
-  }
-});
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌  Port ${PORT} is already in use.`);
+      console.error(`   Please stop the other process or set a different PORT in .env`);
+      process.exit(1);
+    } else {
+      console.error('❌  Server error:', err);
+      process.exit(1);
+    }
+  });
+}
+
+module.exports = { app, server };
