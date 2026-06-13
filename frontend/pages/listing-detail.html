@@ -51,6 +51,12 @@
       <div class="listing-gallery" id="gallery-wrap">
         <div class="gallery-main">
           <img id="main-img" src="" alt="">
+          <button type="button" class="gallery-nav gallery-prev" id="gallery-prev" onclick="prevImg()" aria-label="Image précédente" style="display:none">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button type="button" class="gallery-nav gallery-next" id="gallery-next" onclick="nextImg()" aria-label="Image suivante" style="display:none">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
         <div class="gallery-thumbs" id="thumbs"></div>
       </div>
@@ -140,6 +146,8 @@
   const isAdminMode = new URLSearchParams(location.search).get('admin') === '1';
   let listing = null;
   let phoneRevealed = null;
+  let galleryMedia = [];
+  let currentImgIndex = 0;
 
   if (isAdminMode) {
     document.getElementById('admin-toolbar').style.display = '';
@@ -169,13 +177,18 @@
 
     // Gallery
     if (l.media?.length) {
-      document.getElementById('main-img').src = l.media.find(m => m.is_cover)?.url || l.media[0].url;
+      galleryMedia = l.media;
+      const coverIdx = l.media.findIndex(m => m.is_cover);
+      currentImgIndex = coverIdx >= 0 ? coverIdx : 0;
       document.getElementById('main-img').alt = l.title_fr || '';
       document.getElementById('thumbs').innerHTML = l.media.map((m, i) => `
-        <img src="${escapeHtml(m.url_thumb || m.url)}" alt=""
-          class="${i === 0 ? 'active' : ''}"
-          onclick="setMainImg(this,'${escapeHtml(m.url)}')">
+        <img src="${escapeHtml(m.url_thumb || m.url)}" alt="" onclick="showImage(${i})">
       `).join('');
+      // Boutons de navigation : visibles seulement s'il y a plusieurs images
+      const navDisplay = l.media.length > 1 ? 'flex' : 'none';
+      document.getElementById('gallery-prev').style.display = navDisplay;
+      document.getElementById('gallery-next').style.display = navDisplay;
+      showImage(currentImgIndex);
     } else {
       document.getElementById('gallery-wrap').innerHTML = '<div style="aspect-ratio:4/3;min-height:200px;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--gray-400)"><i class="fas fa-image"></i></div>';
     }
@@ -235,11 +248,24 @@
       `Membre depuis ${formatDate(l.seller_since)} · ${l.seller_listings_count || 0} annonces actives`;
   }
 
-  function setMainImg(thumb, url) {
-    document.getElementById('main-img').src = url;
-    document.querySelectorAll('#thumbs img').forEach(img => img.classList.remove('active'));
-    thumb.classList.add('active');
+  function showImage(i) {
+    if (!galleryMedia.length) return;
+    // Index circulaire : revient au début/fin en bout de liste
+    currentImgIndex = (i + galleryMedia.length) % galleryMedia.length;
+    const m = galleryMedia[currentImgIndex];
+    document.getElementById('main-img').src = m.url;
+    document.querySelectorAll('#thumbs img').forEach((img, idx) =>
+      img.classList.toggle('active', idx === currentImgIndex));
   }
+  function prevImg() { showImage(currentImgIndex - 1); }
+  function nextImg() { showImage(currentImgIndex + 1); }
+
+  // Navigation au clavier (flèches gauche/droite)
+  document.addEventListener('keydown', (e) => {
+    if (galleryMedia.length < 2) return;
+    if (e.key === 'ArrowLeft')  prevImg();
+    if (e.key === 'ArrowRight') nextImg();
+  });
 
   async function revealPhone() {
     if (phoneRevealed) {
