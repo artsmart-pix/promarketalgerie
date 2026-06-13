@@ -14,6 +14,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
 run('PRAGMA foreign_keys = ON').catch(err => console.error('Failed to enable foreign keys:', err));
 // Wait instead of failing immediately when the database is briefly locked.
 run('PRAGMA busy_timeout = 5000').catch(() => {});
+// Ensure the full-text search index exists and is in sync (idempotent). These
+// statements queue on this connection before any request is served.
+require('../db/fts').ensureFts(run).catch(err => console.error('FTS setup failed:', err.message));
 
 // Promisify query method (returns all rows)
 function query(sql, params = []) {

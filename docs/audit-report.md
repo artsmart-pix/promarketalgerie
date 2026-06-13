@@ -10,7 +10,8 @@
 | S1 `.env` untrack + rotation secret | S5 `reveal-phone` / `phone_visible` |
 | S2 CORS fail-closed | S7 (volets lourds) : `script-src-attr` inline→addEventListener + JWT→cookie httpOnly |
 | S3 WebSocket auth + temps réel fonctionnel | S8 admin par défaut (paramétrer pour prod) |
-| S4 Exa admin-only, plus de fuite d'erreur | Q3 logger structuré · Q4 recherche FTS5 |
+| S4 Exa admin-only, plus de fuite d'erreur | Q3 logger structuré |
+| **Q4 recherche FTS5 (accents, triggers, backfill)** | |
 | S6 `trust proxy` · S7 (partiel) CSP `imgSrc` | F3 audit a11y approfondi (Lighthouse) · F2 cookie |
 | **B1 transactions sérialisées** | sitemap.xml + canonical/og:url (besoin du domaine prod) |
 | B2 reçus PDF · B3 validation PUT · B4 quota | JSON-LD `Product` par annonce (listing-detail) |

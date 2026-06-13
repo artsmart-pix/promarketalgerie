@@ -99,6 +99,24 @@ describe('Listings', () => {
     const res = await request(app).get('/api/listings/does-not-exist');
     assert.strictEqual(res.status, 404);
   });
+
+  test('Q4: recherche FTS trouve une annonce active (insensible aux accents)', async () => {
+    // L'admin publie une annonce active (la recherche ne renvoie que status=active)
+    const create = await request(app).post('/api/admin/listings/create')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ category_id: 6, title_fr: 'Bétonnière Zxqw professionnelle', wilaya_id: 16,
+              price: 1, seller_name: 'Vendeur', seller_phone: '0555000111' });
+    assert.strictEqual(create.status, 201);
+
+    // Recherche sans accent + préfixe → doit la retrouver (trigger FTS + diacritics)
+    const res = await request(app).get('/api/listings?q=betonniere');
+    assert.strictEqual(res.status, 200);
+    assert.ok(res.body.data.some(l => /Zxqw/.test(l.title_fr)), 'annonce attendue dans les résultats FTS');
+
+    // Un terme absent ne la renvoie pas
+    const none = await request(app).get('/api/listings?q=zzzunlikelyterm');
+    assert.ok(!none.body.data.some(l => /Zxqw/.test(l.title_fr)));
+  });
 });
 
 describe('Permissions & sécurité', () => {

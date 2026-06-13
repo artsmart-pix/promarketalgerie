@@ -49,6 +49,9 @@ listings 1───* conversations 1───* messages
 conversations.buyer_id / seller_id ──> users
 ```
 
+### `listings_fts` (recherche plein-texte)
+Table virtuelle **FTS5** (`db/fts.js`) miroir des colonnes texte de `listings` (`title_fr`, `description_fr`, `title_ar`, `description_ar`), clé `id` (UNINDEXED). Synchronisée par triggers `AFTER INSERT/UPDATE/DELETE`, tokenizer `unicode61 remove_diacritics 1` (recherche insensible aux accents). Mise en place idempotente + backfill au démarrage de l'app (`ensureFts`). La recherche `GET /api/listings?q=` l'utilise via `MATCH` (préfixe).
+
 ## Remarques d'intégrité (voir audit)
 - **Aucune contrainte `FOREIGN KEY` déclarée** dans le schéma : les liens sont applicatifs. `PRAGMA foreign_keys = ON` est activé mais sans FK déclarées il n'a pas d'effet. Les suppressions en cascade sont gérées manuellement dans le code (`DELETE FROM listings/:id`).
 - `attributes` et `filters` sont du JSON stocké en texte ; interrogé via `json_extract`.

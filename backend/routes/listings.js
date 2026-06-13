@@ -7,6 +7,7 @@ const { body, validationResult } = require('express-validator');
 const db         = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { CATEGORIES } = require('../config/categories');
+const { buildFtsMatch } = require('../db/fts');
 
 const router = express.Router();
 
@@ -29,8 +30,11 @@ router.get('/', async (req, res) => {
     const addParam = (val) => { params.push(val); return '?'; };
 
     if (q) {
-      whereClause += ` AND (l.title_fr LIKE ${addParam('%' + q + '%')} OR l.description_fr LIKE ?)`;
-      params.push('%' + q + '%');
+      // Full-text search (FTS5), diacritic-insensitive, prefix-matched.
+      const ftsMatch = buildFtsMatch(q);
+      if (ftsMatch) {
+        whereClause += ` AND l.id IN (SELECT id FROM listings_fts WHERE listings_fts MATCH ${addParam(ftsMatch)})`;
+      }
     }
     if (category) {
       const cat = CATEGORIES.find(c => c.slug === category || c.id === parseInt(category));
