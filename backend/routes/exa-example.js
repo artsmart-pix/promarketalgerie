@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { searchExa, searchAndGetContents } = require('../services/exa');
+const { authenticate, requireRole } = require('../middleware/auth');
+
+// Exa proxies a paid external API with the server's key — restrict to admins
+// so it can never be abused as an open, billable proxy.
+router.use(authenticate, requireRole('admin'));
 
 /**
  * POST /api/exa/search
@@ -22,7 +27,7 @@ router.post('/search', async (req, res) => {
     });
   } catch (err) {
     console.error('Exa search error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Erreur du service de recherche.' });
   }
 });
 
@@ -54,7 +59,7 @@ router.post('/search-with-contents', async (req, res) => {
     });
   } catch (err) {
     console.error('Exa search+contents error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Erreur du service de recherche.' });
   }
 });
 
@@ -81,7 +86,7 @@ router.get('/example', async (req, res) => {
     });
   } catch (err) {
     console.error('Exa example error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Erreur du service de recherche.' });
   }
 });
 

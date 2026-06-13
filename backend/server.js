@@ -5,11 +5,15 @@ const helmet       = require('helmet');
 const rateLimit    = require('express-rate-limit');
 const path         = require('path');
 const http         = require('http');
-const WebSocket    = require('ws');
 const db           = require('./config/database');
 
 const app    = express();
 const server = http.createServer(app);
+
+// Behind a single reverse proxy (Docker/nginx): trust the first hop so that
+// req.ip reflects the real client (otherwise rate-limiting buckets collapse
+// onto the proxy IP). Adjust the hop count to your infrastructure.
+app.set('trust proxy', 1);
 
 // ── Security middleware ──────────────────────────────────────
 app.use(helmet({
@@ -19,16 +23,26 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com"],
+      // Allow inline event-handler attributes (onclick="...") used across
+      // the frontend. Without this, helmet's default `script-src-attr 'none'`
+      // blocks every inline handler (logout, search, tabs, language toggle…).
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "cdn.jsdelivr.net"],
       fontSrc: ["'self'", "fonts.gstatic.com", "cdnjs.cloudflare.com", "cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "data:", "blob:", "*"],
+      // Same-origin uploads ('self'), inline previews (data:/blob:) and
+      // external ad images over TLS (https:). Plaintext-http image sources are
+      // disallowed to remove a trivial exfiltration channel.
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
       connectSrc: ["'self'", "ws:", "wss:"],
     },
   },
 }));
 
-// ── Request encoding for Arabic / UTF-8 ─────────────────────
-app.use((req, res, next) => {
+// ── Request encoding for Arabic / UTF-8 (API responses only) ─
+// Scoped to /api so it doesn't override the MIME type of static
+// frontend assets (HTML/CSS/JS), which would otherwise be served
+// as application/json and rejected by the browser.
+app.use('/api', (req, res, next) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   next();
 });
@@ -42,8 +56,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.use(cors({
+  // Fail closed: only requests with no Origin (same-origin / server-to-server)
+  // or an explicitly allow-listed Origin pass — in every environment. The dev
+  // origins above are added to the allow-list only when NODE_ENV !== production.
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Origin not allowed by CORS'));
@@ -54,14 +71,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type','Authorization'],
 }));
 app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true }));
 
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
   max:      parseInt(process.env.RATE_LIMIT_MAX)        || 100,
   standardHeaders: true,
   legacyHeaders:   false,
-  validate: { trustProxy: false },
 });
 app.use('/api', limiter);
 
@@ -69,55 +84,13 @@ app.use('/api', limiter);
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || './uploads');
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-// ── Protect admin pages ─────────────────────────────────────
-const ADMIN_PAGES = ['/pages/admin.html', '/pages/admin-publish.html'];
-const jwt = require('jsonwebtoken');
-
-app.use((req, res, next) => {
-  const isAdminPage = ADMIN_PAGES.some(p => req.path.endsWith(p));
-  if (!isAdminPage) return next();
-
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
-
-  if (!token) {
-    return res.status(403).send(`
-      <!DOCTYPE html>
-      <html><head><meta charset="UTF-8"><title>Accès refusé</title></head>
-      <body style="font-family:sans-serif;text-align:center;padding:60px">
-        <h1>403 — Accès refusé</h1>
-        <p>Vous devez être connecté en tant qu'administrateur pour accéder à cette page.</p>
-        <a href="/pages/login.html">Se connecter</a>
-      </body></html>
-    `);
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.role !== 'admin') {
-      return res.status(403).send(`
-        <!DOCTYPE html>
-        <html><head><meta charset="UTF-8"><title>Accès refusé</title></head>
-        <body style="font-family:sans-serif;text-align:center;padding:60px">
-          <h1>403 — Accès refusé</h1>
-          <p>Vous n'avez pas les droits administrateur.</p>
-          <a href="/">Retour à l'accueil</a>
-        </body></html>
-      `);
-    }
-    next();
-  } catch {
-    return res.status(403).send(`
-      <!DOCTYPE html>
-      <html><head><meta charset="UTF-8"><title>Session invalide</title></head>
-      <body style="font-family:sans-serif;text-align:center;padding:60px">
-        <h1>403 — Session invalide</h1>
-        <p>Votre session a expiré. Veuillez vous reconnecter.</p>
-        <a href="/pages/login.html">Se connecter</a>
-      </body></html>
-    `);
-  }
-});
+// ── Admin pages ──────────────────────────────────────────────
+// No server-side page guard here: a browser navigation never carries
+// the `Authorization: Bearer` header (the JWT lives in localStorage and
+// is only attached by fetch()), so a header-based guard would block the
+// legitimate admin too. The real security boundary is the API — every
+// /api/admin/* route enforces `authenticate + requireRole('admin')`.
+// admin.html also performs a client-side role check for UX.
 
 // ── Serve frontend static files ─────────────────────────────
 const FRONTEND_DIR = path.resolve(__dirname, '..', 'frontend');
@@ -147,49 +120,9 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ── WebSocket — real-time chat ───────────────────────────────
-const wss = new WebSocket.Server({ server, path: '/ws' });
-const clients = new Map(); // userId → ws
-
-wss.on('error', (err) => {
-  console.error('WebSocket server error:', err.message);
-});
-
-wss.on('connection', (ws, req) => {
-  const params = new URLSearchParams(req.url.replace('/ws?', ''));
-  const token = params.get('token');
-  let userId = null;
-
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      userId = decoded.userId;
-    } catch {
-      ws.close(1008, 'Invalid token');
-      return;
-    }
-  }
-
-  if (userId) clients.set(userId, ws);
-
-  ws.on('message', async (raw) => {
-    try {
-      const msg = JSON.parse(raw);
-      // Broadcast to recipient if connected
-      if (msg.type === 'new_message' && msg.recipient_id) {
-        const recipientWs = clients.get(msg.recipient_id);
-        if (recipientWs && recipientWs.readyState === WebSocket.OPEN) {
-          recipientWs.send(JSON.stringify(msg));
-        }
-      }
-    } catch {
-      // Ignore malformed WebSocket messages
-    }
-  });
-
-  ws.on('close', () => {
-    if (userId) clients.delete(userId);
-  });
-});
+// Clients are receive-only; notifications are emitted by the REST message
+// routes via realtime.notifyUser (see services/realtime.js).
+require('./services/realtime').initWebSocket(server);
 
 // ── Root redirect ────────────────────────────────────────────
 app.get('/', (req, res) => {

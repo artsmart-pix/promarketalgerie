@@ -3,6 +3,7 @@ const crypto  = require('crypto');
 const db      = require('../config/database');
 const upload  = require('../middleware/upload');
 const { authenticate } = require('../middleware/auth');
+const { notifyUser } = require('../services/realtime');
 
 const router = express.Router();
 
@@ -106,6 +107,7 @@ router.post('/start', authenticate, async (req, res) => {
       [msgId, convId, req.user.id, initial_message.trim()]
     );
     const { rows } = await db.query('SELECT * FROM messages WHERE id = ?', [msgId]);
+    notifyUser(seller_id, { type: 'new_message', conversation_id: convId, sender_id: req.user.id });
     res.status(201).json({ conversation_id: convId, message: rows[0] });
   } catch (err) {
     console.error(err);
@@ -140,6 +142,8 @@ router.post('/conversations/:id/send', authenticate, upload.single('attachment')
       [msgId, req.params.id, req.user.id, msgBody?.trim() || null, attachUrl, attachType]
     );
     const { rows } = await db.query('SELECT * FROM messages WHERE id = ?', [msgId]);
+    const recipientId = conv.buyer_id === req.user.id ? conv.seller_id : conv.buyer_id;
+    notifyUser(recipientId, { type: 'new_message', conversation_id: req.params.id, sender_id: req.user.id });
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
