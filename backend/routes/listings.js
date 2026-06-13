@@ -276,23 +276,23 @@ router.delete('/:id', authenticate, async (req, res) => {
       return res.status(403).json({ error: 'Non autorisé.' });
     }
 
-    await db.run('BEGIN TRANSACTION');
+    const mediaFiles = await db.transaction(async () => {
+      const mediaQ = await db.query('SELECT url, url_thumb FROM listing_media WHERE listing_id = ?', [listingId]);
 
-    const mediaQ = await db.query('SELECT url, url_thumb FROM listing_media WHERE listing_id = ?', [listingId]);
-    const mediaFiles = mediaQ.rows || [];
+      await db.run('DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE listing_id = ?)', [listingId]);
+      await db.run('DELETE FROM conversations WHERE listing_id = ?', [listingId]);
+      await db.run('DELETE FROM favorites WHERE listing_id = ?', [listingId]);
+      await db.run('DELETE FROM listing_media WHERE listing_id = ?', [listingId]);
+      await db.run('DELETE FROM boost_orders WHERE listing_id = ?', [listingId]);
 
-    await db.run('DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE listing_id = ?)', [listingId]);
-    await db.run('DELETE FROM conversations WHERE listing_id = ?', [listingId]);
-    await db.run('DELETE FROM favorites WHERE listing_id = ?', [listingId]);
-    await db.run('DELETE FROM listing_media WHERE listing_id = ?', [listingId]);
-    await db.run('DELETE FROM boost_orders WHERE listing_id = ?', [listingId]);
-
-    const result = await db.run('DELETE FROM listings WHERE id = ?', [listingId]);
-    if (result.changes === 0) {
-      await db.run('ROLLBACK');
-      return res.status(404).json({ error: 'Annonce introuvable.' });
-    }
-    await db.run('COMMIT');
+      const result = await db.run('DELETE FROM listings WHERE id = ?', [listingId]);
+      if (result.changes === 0) {
+        const e = new Error('Annonce introuvable.');
+        e.code = 'NOT_FOUND';
+        throw e;
+      }
+      return mediaQ.rows || [];
+    });
 
     for (const m of mediaFiles) {
       try {
@@ -305,7 +305,7 @@ router.delete('/:id', authenticate, async (req, res) => {
 
     res.json({ message: 'Annonce supprimée.' });
   } catch (err) {
-    await db.run('ROLLBACK').catch(() => {});
+    if (err.code === 'NOT_FOUND') return res.status(404).json({ error: 'Annonce introuvable.' });
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
   }

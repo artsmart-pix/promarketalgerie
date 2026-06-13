@@ -95,28 +95,26 @@ router.delete('/listings/:id', param('id').isUUID(), handleValidationErrors, asy
   const uploadDir = path.resolve(process.env.UPLOAD_DIR || './uploads');
 
   try {
-    await db.run('BEGIN TRANSACTION');
+    const mediaFiles = await db.transaction(async () => {
+      // 1. Get media files to delete from disk
+      const mediaQ = await db.query('SELECT url, url_thumb FROM listing_media WHERE listing_id = ?', [listingId]);
 
-    // 1. Get media files to delete from disk
-    const mediaQ = await db.query('SELECT url, url_thumb FROM listing_media WHERE listing_id = ?', [listingId]);
-    const mediaFiles = mediaQ.rows || [];
+      // 2. Delete related records (order matters for FK constraints if any)
+      await db.run('DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE listing_id = ?)', [listingId]);
+      await db.run('DELETE FROM conversations WHERE listing_id = ?', [listingId]);
+      await db.run('DELETE FROM favorites WHERE listing_id = ?', [listingId]);
+      await db.run('DELETE FROM listing_media WHERE listing_id = ?', [listingId]);
+      await db.run('DELETE FROM boost_orders WHERE listing_id = ?', [listingId]);
 
-    // 2. Delete related records (order matters for FK constraints if any)
-    await db.run('DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE listing_id = ?)', [listingId]);
-    await db.run('DELETE FROM conversations WHERE listing_id = ?', [listingId]);
-    await db.run('DELETE FROM favorites WHERE listing_id = ?', [listingId]);
-    await db.run('DELETE FROM listing_media WHERE listing_id = ?', [listingId]);
-    await db.run('DELETE FROM boost_orders WHERE listing_id = ?', [listingId]);
-
-    // 3. Delete the listing
-    const result = await db.run('DELETE FROM listings WHERE id = ?', [listingId]);
-
-    if (result.changes === 0) {
-      await db.run('ROLLBACK');
-      return res.status(404).json({ error: 'Annonce introuvable.' });
-    }
-
-    await db.run('COMMIT');
+      // 3. Delete the listing
+      const result = await db.run('DELETE FROM listings WHERE id = ?', [listingId]);
+      if (result.changes === 0) {
+        const e = new Error('Annonce introuvable.');
+        e.code = 'NOT_FOUND';
+        throw e;
+      }
+      return mediaQ.rows || [];
+    });
 
     // 4. Delete physical files (best effort, don't fail if missing)
     for (const m of mediaFiles) {
@@ -130,7 +128,7 @@ router.delete('/listings/:id', param('id').isUUID(), handleValidationErrors, asy
 
     res.json({ message: 'Annonce supprimée définitivement.' });
   } catch (err) {
-    await db.run('ROLLBACK').catch(() => {});
+    if (err.code === 'NOT_FOUND') return res.status(404).json({ error: 'Annonce introuvable.' });
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur lors de la suppression.' });
   }
@@ -276,44 +274,45 @@ router.post('/listings/create', [
   }
 
   try {
-    await db.run('BEGIN TRANSACTION');
-    let sellerId;
-    const existing = await db.query('SELECT id FROM users WHERE phone = ?', [seller_phone]);
-    if (existing.rows.length) {
-      sellerId = existing.rows[0].id;
-    } else {
-      const tempEmail = `seller_${Date.now()}@temp.promarket.dz`;
-      const tempPass = crypto.randomBytes(16).toString('hex');
-      const hash = await bcrypt.hash(tempPass, 12);
-      const newId = crypto.randomUUID();
+    const listingId = await db.transaction(async () => {
+      let sellerId;
+      const existing = await db.query('SELECT id FROM users WHERE phone = ?', [seller_phone]);
+      if (existing.rows.length) {
+        sellerId = existing.rows[0].id;
+      } else {
+        const tempEmail = `seller_${Date.now()}@temp.promarket.dz`;
+        const tempPass = crypto.randomBytes(16).toString('hex');
+        const hash = await bcrypt.hash(tempPass, 12);
+        const newId = crypto.randomUUID();
+        await db.run(
+          `INSERT INTO users (id, email, password_hash, full_name, phone, role, account_type)
+           VALUES (?,?,?,?,?,'seller','individual')`,
+          [newId, tempEmail, hash, seller_name, seller_phone]
+        );
+        sellerId = newId;
+      }
+
+      let fullDescription = description_fr || '';
+      if (seller_name || seller_phone) {
+        fullDescription += `\n\n--- Contact ---\nVendeur: ${seller_name}\nTéléphone: ${seller_phone}`;
+      }
+
+      const id = crypto.randomUUID();
       await db.run(
-        `INSERT INTO users (id, email, password_hash, full_name, phone, role, account_type)
-         VALUES (?,?,?,?,?,'seller','individual')`,
-        [newId, tempEmail, hash, seller_name, seller_phone]
+        `INSERT INTO listings
+         (id, user_id, category_id, title_fr, description_fr, price, currency,
+          wilaya_id, condition, brand, year, status, is_premium, is_boosted, is_carousel,
+          moderated_by, moderated_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,'active',?,?,?,?,datetime('now'))`,
+        [
+          id, sellerId, category_id, title_fr, fullDescription,
+          price || null, currency || 'DZD', wilaya_id,
+          condition || null, brand || null, year || null,
+          is_premium ? 1 : 0, is_boosted ? 1 : 0, is_carousel ? 1 : 0, req.user.id
+        ]
       );
-      sellerId = newId;
-    }
-
-    let fullDescription = description_fr || '';
-    if (seller_name || seller_phone) {
-      fullDescription += `\n\n--- Contact ---\nVendeur: ${seller_name}\nTéléphone: ${seller_phone}`;
-    }
-
-    const listingId = crypto.randomUUID();
-    await db.run(
-      `INSERT INTO listings
-       (id, user_id, category_id, title_fr, description_fr, price, currency,
-        wilaya_id, condition, brand, year, status, is_premium, is_boosted, is_carousel,
-        moderated_by, moderated_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,'active',?,?,?,?,datetime('now'))`,
-      [
-        listingId, sellerId, category_id, title_fr, fullDescription,
-        price || null, currency || 'DZD', wilaya_id,
-        condition || null, brand || null, year || null,
-        is_premium ? 1 : 0, is_boosted ? 1 : 0, is_carousel ? 1 : 0, req.user.id
-      ]
-    );
-    await db.run('COMMIT');
+      return id;
+    });
 
     res.status(201).json({
       id: listingId,
@@ -322,7 +321,6 @@ router.post('/listings/create', [
       message: 'Annonce créée et publiée avec succès.'
     });
   } catch (err) {
-    await db.run('ROLLBACK').catch(() => {});
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
   }

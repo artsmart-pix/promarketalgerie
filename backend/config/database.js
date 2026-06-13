@@ -12,6 +12,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // Enable foreign keys (async)
 run('PRAGMA foreign_keys = ON').catch(err => console.error('Failed to enable foreign keys:', err));
+// Wait instead of failing immediately when the database is briefly locked.
+run('PRAGMA busy_timeout = 5000').catch(() => {});
 
 // Promisify query method (returns all rows)
 function query(sql, params = []) {
@@ -33,9 +35,34 @@ function run(sql, params = []) {
   });
 }
 
+// Serialized transactions. All app code shares a single sqlite3 connection, and
+// a connection holds at most one transaction — so two requests issuing
+// BEGIN/COMMIT concurrently would interleave (or throw "cannot start a
+// transaction within a transaction"). This helper chains transactions so only
+// one runs at a time: BEGIN → work() → COMMIT, with automatic ROLLBACK on error.
+let txTail = Promise.resolve();
+function transaction(work) {
+  const exec = async () => {
+    await run('BEGIN');
+    try {
+      const result = await work();
+      await run('COMMIT');
+      return result;
+    } catch (err) {
+      await run('ROLLBACK').catch(() => {});
+      throw err;
+    }
+  };
+  const p = txTail.then(exec, exec);
+  // Keep the chain alive regardless of this transaction's outcome.
+  txTail = p.then(() => {}, () => {});
+  return p;
+}
+
 module.exports = {
   query,
   run,
+  transaction,
   db,
   getClient: () => db
 };
