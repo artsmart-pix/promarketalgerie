@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Espaces privés / applicatifs : ne pas indexer
+Disallow: /pages/admin.html
+Disallow: /pages/admin-publish.html
+Disallow: /pages/dashboard.html
+Disallow: /pages/create-listing.html
+Disallow: /pages/login.html
+Disallow: /uploads/
+
+# Renseigner l'URL absolue du sitemap après déploiement, ex :
+# Sitemap: https://votre-domaine.tld/sitemap.xml

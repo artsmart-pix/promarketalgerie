@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mon Espace — Pro Market Algérie</title>
+  <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
@@ -251,7 +252,7 @@
             <thead><tr><th>Photo</th><th>Titre</th><th>Prix</th><th>Statut</th><th>Vues</th><th>Contacts</th><th>Actions</th></tr></thead>
             <tbody>${listings.map(l => `
               <tr>
-                <td>${l.cover_image ? `<img src="${escapeHtml(l.cover_image)}" class="thumb-img">` : '<i class="fas fa-image" style="color:var(--gray-400);font-size:1.5rem"></i>'}</td>
+                <td>${l.cover_image ? `<img src="${escapeHtml(l.cover_image)}" alt="${escapeHtml(l.title_fr || 'Annonce')}" class="thumb-img">` : '<i class="fas fa-image" style="color:var(--gray-400);font-size:1.5rem"></i>'}</td>
                 <td><a href="listing-detail.html?id=${l.id}" style="font-weight:600">${escapeHtml(l.title_fr)}</a><br><small style="color:var(--gray-400)">${formatDate(l.created_at)}</small></td>
                 <td>${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Sur contact'}</td>
                 <td>${statusBadge(l.status)}</td>

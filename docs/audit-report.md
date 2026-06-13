@@ -8,15 +8,19 @@
 | Corrigé ✅ | Différé ⏳ (suite à donner) |
 |-----------|------------------------------|
 | S1 `.env` untrack + rotation secret | S5 `reveal-phone` / `phone_visible` |
-| S2 CORS fail-closed | S7 (volets lourds) : retrait `script-src-attr 'unsafe-inline'` + JWT→cookie httpOnly |
+| S2 CORS fail-closed | S7 (volets lourds) : `script-src-attr` inline→addEventListener + JWT→cookie httpOnly |
 | S3 WebSocket auth + temps réel fonctionnel | S8 admin par défaut (paramétrer pour prod) |
-| S4 Exa admin-only, plus de fuite d'erreur | B1 transactions SQLite (mutex / better-sqlite3) |
-| S6 `trust proxy` | Q1 tests automatisés · Q3 logger · Q4 FTS5 |
-| S7 (partiel) CSP `imgSrc` resserré | F3 audit a11y/Lighthouse · F4 SEO · F2 cookie |
-| B2 reçus PDF · B3 validation PUT · B4 quota | Q2 (Exa conservé, sécurisé) |
-| B5 multi-sockets · Q5 pagination bornée · Q7 | |
+| S4 Exa admin-only, plus de fuite d'erreur | Q3 logger structuré · Q4 recherche FTS5 |
+| S6 `trust proxy` · S7 (partiel) CSP `imgSrc` | F3 audit a11y approfondi (Lighthouse) · F2 cookie |
+| **B1 transactions sérialisées** | sitemap.xml + canonical/og:url (besoin du domaine prod) |
+| B2 reçus PDF · B3 validation PUT · B4 quota | JSON-LD `Product` par annonce (listing-detail) |
+| B5 multi-sockets · Q5 pagination · Q7 | |
+| **Q1 suite de tests (17, node:test+supertest)** | |
+| **F3/F4 (base) : meta desc + OG par page, noindex** | |
+| **des pages privées, robots.txt, JSON-LD, alt** | |
+| **+ déploiement Docker clone-and-run** | |
 
-Tous les correctifs ci-dessus ont été **vérifiés au runtime** (démarrage prod, CORS, auth, WebSocket handshake, validations, bornage) et passent eslint.
+Tous les correctifs ci-dessus ont été **vérifiés** (runtime : démarrage prod, CORS, auth, WebSocket handshake, validations, bornage ; transactions : 12 concurrentes + rollback ; suite de tests 17/17 ; eslint 0 erreur).
 
 ## Synthèse
 
