@@ -34,3 +34,6 @@ Thumbs.db
 
 # AI tooling artifacts (if generated)
 .opencode/node_modules/
+
+# Docker Compose override (local dev only — bind-mounts, etc.)
+docker-compose.override.yml

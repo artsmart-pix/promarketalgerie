@@ -1015,7 +1015,6 @@ body.menu-open::before {
 .contact-sidebar {
   background: #fff; border-radius: var(--r-lg);
   box-shadow: var(--shadow-md); padding: 24px;
-  position: sticky; top: 76px; align-self: start;
   border: 1px solid var(--gray-200);
 }
 .contact-sidebar .seller-info {
