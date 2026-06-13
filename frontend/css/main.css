@@ -581,11 +581,46 @@ body.menu-open::before {
   background: var(--blue);
   border-top: 1px solid rgba(255,255,255,.12);
 }
+.cat-nav-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
 .cat-nav-list {
   display: flex; overflow-x: auto; padding: 0;
+  flex: 1 1 auto; min-width: 0;
   -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  scroll-behavior: smooth;
 }
 .cat-nav-list::-webkit-scrollbar { display: none; }
+/* Flèches de défilement (visibles uniquement quand la liste déborde) */
+.cat-nav-arrow {
+  flex: 0 0 auto;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  background: var(--blue);
+  position: relative;
+  z-index: 2;
+  font-size: 14px;
+  transition: background var(--t-fast);
+}
+.cat-nav-arrow.is-visible { display: flex; }
+.cat-nav-arrow:hover { background: rgba(255,255,255,.12); }
+/* Dégradé de fondu pour indiquer la continuité du contenu */
+.cat-nav-arrow::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 28px;
+  pointer-events: none;
+}
+.cat-nav-arrow-left::before  { left: 100%;  background: linear-gradient(90deg, var(--blue), transparent); }
+.cat-nav-arrow-right::before { right: 100%; background: linear-gradient(270deg, var(--blue), transparent); }
 .cat-nav-list a {
   color: rgba(255,255,255,.8); white-space: nowrap;
   padding: 10px 16px; font-size: 13px; font-weight: 500;

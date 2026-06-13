@@ -367,9 +367,17 @@ function renderHeader() {
       
       <div class="cat-nav">
         <div class="container">
-          <ul class="cat-nav-list" id="cat-nav-list">
-            <!-- Categories loaded dynamically -->
-          </ul>
+          <div class="cat-nav-wrap">
+            <button class="cat-nav-arrow cat-nav-arrow-left" id="cat-nav-prev" type="button" aria-label="Catégories précédentes">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <ul class="cat-nav-list" id="cat-nav-list">
+              <!-- Categories loaded dynamically -->
+            </ul>
+            <button class="cat-nav-arrow cat-nav-arrow-right" id="cat-nav-next" type="button" aria-label="Catégories suivantes">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </div>
       
@@ -439,7 +447,34 @@ function renderHeader() {
     navList?.querySelectorAll('a').forEach(a => {
       if (urlSlug && a.href.includes(urlSlug)) a.classList.add('active');
     });
+    setupCatNavScroll();
+    // Centre la catégorie active si elle déborde hors écran
+    navList?.querySelector('a.active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
   }).catch(() => {});
+}
+
+// Défilement horizontal de la top bar catégories (flèches + indicateurs de bord)
+function setupCatNavScroll() {
+  const list = document.getElementById('cat-nav-list');
+  const prev = document.getElementById('cat-nav-prev');
+  const next = document.getElementById('cat-nav-next');
+  if (!list || !prev || !next) return;
+
+  const update = () => {
+    const max = list.scrollWidth - list.clientWidth;
+    const scrollable = max > 4;
+    prev.classList.toggle('is-visible', scrollable && list.scrollLeft > 4);
+    next.classList.toggle('is-visible', scrollable && list.scrollLeft < max - 4);
+  };
+  const step = () => Math.max(160, list.clientWidth * 0.7);
+
+  prev.addEventListener('click', () => list.scrollBy({ left: -step(), behavior: 'smooth' }));
+  next.addEventListener('click', () => list.scrollBy({ left:  step(), behavior: 'smooth' }));
+  list.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  // Recalcule une fois la mise en page stabilisée (icônes Font Awesome)
+  requestAnimationFrame(update);
+  setTimeout(update, 400);
 }
 
 function toggleLanguage() {

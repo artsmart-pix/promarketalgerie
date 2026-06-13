@@ -4,7 +4,7 @@ const db = require('../config/database');
 
 const router = express.Router();
 
-// GET /api/categories — all 10 main categories
+// GET /api/categories — all 13 main categories
 router.get('/', (req, res) => {
   res.json(CATEGORIES.map(c => ({
     id: c.id, slug: c.slug,
