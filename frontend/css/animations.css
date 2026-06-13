@@ -693,7 +693,8 @@
 /* ── Link Underline Animation ─────────────────────────────── */
 .footer-col a {
   position: relative;
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
 }
 
 .footer-col a::after {
@@ -3965,6 +3966,7 @@
   
   .footer-col a {
     justify-content: center;
+    margin-inline: auto;
   }
   
   .footer-bottom {

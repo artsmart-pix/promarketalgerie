@@ -63,7 +63,7 @@
 
 /* ─── Reset ───────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: clip; }
 body {
   font-family: var(--font);
   color: var(--dark);
@@ -74,6 +74,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* Contient les éléments hors-écran (menu mobile off-canvas, halos décoratifs)
+     sans créer de conteneur de défilement → position:sticky reste fonctionnel. */
+  overflow-x: clip;
+  max-width: 100%;
 }
 .page-wrapper {
   flex: 1;
@@ -1784,14 +1788,21 @@ body.menu-open::before {
   h1 { font-size: 1.75rem; }
   h2 { font-size: 1.35rem; }
 
+  /* Header : resserrer pour que le bouton hamburger reste dans le viewport */
+  .header-top { gap: 10px; }
+  .header-actions { gap: 2px; }
+  .header-action-btn { padding: 6px 8px; }
+
   .btn { white-space: normal; min-height: 40px; }
   .btn-lg { padding: 12px 22px; font-size: 14px; }
   .btn-sm { padding: 8px 12px; font-size: 12px; }
   .btn-xs { padding: 6px 10px; font-size: 11px; }
 
-  /* Footer */
-  .footer-top { grid-template-columns: 1fr; gap: 28px; }
-  .footer-col a { display: inline-block; padding: 6px 0; }
+  /* Footer — marque pleine largeur, colonnes de liens sur 2 colonnes,
+     liens empilés verticalement (corrige l'effet « texte collé »). */
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-col a { display: flex; padding: 5px 0; }
   .footer-bottom { flex-direction: column; text-align: center; gap: 10px; }
 
   /* Section titles */
