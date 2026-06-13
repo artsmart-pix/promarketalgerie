@@ -3,6 +3,21 @@
 > Audit réalisé le **2026-06-13** (BMAD + revue manuelle). Portée : sécurité, bugs/logique, qualité/perf, frontend/UX/a11y.
 > Légende sévérité : 🔴 critique · 🟠 élevé · 🟡 moyen · ⚪ faible · ✅ positif
 
+## Statut de remédiation (branche `audit/securite-ajustements`)
+
+| Corrigé ✅ | Différé ⏳ (suite à donner) |
+|-----------|------------------------------|
+| S1 `.env` untrack + rotation secret | S5 `reveal-phone` / `phone_visible` |
+| S2 CORS fail-closed | S7 (volets lourds) : retrait `script-src-attr 'unsafe-inline'` + JWT→cookie httpOnly |
+| S3 WebSocket auth + temps réel fonctionnel | S8 admin par défaut (paramétrer pour prod) |
+| S4 Exa admin-only, plus de fuite d'erreur | B1 transactions SQLite (mutex / better-sqlite3) |
+| S6 `trust proxy` | Q1 tests automatisés · Q3 logger · Q4 FTS5 |
+| S7 (partiel) CSP `imgSrc` resserré | F3 audit a11y/Lighthouse · F4 SEO · F2 cookie |
+| B2 reçus PDF · B3 validation PUT · B4 quota | Q2 (Exa conservé, sécurisé) |
+| B5 multi-sockets · Q5 pagination bornée · Q7 | |
+
+Tous les correctifs ci-dessus ont été **vérifiés au runtime** (démarrage prod, CORS, auth, WebSocket handshake, validations, bornage) et passent eslint.
+
 ## Synthèse
 
 Code propre, cohérent et déjà soucieux de sécurité (requêtes **paramétrées partout**, `escapeHtml` systématique au frontend, hash bcrypt cost 12, validation `express-validator`, permissions par rôle, IDOR vérifiées sur listings/media/messages). Les points à traiter avant production sont surtout **opérationnels/configuration** (secret commité, CORS fail-open, rate-limit derrière proxy) et quelques **durcissements** (WebSocket, route Exa, transactions SQLite).
