@@ -1541,7 +1541,14 @@ body.menu-open::before {
     letter-spacing: 1.5px;
   }
   .header-top {
-    padding: 8px 0;
+    /* Top : zone sûre (encoche / barre d'URL) pour ne pas masquer le logo.
+       Bottom : espace pour séparer le logo de la barre de catégories
+       (.cat-nav) qui le suit, sinon les deux se chevauchent. */
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 0 14px;
+  }
+  /* Fait descendre la barre de catégories indépendamment du logo. */
+  .cat-nav {
+    margin-top: 12px;
   }
 }
 

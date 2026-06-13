@@ -328,11 +328,6 @@ function renderHeader() {
           </div>
           
           <div class="header-actions">
-            <button onclick="toggleLanguage()" class="header-action-btn" title="عربي / Français">
-              <i class="fas fa-language"></i>
-              <span class="lbl">ع/FR</span>
-            </button>
-            
             ${user?.role === 'admin' ? `
               <a href="${BASE}pages/admin-publish.html" class="header-action-btn" style="background:var(--orange);color:#fff;border-radius:8px">
                 <i class="fas fa-plus-circle"></i>

@@ -2848,10 +2848,24 @@
 }
 
 @media (max-width: 768px) {
+  /* La barre du bas (.bottom-nav) fournit déjà Menu + Publier ;
+     on masque ici leurs doublons du header. Cette règle doit vivre dans
+     animations.css (chargé APRÈS main.css) sinon le bloc @media 1024px
+     ci-dessus réafficherait .header-mobile-toggle (display:flex). */
+  .header-mobile-toggle {
+    display: none;
+  }
+
+  .header-actions .btn-deposer {
+    /* !important nécessaire : .header-actions .btn-deposer porte
+       display: flex !important dans main.css (ligne ~332). */
+    display: none !important;
+  }
+
   .header-actions .header-action-btn .lbl {
     display: none;
   }
-  
+
   .header-actions {
     gap: 2px;
   }
