@@ -1,7 +1,7 @@
 const express = require('express');
 const crypto  = require('crypto');
 const db      = require('../config/database');
-const upload  = require('../middleware/upload');
+const uploadReceipt = require('../middleware/upload-receipt');
 const { authenticate } = require('../middleware/auth');
 const { SUBSCRIPTION_PACKS, BOOST_TYPES } = require('../config/categories');
 
@@ -18,8 +18,11 @@ router.get('/boosts', (req, res) => {
 });
 
 // POST /api/subscriptions/order — submit subscription order
-router.post('/order', authenticate, upload.single('receipt'), async (req, res) => {
+router.post('/order', authenticate, uploadReceipt.single('receipt'), async (req, res) => {
   const { pack, payment_method, notes } = req.body;
+  if (req.fileRejected) {
+    return res.status(422).json({ error: 'Reçu invalide : formats acceptés JPG, PNG, WebP ou PDF.' });
+  }
   const validPacks = Object.keys(SUBSCRIPTION_PACKS).filter(p => p !== 'free');
   if (!validPacks.includes(pack)) {
     return res.status(422).json({ error: 'Pack invalide.' });

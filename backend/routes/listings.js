@@ -19,7 +19,10 @@ router.get('/', async (req, res) => {
       sort = 'recent', page = 1, limit = 24,
     } = req.query;
 
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    // Bound pagination to avoid unbounded scans from `?limit=100000`.
+    const parsedLimit = Math.min(Math.max(parseInt(limit) || 24, 1), 50);
+    const parsedPage  = Math.max(parseInt(page) || 1, 1);
+    const offset = (parsedPage - 1) * parsedLimit;
     const params = [];
     let whereClause = "WHERE l.status = 'active'";
 
@@ -65,7 +68,7 @@ router.get('/', async (req, res) => {
     );
     const total = parseInt(countQ.rows[0].count) || 0;
 
-    params.push(parseInt(limit), offset);
+    params.push(parsedLimit, offset);
     const dataQ = await db.query(
       `SELECT l.id, l.title_fr, l.title_ar, l.price, l.currency, l.price_on_contact,
               l.condition, l.is_boosted, l.is_premium, l.brand, l.year,
@@ -84,7 +87,7 @@ router.get('/', async (req, res) => {
 
     res.json({
       data: dataQ.rows,
-      pagination: { total, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(total / parseInt(limit)) },
+      pagination: { total, page: parsedPage, limit: parsedLimit, pages: Math.ceil(total / parsedLimit) },
     });
   } catch (err) {
     console.error(err);
@@ -182,7 +185,7 @@ router.post('/', authenticate, [
   const packLimit = packLimits[req.user.pack] ?? 3;
   if (packLimit !== -1) {
     const countQ = await db.query(
-      "SELECT COUNT(*) AS count FROM listings WHERE user_id = ? AND status != 'expired'",
+      "SELECT COUNT(*) AS count FROM listings WHERE user_id = ? AND status NOT IN ('expired', 'rejected')",
       [req.user.id]
     );
     if ((parseInt(countQ.rows[0].count) || 0) >= packLimit) {
@@ -220,7 +223,14 @@ router.post('/', authenticate, [
 });
 
 // ── PUT /api/listings/:id — edit own listing ─────────────────
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, [
+  body('title_fr').optional().trim().notEmpty().isLength({ max: 300 }),
+  body('price').optional({ nullable: true }).isFloat({ min: 0 }),
+  body('currency').optional().isIn(['DZD', 'EUR']),
+  body('condition').optional({ nullable: true }).isIn(['new', 'excellent', 'good', 'fair', 'for_parts']),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
   try {
     const check = await db.query('SELECT user_id FROM listings WHERE id = ?', [req.params.id]);
     if (!check.rows.length) return res.status(404).json({ error: 'Annonce introuvable.' });
