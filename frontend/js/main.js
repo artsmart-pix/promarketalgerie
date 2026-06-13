@@ -453,11 +453,9 @@ function renderHeader() {
   }).catch(() => {});
 }
 
-// Défilement horizontal de la top bar catégories (flèches + indicateurs de bord)
-function setupCatNavScroll() {
-  const list = document.getElementById('cat-nav-list');
-  const prev = document.getElementById('cat-nav-prev');
-  const next = document.getElementById('cat-nav-next');
+// Pilote un conteneur à défilement horizontal via deux boutons ‹ › ;
+// les boutons ne s'affichent (.is-visible) que lorsque le contenu déborde.
+function setupHScroll(list, prev, next) {
   if (!list || !prev || !next) return;
 
   const update = () => {
@@ -475,6 +473,16 @@ function setupCatNavScroll() {
   // Recalcule une fois la mise en page stabilisée (icônes Font Awesome)
   requestAnimationFrame(update);
   setTimeout(update, 400);
+}
+window.setupHScroll = setupHScroll;
+
+// Défilement horizontal de la top bar catégories
+function setupCatNavScroll() {
+  setupHScroll(
+    document.getElementById('cat-nav-list'),
+    document.getElementById('cat-nav-prev'),
+    document.getElementById('cat-nav-next'),
+  );
 }
 
 function toggleLanguage() {

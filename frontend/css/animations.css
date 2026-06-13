@@ -2544,22 +2544,12 @@
   padding: 20px 0 30px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: var(--orange) var(--gray-200);
+  /* Scrollbar masquée : le défilement se fait via les boutons ‹ › */
+  scrollbar-width: none;
 }
 
 .categories-grid::-webkit-scrollbar {
-  height: 6px;
-}
-
-.categories-grid::-webkit-scrollbar-track {
-  background: var(--gray-200);
-  border-radius: 3px;
-}
-
-.categories-grid::-webkit-scrollbar-thumb {
-  background: var(--orange);
-  border-radius: 3px;
+  display: none;
 }
 
 .cat-card {

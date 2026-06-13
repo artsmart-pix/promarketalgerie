@@ -155,9 +155,17 @@
         <p class="section-subtitle">Choisissez votre secteur d'activité et trouvez les meilleures opportunités</p>
       </div>
     </div>
-    <div class="categories-grid stagger-children" id="categories-grid">
-      <!-- injected by JS -->
-      <div class="empty-state"><div class="spinner" style="width:30px;height:30px;border-color:var(--blue);border-top-color:transparent"></div></div>
+    <div class="categories-grid-wrap">
+      <button class="cat-grid-arrow cat-grid-arrow-left" id="cat-grid-prev" type="button" aria-label="Rubriques précédentes">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="categories-grid stagger-children" id="categories-grid">
+        <!-- injected by JS -->
+        <div class="empty-state"><div class="spinner" style="width:30px;height:30px;border-color:var(--blue);border-top-color:transparent"></div></div>
+      </div>
+      <button class="cat-grid-arrow cat-grid-arrow-right" id="cat-grid-next" type="button" aria-label="Rubriques suivantes">
+        <i class="fas fa-chevron-right"></i>
+      </button>
     </div>
   </div>
 </section>
@@ -349,6 +357,13 @@
       <span class="cat-name">${c.name_fr}</span>
       <small class="cat-name-ar">${c.name_ar}</small>
     </a>`).join('');
+
+  // Boutons ‹ › pour faire défiler la grille de rubriques
+  setupHScroll(
+    document.getElementById('categories-grid'),
+    document.getElementById('cat-grid-prev'),
+    document.getElementById('cat-grid-next'),
+  );
 
   // Try to reload from API (enrich with counts etc.)
   CategoriesAPI.list().catch(() => {});
