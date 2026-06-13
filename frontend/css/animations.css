@@ -1842,26 +1842,29 @@
 
 /* ── Modern Search Bar — Enhanced ─────────────────────────── */
 .modern-search {
-  max-width: 800px;
+  max-width: 820px;
   margin: 0 auto;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: var(--r-xl);
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  border: 2px solid transparent;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  gap: 4px;
+  padding: 7px;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow:
+    0 18px 40px -12px rgba(8, 20, 45, 0.45),
+    0 4px 10px -2px rgba(8, 20, 45, 0.12),
+    inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+  border: none;
+  transition: box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   animation: hero-search-appear 1s cubic-bezier(0.16, 1, 0.3, 1) 1.3s both;
-  backdrop-filter: blur(20px);
   position: relative;
 }
 
 .modern-search::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: calc(var(--r-xl) + 2px);
+  inset: -3px;
+  border-radius: inherit;
   background: linear-gradient(135deg, var(--orange), var(--blue), var(--orange));
   background-size: 200% 200%;
   z-index: -1;
@@ -1894,28 +1897,38 @@
 }
 
 .modern-search:focus-within {
-  border-color: transparent;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
-  transform: translateY(-3px);
+  box-shadow:
+    0 22px 50px -14px rgba(242, 101, 34, 0.45),
+    0 4px 10px -2px rgba(8, 20, 45, 0.12);
+  transform: translateY(-2px);
 }
 
 .modern-search .search-icon {
-  padding: 0 16px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin-left: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
   color: var(--gray-400);
-  font-size: 18px;
-  transition: color 0.3s ease, transform 0.3s ease;
+  font-size: 17px;
+  transition: color 0.3s ease, background 0.3s ease, transform 0.3s ease;
 }
 
 .modern-search:focus-within .search-icon {
   color: var(--orange);
-  transform: scale(1.1);
+  background: rgba(242, 101, 34, 0.10);
+  transform: scale(1.05);
 }
 
 .modern-search input {
   flex: 1;
-  padding: 18px 16px;
+  min-width: 0;
+  padding: 14px 12px;
   border: none;
-  font-size: 15px;
+  font-size: 15.5px;
   color: var(--dark);
   background: transparent;
   outline: none;
@@ -1944,16 +1957,22 @@
 }
 
 .modern-search select {
-  padding: 0 20px;
+  padding: 12px 18px;
   border: none;
   font-size: 14px;
   color: var(--gray-600);
-  background: transparent;
-  min-width: 170px;
+  background: var(--gray-100);
+  border-radius: 999px;
+  min-width: 168px;
   outline: none;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: color 0.3s ease;
+  margin-right: 2px;
+  transition: color 0.25s ease, background 0.25s ease;
+}
+
+.modern-search select:hover {
+  background: var(--gray-200);
 }
 
 .modern-search select:focus {
@@ -1967,20 +1986,21 @@
 }
 
 .modern-search button {
-  padding: 18px 32px;
-  background: linear-gradient(135deg, var(--orange-light), var(--orange), var(--orange-dark));
+  padding: 15px 30px;
+  background: linear-gradient(135deg, var(--orange-light), var(--orange) 55%, var(--orange-dark));
   background-size: 200% 100%;
   background-position: right;
   color: #fff;
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
-  border-radius: 0;
-  transition: all 0.4s ease;
+  border-radius: 999px;
+  box-shadow: 0 8px 18px -5px rgba(242, 101, 34, 0.55);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, gap 0.3s ease, background-position 0.4s ease;
   position: relative;
   overflow: hidden;
 }
@@ -2006,7 +2026,12 @@
 .modern-search button:hover {
   background-position: left;
   gap: 14px;
-  box-shadow: 0 5px 20px rgba(242, 101, 34, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px -6px rgba(242, 101, 34, 0.65);
+}
+
+.modern-search button:active {
+  transform: translateY(0);
 }
 
 .modern-search button i {
@@ -4499,5 +4524,32 @@
 
   .page-wrapper {
     padding-bottom: 0;
+  }
+}
+
+/* ── Hero search — clean stacked layout on mobile ──────────── */
+@media (max-width: 860px) {
+  .modern-search {
+    padding: 0;
+    gap: 0;
+    border-radius: var(--r-lg);
+  }
+  .modern-search .search-icon {
+    width: auto;
+    height: auto;
+    margin: 0;
+    background: none;
+    transform: none;
+  }
+  .modern-search select {
+    background: transparent;
+    border-radius: 0;
+    margin: 0;
+    min-width: 0;
+    font-weight: 500;
+  }
+  .modern-search button {
+    box-shadow: none;
+    transform: none;
   }
 }

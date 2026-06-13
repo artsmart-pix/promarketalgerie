@@ -1690,6 +1690,31 @@ body.menu-open::before {
   right: 8px;
 }
 
+/* Search — premium look, same family as the hero search */
+.filter-bar-search .search-input-wrap input {
+  height: 44px;
+  border-radius: 999px;
+  background: var(--gray-100);
+  border-color: transparent;
+  font-weight: 500;
+  transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.filter-bar-search .search-input-wrap input:hover {
+  background: #fff;
+  border-color: var(--gray-200);
+}
+.filter-bar-search .search-input-wrap input:focus {
+  background: #fff;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 4px rgba(242, 101, 34, 0.12);
+}
+.filter-bar-search .search-input-icon {
+  transition: color 0.2s ease;
+}
+.filter-bar-search .search-input-wrap:focus-within .search-input-icon {
+  color: var(--orange);
+}
+
 /* Action buttons */
 .filter-bar-actions {
   display: flex;
