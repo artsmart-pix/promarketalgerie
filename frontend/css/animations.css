@@ -2380,23 +2380,22 @@
   left: 10%;
 }
 
-/* ── Topbar Rubriques — design mobile (chips à swiper) ─────────
-   Sur mobile la barre des rubriques devient une rangée de pastilles
-   compactes que l'on fait défiler au doigt (swipe natif) : on masque les
-   flèches ‹ ›, on réduit le texte, on arrondit, et la rubrique active
-   devient une pastille orange pleine au lieu d'un soulignement.
+/* ── Topbar Rubriques — design mobile (pastilles multilignes) ──
+   Sur mobile la barre des rubriques devient une grille de pastilles
+   compactes qui se répartissent sur plusieurs lignes (flex-wrap) : tout est
+   visible d'un coup, sans défilement ni flèches. La rubrique active devient
+   une pastille orange pleine au lieu d'un soulignement.
    Placé dans animations.css (chargé après main.css) pour gagner la cascade,
    notamment neutraliser le ::after du soulignement défini ci-dessus. */
 @media (max-width: 768px) {
-  /* Swipe tactile : les flèches ‹ › ne servent plus */
+  /* Plus de défilement horizontal : les flèches ‹ › ne servent plus */
   .cat-nav-arrow { display: none !important; }
 
   .cat-nav-list {
+    flex-wrap: wrap;              /* les pastilles passent à la ligne */
+    overflow-x: visible;         /* annule le scroll horizontal du desktop */
     gap: 8px;
-    padding: 9px 14px;
-    /* marge de respiration pour la dernière pastille + accroche du snap */
-    scroll-padding-inline: 14px;
-    scroll-snap-type: x proximity;
+    padding: 12px 14px;
   }
 
   .cat-nav-list a {
@@ -2408,7 +2407,6 @@
     border-bottom: 1px solid rgba(255, 255, 255, .18);
     background: rgba(255, 255, 255, .14);
     color: #fff;
-    scroll-snap-align: start;
   }
   .cat-nav-list a i { font-size: 12px; opacity: .9; }
 
