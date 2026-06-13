@@ -475,14 +475,10 @@
 }
 
 @keyframes page-load {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  /* Opacité uniquement : aucun transform, sinon .page-wrapper devient un bloc
+     conteneur pour ses descendants position:fixed et casse le menu mobile. */
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ── Toast Notification Enhancements ──────────────────────── */
@@ -1230,7 +1226,12 @@
 /* ── Content Reveal After Load ────────────────────────────── */
 .page-wrapper.loaded {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  /* transform:none (et animation:none qui maintenait translateY(0) via forwards)
+     IMPÉRATIF : tout transform sur .page-wrapper en fait un bloc conteneur pour
+     ses descendants position:fixed (.bottom-nav, .header-mobile-menu), ce qui
+     casse leur positionnement viewport → le menu s'ouvrait hors écran. */
+  transform: none;
+  animation: none;
 }
 
 /* ── Staggered Content Entry ──────────────────────────────── */
@@ -4401,9 +4402,11 @@
     display: flex;
   }
 
-  body {
-    padding-bottom: 70px;
-    min-height: calc(100vh - 70px);
+  /* Réserve l'espace de la barre du bas (.bottom-nav, fixe) SUR le footer,
+     dont le fond est foncé. Avant, le padding était sur le <body> (fond clair),
+     ce qui laissait une bande claire visible après le footer. */
+  .site-footer {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
   }
 
   .page-wrapper {

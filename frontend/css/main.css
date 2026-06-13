@@ -545,6 +545,34 @@ h4 { font-size: 1rem; font-weight: 600; }
   margin: 12px 0;
 }
 
+/* ── Section Rubriques du menu mobile ── */
+.mobile-menu-section-title {
+  display: block;
+  padding: 0 16px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+}
+/* Rubriques : version un peu plus compacte que les liens principaux */
+.mobile-menu-cat {
+  padding: 11px 16px;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.mobile-menu-cat i {
+  font-size: 16px;
+}
+/* CTA WhatsApp mis en avant dans le menu */
+.mobile-menu-link-cta {
+  background: rgba(37,211,102,.12);
+  color: #fff;
+}
+.mobile-menu-link-cta i {
+  color: #25D366;
+}
+
 body.menu-open {
   overflow: hidden;
 }
@@ -1935,8 +1963,6 @@ body.menu-open::before {
     z-index: 1001;
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
   }
-  body.has-mobile-bar { padding-bottom: 70px; }
-  body.has-mobile-bar #site-footer { padding-bottom: 70px; }
 
   /* Dashboard */
   .dashboard-layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 0; }

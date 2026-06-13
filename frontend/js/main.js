@@ -141,21 +141,27 @@ function initPageLoader() {
 
 // ── Page Transition System ───────────────────────────────────
 function createPageTransition() {
-  if (document.getElementById('page-transition')) return;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'page-transition';
-  overlay.className = 'page-transition-overlay';
-  document.body.appendChild(overlay);
+  // Réutilise l'overlay s'il existe déjà (ex. page restaurée depuis le bfcache
+  // au retour back/forward). Retourner undefined ici faisait planter
+  // pageTransitionOut (overlay.classList.add sur undefined) après preventDefault,
+  // ce qui tuait la navigation → liens « pas routés ».
+  let overlay = document.getElementById('page-transition');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'page-transition';
+    overlay.className = 'page-transition-overlay';
+    document.body.appendChild(overlay);
+  }
   return overlay;
 }
 
 function pageTransitionOut(callback) {
   const overlay = createPageTransition();
-  overlay.classList.add('active');
+  if (overlay) overlay.classList.add('active');
 
   setTimeout(() => {
     if (callback) callback();
+    if (!overlay) return;
     setTimeout(() => {
       overlay.classList.remove('active');
       overlay.classList.add('exit');
@@ -180,6 +186,13 @@ document.addEventListener('click', (e) => {
   pageTransitionOut(() => {
     window.location.href = href;
   });
+});
+
+// Page restaurée depuis le bfcache (retour navigateur) : on nettoie l'overlay
+// de transition pour qu'il ne reste pas figé/visible.
+window.addEventListener('pageshow', (e) => {
+  if (!e.persisted) return;
+  document.getElementById('page-transition')?.classList.remove('active', 'exit');
 });
 
 // ── Language / RTL ───────────────────────────────────────────
@@ -391,8 +404,16 @@ function renderHeader() {
           <a href="${BASE}pages/category.html" class="mobile-menu-link">
             <i class="fas fa-th-list"></i> Toutes les annonces
           </a>
-          <a href="https://wa.me/${window.WHATSAPP_NUMBER}?text=Bonjour,%20je%20souhaite%20publier%20une%20annonce%20sur%20Pro%20Market%20Algérie" 
-             class="mobile-menu-link" target="_blank" rel="noopener noreferrer">
+
+          <div class="mobile-menu-divider"></div>
+          <span class="mobile-menu-section-title">Rubriques</span>
+          <div class="mobile-menu-cats" id="mobile-menu-cats">
+            <!-- Catégories injectées dynamiquement (CategoriesAPI.list) -->
+          </div>
+          <div class="mobile-menu-divider"></div>
+
+          <a href="https://wa.me/${window.WHATSAPP_NUMBER}?text=Bonjour,%20je%20souhaite%20publier%20une%20annonce%20sur%20Pro%20Market%20Algérie"
+             class="mobile-menu-link mobile-menu-link-cta" target="_blank" rel="noopener noreferrer">
             <i class="fab fa-whatsapp"></i> Publier via WhatsApp
           </a>
           ${user?.role === 'admin' ? `
@@ -432,11 +453,18 @@ function renderHeader() {
   // Load categories into nav
   CategoriesAPI.list().then(cats => {
     const navList = document.getElementById('cat-nav-list');
+    const catMenu = document.getElementById('mobile-menu-cats');
     cats.forEach(c => {
+      const href = `${BASE}pages/category.html?slug=${escapeHtml(c.slug)}`;
       navList?.insertAdjacentHTML('beforeend',
-        `<li><a href="${BASE}pages/category.html?slug=${escapeHtml(c.slug)}">
+        `<li><a href="${href}">
           <i class="fas ${escapeHtml(c.icon)}"></i> ${escapeHtml(c.name_fr)}
          </a></li>`);
+      // Même liste de rubriques dans le menu mobile
+      catMenu?.insertAdjacentHTML('beforeend',
+        `<a href="${href}" class="mobile-menu-link mobile-menu-cat">
+          <i class="fas ${escapeHtml(c.icon)}"></i> ${escapeHtml(c.name_fr)}
+         </a>`);
     });
     const urlSlug = new URLSearchParams(location.search).get('slug');
     navList?.querySelectorAll('a').forEach(a => {
@@ -502,10 +530,37 @@ function toggleUserMenu(btn) {
   }
 }
 
+// Ferme le menu si on clique sur l'overlay sombre (hors panneau) ou sur un
+// lien à l'intérieur du menu (navigation / WhatsApp ouvert dans un onglet).
+function onMobileMenuOutsideClick(e) {
+  const menu = document.getElementById('header-mobile-menu');
+  if (!menu) return;
+  if (!menu.contains(e.target) || e.target.closest('a')) closeMobileMenu();
+}
+
+function openMobileMenu() {
+  const menu = document.getElementById('header-mobile-menu');
+  if (!menu) return;
+  menu.classList.add('open');
+  document.body.classList.add('menu-open');
+  // setTimeout(0) : laisse le clic d'ouverture finir de remonter avant
+  // d'écouter, sinon il refermerait aussitôt le menu.
+  setTimeout(() => document.addEventListener('click', onMobileMenuOutsideClick), 0);
+}
+
+function closeMobileMenu() {
+  const menu = document.getElementById('header-mobile-menu');
+  if (!menu) return;
+  menu.classList.remove('open');
+  document.body.classList.remove('menu-open');
+  document.removeEventListener('click', onMobileMenuOutsideClick);
+}
+
 function toggleMobileMenu() {
   const menu = document.getElementById('header-mobile-menu');
-  menu.classList.toggle('open');
-  document.body.classList.toggle('menu-open');
+  if (!menu) return;
+  if (menu.classList.contains('open')) closeMobileMenu();
+  else openMobileMenu();
 }
 
 // ── Footer ────────────────────────────────────────────────────
