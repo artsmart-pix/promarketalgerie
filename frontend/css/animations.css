@@ -2380,6 +2380,60 @@
   left: 10%;
 }
 
+/* ── Topbar Rubriques — design mobile (chips à swiper) ─────────
+   Sur mobile la barre des rubriques devient une rangée de pastilles
+   compactes que l'on fait défiler au doigt (swipe natif) : on masque les
+   flèches ‹ ›, on réduit le texte, on arrondit, et la rubrique active
+   devient une pastille orange pleine au lieu d'un soulignement.
+   Placé dans animations.css (chargé après main.css) pour gagner la cascade,
+   notamment neutraliser le ::after du soulignement défini ci-dessus. */
+@media (max-width: 768px) {
+  /* Swipe tactile : les flèches ‹ › ne servent plus */
+  .cat-nav-arrow { display: none !important; }
+
+  .cat-nav-list {
+    gap: 8px;
+    padding: 9px 14px;
+    /* marge de respiration pour la dernière pastille + accroche du snap */
+    scroll-padding-inline: 14px;
+    scroll-snap-type: x proximity;
+  }
+
+  .cat-nav-list a {
+    padding: 8px 15px;
+    font-size: 12.5px;
+    line-height: 1;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-bottom: 1px solid rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    scroll-snap-align: start;
+  }
+  .cat-nav-list a i { font-size: 12px; opacity: .9; }
+
+  /* Neutralise le soulignement animé (::after) hérité du desktop */
+  .cat-nav-list a::after { display: none; }
+
+  .cat-nav-list a:hover,
+  .cat-nav-list a:focus-visible {
+    background: rgba(255, 255, 255, .24);
+    color: #fff;
+  }
+
+  .cat-nav-list a.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+/* Très petits écrans : pastilles encore un peu plus serrées */
+@media (max-width: 380px) {
+  .cat-nav-list a { padding: 6px 12px; font-size: 12px; }
+}
+
 /* ── Header Scroll Shadow ─────────────────────────────────── */
 .site-header.scrolled {
   box-shadow: 0 4px 30px rgba(0,0,0,0.4);
