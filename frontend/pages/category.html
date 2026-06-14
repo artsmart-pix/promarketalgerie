@@ -49,25 +49,39 @@
     </button>
   </div>
 
-  <!-- HORIZONTAL FILTER BAR -->
-  <div class="filter-bar" id="filter-bar">
-    <div class="filter-bar-inner">
-      <!-- Search -->
-      <div class="filter-bar-item filter-bar-search">
-        <div class="search-input-wrap">
-          <i class="fas fa-search search-input-icon"></i>
-          <input type="text" class="form-control" id="f-q" placeholder="Rechercher…" oninput="debounceFilter()">
-          <button class="search-input-clear" id="clear-q" onclick="clearFilter('f-q')" style="display:none">
-            <i class="fas fa-times-circle"></i>
-          </button>
-        </div>
-      </div>
+  <!-- FILTERS — bouton déroulant unique (recherche + tous les filtres) -->
+  <div class="filters-dd" id="filters-dd">
+    <button class="filters-dd-toggle" id="filters-dd-toggle" type="button"
+            aria-expanded="false" aria-controls="filters-dd-panel" onclick="toggleFiltersPanel()">
+      <span class="filters-dd-main">
+        <i class="fas fa-sliders-h"></i>
+        <span class="filters-dd-text">Filtres</span>
+        <span class="filters-dd-count" id="filters-dd-count" hidden>0</span>
+      </span>
+      <i class="fas fa-chevron-down filters-dd-caret"></i>
+    </button>
 
-      <!-- Wilaya -->
-      <div class="filter-bar-item">
-        <div class="filter-select-wrap">
-          <i class="fas fa-map-marker-alt"></i>
-          <select class="form-control" id="f-wilaya" onchange="applyFilters()">
+    <div class="filters-dd-panel" id="filters-dd-panel" role="region" aria-label="Filtres de recherche">
+      <div class="filters-dd-grid">
+
+        <!-- Recherche -->
+        <div class="filters-dd-field filters-dd-field--full">
+          <label for="f-q">Recherche</label>
+          <div class="search-input-wrap">
+            <i class="fas fa-search search-input-icon"></i>
+            <input type="text" class="form-control" id="f-q" placeholder="Rechercher un équipement, une marque…" oninput="debounceFilter()">
+            <button class="search-input-clear" id="clear-q" onclick="clearFilter('f-q')" style="display:none">
+              <i class="fas fa-times-circle"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Wilaya -->
+        <div class="filters-dd-field">
+          <label for="f-wilaya">Wilaya</label>
+          <div class="filter-select-wrap">
+            <i class="fas fa-map-marker-alt"></i>
+            <select class="form-control" id="f-wilaya" onchange="applyFilters()">
             <option value="">Toutes les wilayas</option>
             <option value="1">01 — Adrar</option>
             <option value="2">02 — Chlef</option>
@@ -127,162 +141,60 @@
             <option value="56">56 — Djanet</option>
             <option value="57">57 — In Salah</option>
             <option value="58">58 — In Guezzam</option>
-          </select>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <!-- Price Min -->
-      <div class="filter-bar-item filter-bar-price">
-        <div class="filter-input-wrap">
-          <i class="fas fa-tag"></i>
-          <input type="number" class="form-control" id="f-min-price" placeholder="Prix min" oninput="debounceFilter()">
-        </div>
-      </div>
-
-      <!-- Price Max -->
-      <div class="filter-bar-item filter-bar-price">
-        <div class="filter-input-wrap">
-          <i class="fas fa-tag"></i>
-          <input type="number" class="form-control" id="f-max-price" placeholder="Prix max" oninput="debounceFilter()">
-        </div>
-      </div>
-
-      <!-- Condition -->
-      <div class="filter-bar-item">
-        <div class="filter-select-wrap">
-          <i class="fas fa-star"></i>
-          <select class="form-control" id="f-condition" onchange="applyFilters()">
+        <!-- État -->
+        <div class="filters-dd-field">
+          <label for="f-condition">État</label>
+          <div class="filter-select-wrap">
+            <i class="fas fa-star"></i>
+            <select class="form-control" id="f-condition" onchange="applyFilters()">
             <option value="">Tous les états</option>
             <option value="new">Neuf</option>
             <option value="excellent">Très bon état</option>
             <option value="good">Bon état</option>
             <option value="fair">Correct</option>
             <option value="for_parts">Pour pièces</option>
-          </select>
+            </select>
+          </div>
         </div>
+
+        <!-- Prix min -->
+        <div class="filters-dd-field">
+          <label for="f-min-price">Prix min (DZD)</label>
+          <div class="filter-input-wrap">
+            <i class="fas fa-tag"></i>
+            <input type="number" class="form-control" id="f-min-price" placeholder="0" oninput="debounceFilter()">
+          </div>
+        </div>
+
+        <!-- Prix max -->
+        <div class="filters-dd-field">
+          <label for="f-max-price">Prix max (DZD)</label>
+          <div class="filter-input-wrap">
+            <i class="fas fa-tag"></i>
+            <input type="number" class="form-control" id="f-max-price" placeholder="Sans limite" oninput="debounceFilter()">
+          </div>
+        </div>
+
+        <!-- Filtres spécifiques à la catégorie (injectés dynamiquement) -->
+        <div id="dynamic-filters-inline" class="filters-dd-field--full"></div>
+
       </div>
 
-      <!-- Dynamic filters toggle (mobile/desktop) -->
-      <div class="filter-bar-item filter-bar-actions">
-        <button class="btn btn-ghost btn-sm" onclick="toggleMobileFilters()">
-          <i class="fas fa-sliders-h"></i> <span class="lbl">Plus</span>
+      <div class="filters-dd-footer">
+        <button class="btn btn-ghost btn-sm" type="button" onclick="resetFilters()">
+          <i class="fas fa-undo"></i> Réinitialiser
         </button>
-        <button class="btn btn-ghost btn-sm" onclick="resetFilters()" title="Réinitialiser">
-          <i class="fas fa-undo"></i>
+        <button class="btn btn-orange btn-sm" type="button" onclick="closeFiltersPanel()">
+          <i class="fas fa-check"></i> Voir les résultats
         </button>
       </div>
     </div>
   </div>
 
-  <!-- FILTER DRAWER (for dynamic filters + mobile all filters) -->
-  <div class="filter-overlay" id="filter-overlay" onclick="toggleMobileFilters()"></div>
-  <aside class="filter-drawer" id="filter-drawer">
-    <div class="filter-drawer-header">
-      <h3><i class="fas fa-sliders-h"></i> Filtres avancés</h3>
-      <button class="btn btn-ghost btn-sm" onclick="toggleMobileFilters()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="filter-drawer-body" id="drawer-filters">
-      <!-- All filters repeated here for mobile + dynamic filters -->
-      <div class="filter-group">
-        <label>Mots-clés</label>
-        <input type="text" class="form-control" id="f-q-drawer" placeholder="Recherche…" oninput="syncFilterFromDrawer('f-q')">
-      </div>
-      <div class="filter-group">
-        <label>Wilaya</label>
-        <select class="form-control" id="f-wilaya-drawer" onchange="syncFilterFromDrawer('f-wilaya')">
-          <option value="">Toutes les wilayas</option>
-          <option value="1">01 — Adrar</option>
-          <option value="2">02 — Chlef</option>
-          <option value="3">03 — Laghouat</option>
-          <option value="4">04 — Oum El Bouaghi</option>
-          <option value="5">05 — Batna</option>
-          <option value="6">06 — Béjaïa</option>
-          <option value="7">07 — Biskra</option>
-          <option value="8">08 — Béchar</option>
-          <option value="9">09 — Blida</option>
-          <option value="10">10 — Bouira</option>
-          <option value="11">11 — Tamanrasset</option>
-          <option value="12">12 — Tébessa</option>
-          <option value="13">13 — Tlemcen</option>
-          <option value="14">14 — Tiaret</option>
-          <option value="15">15 — Tizi Ouzou</option>
-          <option value="16">16 — Alger</option>
-          <option value="17">17 — Djelfa</option>
-          <option value="18">18 — Jijel</option>
-          <option value="19">19 — Sétif</option>
-          <option value="20">20 — Saïda</option>
-          <option value="21">21 — Skikda</option>
-          <option value="22">22 — Sidi Bel Abbès</option>
-          <option value="23">23 — Annaba</option>
-          <option value="24">24 — Guelma</option>
-          <option value="25">25 — Constantine</option>
-          <option value="26">26 — Médéa</option>
-          <option value="27">27 — Mostaganem</option>
-          <option value="28">28 — M'Sila</option>
-          <option value="29">29 — Mascara</option>
-          <option value="30">30 — Ouargla</option>
-          <option value="31">31 — Oran</option>
-          <option value="32">32 — El Bayadh</option>
-          <option value="33">33 — Illizi</option>
-          <option value="34">34 — Bordj Bou Arreridj</option>
-          <option value="35">35 — Boumerdès</option>
-          <option value="36">36 — El Tarf</option>
-          <option value="37">37 — Tindouf</option>
-          <option value="38">38 — Tissemsilt</option>
-          <option value="39">39 — El Oued</option>
-          <option value="40">40 — Khenchela</option>
-          <option value="41">41 — Souk Ahras</option>
-          <option value="42">42 — Tipaza</option>
-          <option value="43">43 — Mila</option>
-          <option value="44">44 — Aïn Defla</option>
-          <option value="45">45 — Naâma</option>
-          <option value="46">46 — Aïn Témouchent</option>
-          <option value="47">47 — Ghardaïa</option>
-          <option value="48">48 — Relizane</option>
-          <option value="49">49 — El M'ghair</option>
-          <option value="50">50 — El Menia</option>
-          <option value="51">51 — Ouled Djellal</option>
-          <option value="52">52 — Bordj Baji Mokhtar</option>
-          <option value="53">53 — Béni Abbès</option>
-          <option value="54">54 — Timimoun</option>
-          <option value="55">55 — Touggourt</option>
-          <option value="56">56 — Djanet</option>
-          <option value="57">57 — In Salah</option>
-          <option value="58">58 — In Guezzam</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Prix minimum (DZD)</label>
-        <input type="number" class="form-control" id="f-min-price-drawer" placeholder="0" oninput="syncFilterFromDrawer('f-min-price')">
-      </div>
-      <div class="filter-group">
-        <label>Prix maximum (DZD)</label>
-        <input type="number" class="form-control" id="f-max-price-drawer" placeholder="∞" oninput="syncFilterFromDrawer('f-max-price')">
-      </div>
-      <div class="filter-group">
-        <label>État du matériel</label>
-        <select class="form-control" id="f-condition-drawer" onchange="syncFilterFromDrawer('f-condition')">
-          <option value="">Tous</option>
-          <option value="new">Neuf</option>
-          <option value="excellent">Très bon état</option>
-          <option value="good">Bon état</option>
-          <option value="fair">Correct</option>
-          <option value="for_parts">Pour pièces</option>
-        </select>
-      </div>
-      <div id="dynamic-filters-drawer"></div>
-    </div>
-    <div class="filter-drawer-footer">
-      <button class="btn btn-outline-orange btn-block" onclick="resetFilters();toggleMobileFilters();">
-        <i class="fas fa-undo"></i> Réinitialiser
-      </button>
-      <button class="btn btn-orange btn-block" onclick="toggleMobileFilters()">
-        <i class="fas fa-check"></i> Voir <span id="drawer-result-count">les résultats</span>
-      </button>
-    </div>
-  </aside>
 
   <!-- LISTINGS -->
   <div class="listings-grid-wrapper">
@@ -497,6 +409,12 @@
       bar.style.display = 'none';
       container.innerHTML = '';
     }
+    // Badge compteur sur le bouton « Filtres »
+    const countEl = document.getElementById('filters-dd-count');
+    if (countEl) {
+      countEl.textContent = chips.length;
+      countEl.hidden = chips.length === 0;
+    }
   }
 
   window.clearDynamicFilter = function(key) {
@@ -505,14 +423,42 @@
     applyFilters(true);
   };
 
-  // ── Mobile Filters Drawer ─────────────────────────────────
-  function toggleMobileFilters() {
-    const drawer = document.getElementById('filter-drawer');
-    const overlay = document.getElementById('filter-overlay');
-    const isOpen = drawer.classList.toggle('open');
-    overlay.classList.toggle('active', isOpen);
-    document.body.style.overflow = isOpen ? 'hidden' : '';
+  // ── Filtres : bouton déroulant unique ─────────────────────
+  function onFiltersOutsideClick(e) {
+    const dd = document.getElementById('filters-dd');
+    if (dd && !dd.contains(e.target)) closeFiltersPanel();
   }
+  let _filtersExpandTimer = null;
+  function openFiltersPanel() {
+    const dd = document.getElementById('filters-dd');
+    if (!dd || dd.classList.contains('open')) return;
+    dd.classList.add('open');
+    document.getElementById('filters-dd-toggle')?.setAttribute('aria-expanded', 'true');
+    // Après l'animation d'ouverture, on lève le clip de l'accordéon pour que les
+    // listes déroulantes natives s'affichent sous leur champ (et pas rognées).
+    clearTimeout(_filtersExpandTimer);
+    _filtersExpandTimer = setTimeout(() => dd.classList.add('is-expanded'), 460);
+    // setTimeout(0) : laisse le clic d'ouverture finir de remonter avant d'écouter
+    setTimeout(() => document.addEventListener('click', onFiltersOutsideClick), 0);
+  }
+  function closeFiltersPanel() {
+    const dd = document.getElementById('filters-dd');
+    if (!dd) return;
+    clearTimeout(_filtersExpandTimer);
+    // Réactive le clip + la max-height finie AVANT de replier (sinon pas d'animation)
+    dd.classList.remove('is-expanded');
+    void dd.offsetHeight; // force reflow pour enregistrer la max-height avant le repli
+    dd.classList.remove('open');
+    document.getElementById('filters-dd-toggle')?.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('click', onFiltersOutsideClick);
+  }
+  function toggleFiltersPanel() {
+    const dd = document.getElementById('filters-dd');
+    if (!dd) return;
+    dd.classList.contains('open') ? closeFiltersPanel() : openFiltersPanel();
+  }
+  // Échap ferme le panneau
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFiltersPanel(); });
 
   // ── Skeleton Loading ──────────────────────────────────────
   function renderSkeletonGrid(count = 8) {
@@ -628,13 +574,13 @@
         document.getElementById('page-title-bc').textContent = currentCat.name_fr;
         document.title = `${currentCat.name_fr} — Pro Market Algérie`;
         if (currentCat.filters?.length) {
-          const dynContainer = document.getElementById('dynamic-filters-drawer');
-          dynContainer.innerHTML = `<div style="border-top:1px solid var(--gray-200);margin:16px 0;padding-top:16px"><strong style="font-size:12px;color:var(--gray-500);text-transform:uppercase">Filtres spécifiques</strong></div>` +
+          const dynContainer = document.getElementById('dynamic-filters-inline');
+          dynContainer.innerHTML = `<div class="filters-dd-field--full" style="border-top:1px solid var(--gray-200);margin-top:4px;padding-top:14px"><strong style="font-size:11.5px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em">Filtres spécifiques</strong></div>` +
             currentCat.filters.map(f => {
-              if (f.type === 'select') return `<div class="filter-group"><label>${escapeHtml(f.label_fr)}</label><select class="form-control" data-attr-key="${f.key}" onchange="applyFilters()"><option value="">Tous</option>${f.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}</select></div>`;
-              if (f.type === 'number') return `<div class="filter-group"><label>${escapeHtml(f.label_fr)}</label><input type="number" class="form-control" data-attr-key="${f.key}" placeholder="${escapeHtml(f.label_fr)}" oninput="debounceFilter()"></div>`;
+              if (f.type === 'select') return `<div class="filter-group"><label>${escapeHtml(f.label_fr)}</label><div class="filter-select-wrap"><i class="fas fa-sliders-h"></i><select class="form-control" data-attr-key="${f.key}" onchange="applyFilters()"><option value="">Tous</option>${f.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}</select></div></div>`;
+              if (f.type === 'number') return `<div class="filter-group"><label>${escapeHtml(f.label_fr)}</label><div class="filter-input-wrap"><i class="fas fa-hashtag"></i><input type="number" class="form-control" data-attr-key="${f.key}" placeholder="${escapeHtml(f.label_fr)}" oninput="debounceFilter()"></div></div>`;
               if (f.type === 'boolean') return `<div class="filter-group"><label class="filter-radio-label"><input type="checkbox" data-attr-key="${f.key}" onchange="applyFilters()"><span class="filter-radio-custom checkbox"></span><span>${escapeHtml(f.label_fr)}</span></label></div>`;
-              return `<div class="filter-group"><label>${escapeHtml(f.label_fr)}</label><input type="text" class="form-control" data-attr-key="${f.key}" placeholder="${escapeHtml(f.label_fr)}" oninput="debounceFilter()"></div>`;
+              return `<div class="filter-group"><label>${escapeHtml(f.label_fr)}</label><div class="filter-input-wrap"><i class="fas fa-tag"></i><input type="text" class="form-control" data-attr-key="${f.key}" placeholder="${escapeHtml(f.label_fr)}" oninput="debounceFilter()"></div></div>`;
             }).join('');
         }
       } catch {}
