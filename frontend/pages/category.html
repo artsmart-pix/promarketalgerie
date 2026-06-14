@@ -588,6 +588,7 @@
 
     const root = document.createElement('div');
     root.className = 'cselect';
+    if (opts.variant) root.classList.add('cselect--' + opts.variant);
 
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -640,7 +641,7 @@
 
     root.appendChild(btn);
     root.appendChild(panel);
-    wrap.appendChild(root);
+    select.parentNode.insertBefore(root, select.nextSibling);
 
     // ── Sync depuis le <select> (source de vérité) ──
     function syncFromSelect() {
@@ -722,6 +723,7 @@
   }
 
   function enhancePanelSelects() {
+    enhanceSelect(document.getElementById('sort-select'), { variant: 'auto', icon: 'fas fa-arrow-down-wide-short' });
     enhanceSelect(document.getElementById('f-wilaya'), { searchable: true, searchPlaceholder: 'Rechercher une wilaya…' });
     enhanceSelect(document.getElementById('f-condition'), {});
     document.querySelectorAll('#dynamic-filters-inline select[data-attr-key]').forEach(s => enhanceSelect(s, {}));

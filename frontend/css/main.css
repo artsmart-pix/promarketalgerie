@@ -2044,8 +2044,16 @@ select.cselect-native { display: none !important; }
   margin-inline-start: auto;
   font-size: 11px;
 }
-.cselect-opt.is-hidden { display: none; }
+.cselect-opt.is-hidden,
+.cselect-empty.is-hidden { display: none; }
 .cselect-empty { padding: 16px 12px; text-align: center; color: var(--gray-400); font-size: 13px; }
+
+/* Variante largeur-contenu (ex. tri dans l'en-tête, à côté d'un bouton) :
+   panneau aligné sur le bord droit du champ (s'ouvre vers la gauche). */
+.cselect--auto { width: auto; }
+.cselect--auto .cselect-btn { width: auto; min-width: 168px; height: 40px; font-size: 13.5px; }
+.cselect--auto .cselect-panel { left: auto; right: 0; min-width: 210px; }
+[dir="rtl"] .cselect--auto .cselect-panel { right: auto; left: 0; }
 
 /* RTL (arabe) */
 [dir="rtl"] .cselect-search > i { left: auto; right: 16px; }
