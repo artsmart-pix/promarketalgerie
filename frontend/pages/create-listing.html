@@ -54,7 +54,7 @@
         <div id="subcat-group" style="display:none;margin-top:20px">
           <div class="form-group">
             <label>Sous-catégorie <span class="required">*</span></label>
-            <select id="subcategory_id" class="form-control">
+            <select id="subcategory_id" data-cselect-icon="fas fa-sitemap" class="form-control">
               <option value="">Sélectionnez…</option>
             </select>
           </div>
@@ -98,7 +98,7 @@
 
         <div class="form-group">
           <label>État général <span class="required">*</span></label>
-          <select id="condition" class="form-control" required>
+          <select id="condition" data-cselect-icon="fas fa-star" class="form-control" required>
             <option value="">Sélectionnez l'état…</option>
             <option value="new">Neuf</option>
             <option value="excellent">Très bon état</option>
@@ -115,7 +115,7 @@
           </div>
           <div class="form-group">
             <label>Devise</label>
-            <select id="currency" class="form-control">
+            <select id="currency" data-cselect-icon="fas fa-coins" class="form-control">
               <option value="DZD">DZD — Dinar Algérien</option>
               <option value="EUR">EUR — Euro</option>
             </select>
@@ -170,13 +170,13 @@
         <div class="form-row">
           <div class="form-group">
             <label>Wilaya <span class="required">*</span></label>
-            <select id="wilaya_id" class="form-control" required onchange="loadCommunes()">
+            <select id="wilaya_id" data-cselect-icon="fas fa-map-marker-alt" class="form-control" required onchange="loadCommunes()">
               <option value="">Sélectionnez votre wilaya</option>
             </select>
           </div>
           <div class="form-group">
             <label>Commune</label>
-            <select id="commune" class="form-control">
+            <select id="commune" data-cselect-icon="fas fa-location-dot" class="form-control">
               <option value="">Sélectionnez d'abord la wilaya</option>
             </select>
           </div>

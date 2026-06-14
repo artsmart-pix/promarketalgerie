@@ -1162,3 +1162,205 @@ function initMobileUtils() {
     }
   });
 }
+
+/* ════════════════════════════════════════════════════════════════
+   CSELECT — enrichit les <select> en dropdown stylé (partagé)
+   Le <select> natif reste dans le DOM (caché) comme source de vérité :
+   on dessine par-dessus un bouton + une liste 100% stylée et positionnée
+   par nos soins → plus de liste native décalée hors écran sur mobile.
+   Auto-appliqué à tous les `select.form-control` ; reconstruit ses
+   options quand le JS de la page les injecte (wilayas/communes/API…).
+   Config par data-attributs : data-cselect-icon, data-cselect-variant,
+   data-cselect-search ("true"/"false"), data-cselect-search-ph,
+   data-no-cselect (pour exclure).
+   ════════════════════════════════════════════════════════════════ */
+(function () {
+  let uidc = 0;
+  const norm = s => (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  function enhanceSelect(select, opts) {
+    if (!select || select.dataset.enhanced === '1') return;
+    opts = opts || {};
+    const d = select.dataset;
+    const cfg = {
+      icon: opts.icon || d.cselectIcon || '',
+      variant: opts.variant || d.cselectVariant || '',
+      searchable: opts.searchable != null ? opts.searchable
+                : (d.cselectSearch != null ? d.cselectSearch !== 'false' : null),
+      searchPlaceholder: opts.searchPlaceholder || d.cselectSearchPh || 'Rechercher…',
+    };
+    select.dataset.enhanced = '1';
+    const uid = 'cs' + (++uidc);
+    const wrap = select.closest('.filter-select-wrap') || select.parentElement;
+
+    // Récupère/masque une icône sœur éventuelle, réutilise sa classe
+    let iconClass = cfg.icon;
+    const oldIcon = Array.from(wrap.children).find(c => c.tagName === 'I');
+    if (oldIcon) { if (!iconClass) iconClass = oldIcon.className; oldIcon.style.display = 'none'; }
+    select.classList.add('cselect-native');
+
+    const root = document.createElement('div');
+    root.className = 'cselect' + (cfg.variant ? ' cselect--' + cfg.variant : '');
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cselect-btn';
+    btn.setAttribute('aria-haspopup', 'listbox');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', uid);
+    let iconEl = null;
+    if (iconClass) { iconEl = document.createElement('i'); iconEl.className = 'cselect-icon ' + iconClass; btn.appendChild(iconEl); }
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'cselect-label';
+    btn.appendChild(labelSpan);
+    const caret = document.createElement('i');
+    caret.className = 'cselect-caret fas fa-chevron-down';
+    btn.appendChild(caret);
+
+    const panel = document.createElement('div');
+    panel.className = 'cselect-panel';
+    panel.id = uid;
+    panel.setAttribute('role', 'listbox');
+
+    root.appendChild(btn);
+    root.appendChild(panel);
+    select.parentNode.insertBefore(root, select.nextSibling);
+
+    let liEls = [], searchInput = null, optionEls = [];
+
+    function syncFromSelect() {
+      const opt = optionEls.find(o => o.value === select.value) || optionEls[0];
+      labelSpan.textContent = opt ? opt.text : '';
+      labelSpan.classList.toggle('is-placeholder', select.value === '' || select.value == null);
+      liEls.forEach(li => li.setAttribute('aria-selected', String(li.dataset.value === select.value)));
+    }
+    select._refreshCustom = syncFromSelect;
+
+    const visibleOpts = () => liEls.filter(li => !li.classList.contains('is-hidden'));
+    function setActive(li) {
+      panel.querySelectorAll('.cselect-opt.active').forEach(x => x.classList.remove('active'));
+      if (li) { li.classList.add('active'); li.scrollIntoView({ block: 'nearest' }); }
+    }
+    let empty = null;
+    function filterList(q) {
+      const nq = norm(q);
+      let any = false;
+      liEls.forEach(li => {
+        const match = !nq || norm(li.textContent).includes(nq);
+        li.classList.toggle('is-hidden', !match);
+        if (match) any = true;
+      });
+      if (empty) empty.classList.toggle('is-hidden', any);
+      setActive(visibleOpts()[0] || null);
+    }
+
+    function choose(val) {
+      select.value = val;
+      syncFromSelect();
+      close();
+      btn.focus();
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // (Re)construit la liste depuis les <option> courantes du <select>
+    function rebuild() {
+      optionEls = Array.from(select.options);
+      const searchable = cfg.searchable != null ? cfg.searchable : optionEls.length > 8;
+      panel.textContent = '';
+      searchInput = null;
+      if (searchable) {
+        const sb = document.createElement('div');
+        sb.className = 'cselect-search';
+        const si = document.createElement('i'); si.className = 'fas fa-search'; sb.appendChild(si);
+        searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = cfg.searchPlaceholder;
+        searchInput.setAttribute('aria-label', cfg.searchPlaceholder);
+        searchInput.addEventListener('input', () => filterList(searchInput.value));
+        sb.appendChild(searchInput);
+        panel.appendChild(sb);
+      }
+      const list = document.createElement('ul');
+      list.className = 'cselect-list';
+      liEls = optionEls.map(o => {
+        const li = document.createElement('li');
+        li.className = 'cselect-opt';
+        li.setAttribute('role', 'option');
+        li.dataset.value = o.value;
+        li.textContent = o.text;
+        li.addEventListener('click', () => choose(o.value));
+        list.appendChild(li);
+        return li;
+      });
+      empty = document.createElement('li');
+      empty.className = 'cselect-empty is-hidden';
+      empty.textContent = 'Aucun résultat';
+      list.appendChild(empty);
+      panel.appendChild(list);
+      syncFromSelect();
+    }
+
+    function open() {
+      if (root.classList.contains('open')) return;
+      document.querySelectorAll('.cselect.open').forEach(c => c !== root && c._close && c._close());
+      root.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      if (searchInput) { searchInput.value = ''; filterList(''); }
+      setActive(liEls.find(li => li.dataset.value === select.value) || visibleOpts()[0] || null);
+      setTimeout(() => {
+        document.addEventListener('click', onOutside, true);
+        (searchInput || btn).focus();
+      }, 0);
+    }
+    function close() {
+      if (!root.classList.contains('open')) return;
+      root.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('click', onOutside, true);
+    }
+    root._close = close;
+    function onOutside(e) { if (!root.contains(e.target)) close(); }
+
+    btn.addEventListener('click', () => root.classList.contains('open') ? close() : open());
+    btn.addEventListener('keydown', e => {
+      if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key) && !root.classList.contains('open')) {
+        e.preventDefault(); open();
+      }
+    });
+    root.addEventListener('keydown', e => {
+      if (!root.classList.contains('open')) return;
+      const vis = visibleOpts();
+      const cur = panel.querySelector('.cselect-opt.active');
+      const idx = vis.indexOf(cur);
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(vis[Math.min(idx + 1, vis.length - 1)] || vis[0]); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(vis[Math.max(idx - 1, 0)] || vis[vis.length - 1]); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (cur) choose(cur.dataset.value); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); btn.focus(); }
+      else if (e.key === 'Tab') { close(); }
+    });
+
+    rebuild();
+    // Reconstruit quand la page (ré)injecte des <option> (API wilayas/communes…)
+    new MutationObserver(() => rebuild()).observe(select, { childList: true });
+  }
+
+  function enhanceAll(rootEl) {
+    (rootEl || document).querySelectorAll('select.form-control:not([data-enhanced]):not([data-no-cselect])')
+      .forEach(s => enhanceSelect(s));
+  }
+
+  window.enhanceSelect = enhanceSelect;
+  window.enhanceAllSelects = enhanceAll;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    enhanceAll(document);
+    // Enrichit aussi les <select> ajoutés au DOM après coup (formulaires dynamiques)
+    new MutationObserver(muts => {
+      for (const m of muts) for (const n of m.addedNodes) {
+        if (n.nodeType !== 1) continue;
+        if (n.matches && n.matches('select.form-control')) enhanceSelect(n);
+        if (n.querySelectorAll) n.querySelectorAll('select.form-control:not([data-enhanced]):not([data-no-cselect])').forEach(s => enhanceSelect(s));
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+})();

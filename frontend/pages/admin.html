@@ -89,7 +89,7 @@
   <div id="admin-users" style="display:none">
     <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
       <input type="text" class="form-control" style="flex:1;max-width:100%" id="user-search" placeholder="Rechercher email / nom…" oninput="searchUsers()">
-      <select class="form-control" style="width:auto" id="user-role-filter" onchange="searchUsers()">
+      <select class="form-control" style="width:auto" id="user-role-filter" data-cselect-icon="fas fa-user-tag" onchange="searchUsers()">
         <option value="">Tous les rôles</option>
         <option value="buyer">Acheteur</option>
         <option value="seller">Vendeur</option>
@@ -143,7 +143,7 @@
     </div>
     <div class="form-group">
       <label>Position</label>
-      <select class="form-control" id="ad-position">
+      <select class="form-control" id="ad-position" data-cselect-icon="fas fa-thumbtack">
         <option value="homepage">Page d'accueil</option>
         <option value="category">Page catégorie</option>
         <option value="listing">Page annonce</option>
