@@ -1921,6 +1921,136 @@ body.menu-open::before {
   .filters-dd-panel #dynamic-filters-inline { grid-template-columns: 1fr; }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   CSELECT — champ de sélection custom (enrichit les <select> natifs)
+   Le <select> reste dans le DOM (caché) comme source de vérité ; on
+   dessine par-dessus un bouton + une liste 100% stylée et positionnée
+   par nos soins → plus de liste native décalée hors écran sur mobile.
+   ═══════════════════════════════════════════════════════════════ */
+select.cselect-native { display: none !important; }
+
+.cselect { position: relative; width: 100%; }
+
+.cselect-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  background: var(--gray-100);
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  color: var(--dark);
+  font: 500 14px/1.2 inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.cselect-btn:hover { background: #fff; border-color: var(--gray-200); }
+.cselect.open .cselect-btn,
+.cselect-btn:focus-visible {
+  background: #fff;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 4px rgba(242, 101, 34, .12);
+  outline: none;
+}
+.cselect-icon { color: var(--orange); font-size: 14px; flex: 0 0 auto; }
+.cselect-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cselect-label.is-placeholder { color: var(--gray-400); }
+.cselect-caret {
+  color: var(--gray-400);
+  font-size: 12px;
+  flex: 0 0 auto;
+  transition: transform .25s ease, color .2s ease;
+}
+.cselect.open .cselect-caret { transform: rotate(180deg); color: var(--orange); }
+
+.cselect-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  max-height: 300px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px -16px rgba(8, 20, 45, .28);
+  opacity: 0;
+  transform: translateY(-6px) scale(.98);
+  transform-origin: top center;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.cselect.open .cselect-panel { opacity: 1; transform: none; pointer-events: auto; }
+
+.cselect-search { position: relative; flex: 0 0 auto; padding: 4px 4px 8px; }
+.cselect-search > i {
+  position: absolute;
+  left: 16px;
+  top: calc(50% - 2px);
+  transform: translateY(-50%);
+  color: var(--gray-400);
+  font-size: 13px;
+  pointer-events: none;
+}
+.cselect-search input {
+  width: 100%;
+  height: 38px;
+  padding: 0 14px 0 36px;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: 999px;
+  font: 500 13.5px/1 inherit;
+  color: var(--dark);
+  outline: none;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.cselect-search input:focus {
+  border-color: var(--orange);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(242, 101, 34, .1);
+}
+
+.cselect-list { flex: 1 1 auto; margin: 0; padding: 2px; list-style: none; overflow-y: auto; }
+.cselect-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  color: var(--dark);
+  cursor: pointer;
+  transition: background .12s ease, color .12s ease;
+}
+.cselect-opt:hover,
+.cselect-opt.active { background: var(--gray-100); }
+.cselect-opt[aria-selected="true"] { color: var(--orange); font-weight: 600; }
+.cselect-opt[aria-selected="true"]::after {
+  content: "\f00c";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-inline-start: auto;
+  font-size: 11px;
+}
+.cselect-opt.is-hidden { display: none; }
+.cselect-empty { padding: 16px 12px; text-align: center; color: var(--gray-400); font-size: 13px; }
+
+/* RTL (arabe) */
+[dir="rtl"] .cselect-search > i { left: auto; right: 16px; }
+[dir="rtl"] .cselect-search input { padding: 0 36px 0 14px; }
+
 /* ─── Filter Drawer (mobile + advanced) ────────────────────── */
 .filter-drawer {
   position: fixed;
