@@ -328,16 +328,6 @@ function renderHeader() {
               <i class="fas fa-th-list"></i>
               <span>Annonces</span>
             </a>
-            ${user?.role === 'admin' ? `
-              <a href="${BASE}pages/admin-publish.html" class="header-nav-link ${location.pathname.includes('admin-publish') ? 'active' : ''}">
-                <i class="fas fa-plus-circle"></i>
-                <span>Publier</span>
-              </a>
-              <a href="${BASE}pages/admin.html" class="header-nav-link ${location.pathname.includes('admin') && !location.pathname.includes('admin-publish') ? 'active' : ''}">
-                <i class="fas fa-shield-alt"></i>
-                <span>Admin</span>
-              </a>
-            ` : ''}
           </div>
           
           <div class="header-actions">

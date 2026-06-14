@@ -2951,11 +2951,18 @@
   .header-nav {
     display: none;
   }
-  
+
+  /* .header-nav (flex:1) disparaît : sans lui, le logo et les actions se
+     collent à gauche. On repousse les actions au bord droit pour garder une
+     topbar justifiée (logo à gauche, actions/burger à droite). */
+  .header-actions {
+    margin-left: auto;
+  }
+
   .header-actions .btn-deposer span {
     display: none;
   }
-  
+
   .header-actions .btn-deposer {
     padding: 10px 14px;
   }
