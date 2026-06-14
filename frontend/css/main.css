@@ -2052,7 +2052,9 @@ select.cselect-native { display: none !important; }
    panneau aligné sur le bord droit du champ (s'ouvre vers la gauche). */
 .cselect--auto { width: auto; }
 .cselect--auto .cselect-btn { width: auto; min-width: 168px; height: 40px; font-size: 13.5px; }
-.cselect--auto .cselect-panel { left: auto; right: 0; min-width: 210px; }
+/* Panneau aligné sur le bouton : même bord droit, au moins aussi large que
+   le champ, puis ajusté au contenu (pas de largeur fixe qui déborde à gauche). */
+.cselect--auto .cselect-panel { left: auto; right: 0; min-width: 100%; width: max-content; max-width: 260px; }
 [dir="rtl"] .cselect--auto .cselect-panel { right: auto; left: 0; }
 
 /* RTL (arabe) */
