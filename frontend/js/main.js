@@ -310,6 +310,9 @@ function renderHeader() {
     <nav class="site-header">
       <div class="container">
         <div class="header-top">
+          <button class="header-mobile-toggle header-mobile-toggle--left" onclick="toggleMobileMenu()" aria-label="Ouvrir le menu">
+            <i class="fas fa-bars"></i>
+          </button>
           <a href="${BASE}index.html" class="site-logo" aria-label="Pro Market Algérie">
             <div class="logo-box">
               <div class="logo-wordrow">
@@ -332,15 +335,15 @@ function renderHeader() {
           
           <div class="header-actions">
             ${user?.role === 'admin' ? `
-              <a href="${BASE}pages/admin-publish.html" class="header-action-btn" style="background:var(--orange);color:#fff;border-radius:8px">
+              <a href="${BASE}pages/admin-publish.html" class="header-pill-btn header-pill-btn--publish" title="Publier une annonce">
                 <i class="fas fa-plus-circle"></i>
                 <span class="lbl">Publier</span>
               </a>
-              <a href="${BASE}pages/admin.html" class="header-action-btn" style="background:var(--red);color:#fff;border-radius:8px">
+              <a href="${BASE}pages/admin.html" class="header-pill-btn header-pill-btn--admin" title="Espace administration">
                 <i class="fas fa-shield-alt"></i>
                 <span class="lbl">Admin</span>
               </a>
-              <button onclick="Auth.logout()" class="header-action-btn">
+              <button onclick="Auth.logout()" class="header-pill-btn header-pill-btn--ghost" title="Se déconnecter">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="lbl">Déconnexion</span>
               </button>
@@ -355,10 +358,6 @@ function renderHeader() {
                 <span>Publier</span>
               </a>
             `}
-            
-            <button class="header-mobile-toggle" onclick="toggleMobileMenu()">
-              <i class="fas fa-bars"></i>
-            </button>
           </div>
         </div>
       </div>

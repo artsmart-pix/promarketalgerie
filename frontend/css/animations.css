@@ -4242,9 +4242,10 @@
 
 /* ── Fix Touch Targets ────────────────────────────────────── */
 @media (hover: none) and (pointer: coarse) {
-  .btn, 
+  .btn,
   .tab-btn,
   .header-action-btn,
+  .header-pill-btn,
   .cat-card,
   .listing-card,
   .fav-btn,
