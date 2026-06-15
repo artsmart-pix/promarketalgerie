@@ -34,6 +34,7 @@
 
 <!-- HERO ─────────────────────────────────────────────────── -->
 <section class="hero">
+  <div class="hero-photo" aria-hidden="true"></div>
   <div class="hero-particles">
     <div class="hero-particle" style="left:10%;top:80%"></div>
     <div class="hero-particle" style="left:25%;top:60%"></div>
@@ -314,6 +315,41 @@
   </div>
 </section>
 
+<!-- POURQUOI NOUS / CONFIANCE ───────────────────────────── -->
+<section class="reveal trust-section">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-media">
+        <img src="assets/img/sections/trust.webp"
+             alt="Professionnels concluant une affaire sur Pro Market Algérie"
+             loading="lazy" decoding="async">
+        <div class="trust-media-badge">
+          <i class="fas fa-shield-alt"></i>
+          <span>Vendeurs vérifiés</span>
+        </div>
+      </div>
+      <div class="trust-text">
+        <span class="section-badge">Pourquoi nous choisir</span>
+        <h2>La marketplace B2B <span class="gradient-text-anim">de confiance</span> en Algérie</h2>
+        <p class="trust-lead">
+          Des milliers de professionnels équipent leur succès chaque jour sur Pro Market Algérie.
+          Équipements industriels, matériel BTP, agricole et fonds de commerce : achetez et vendez
+          en toute sérénité, partout dans les 58 wilayas.
+        </p>
+        <ul class="trust-points">
+          <li><span class="trust-check"><i class="fas fa-check"></i></span> Vendeurs certifiés et annonces vérifiées par nos équipes</li>
+          <li><span class="trust-check"><i class="fas fa-check"></i></span> Contact direct par téléphone et WhatsApp, sans intermédiaire</li>
+          <li><span class="trust-check"><i class="fas fa-check"></i></span> Couverture nationale — toutes les wilayas d'Algérie</li>
+        </ul>
+        <a href="pages/category.html" class="btn btn-orange btn-lg btn-ripple">
+          <span>Explorer les annonces</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <div id="site-footer"></div>
 
@@ -347,7 +383,10 @@
 
   // Render categories grid immediately (no backend needed)
   document.getElementById('categories-grid').innerHTML = STATIC_CATS.map((c, index) => `
-    <a class="cat-card" href="pages/category.html?slug=${c.slug}" style="transition-delay: ${index * 0.05}s">
+    <a class="cat-card has-photo" href="pages/category.html?slug=${c.slug}" style="transition-delay: ${index * 0.05}s">
+      <div class="cat-card-photo">
+        <img src="assets/img/categories/${c.slug}.webp" alt="${c.name_fr}" loading="lazy" decoding="async">
+      </div>
       <div class="card-particle"></div>
       <div class="card-particle"></div>
       <div class="card-particle"></div>

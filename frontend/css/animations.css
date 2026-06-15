@@ -4545,3 +4545,55 @@
     transform: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CARTES RUBRIQUES — BANDEAU PHOTO
+   (chargé après main.css → prioritaire)
+   ═══════════════════════════════════════════════════════════ */
+.cat-card.has-photo {
+  padding: 0 0 24px;
+}
+.cat-card .cat-card-photo {
+  position: relative;
+  height: 120px;
+  margin: 0 0 46px;
+  overflow: hidden;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--gray-200);
+}
+.cat-card .cat-card-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cat-card:hover .cat-card-photo img {
+  transform: scale(1.08);
+}
+.cat-card .cat-card-photo::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,22,40,.10) 0%, rgba(10,22,40,.55) 100%);
+}
+/* L'icône chevauche le bas de la photo, posée sur une pastille blanche */
+.cat-card.has-photo .icon-wrapper {
+  position: absolute;
+  top: 120px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: 66px; height: 66px;
+  z-index: 2;
+}
+.cat-card.has-photo .icon-wrapper::before {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(10, 22, 40, 0.14);
+}
+.cat-card.has-photo:hover .icon-wrapper::before {
+  background: #fff;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+.cat-card.has-photo .cat-name,
+.cat-card.has-photo .cat-name-ar {
+  padding: 0 14px;
+}
