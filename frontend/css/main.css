@@ -1174,6 +1174,11 @@ body.menu-open::before {
 .listing-detail-layout {
   display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding: 32px 0;
 }
+/* Les items de grille ont min-width:auto par défaut → ils refusent de
+   rétrécir sous la largeur intrinsèque de leur contenu (ex. bande de
+   miniatures de la galerie à 6+ photos = 424px), ce qui faisait déborder
+   la page à droite sur mobile. min-width:0 autorise le rétrécissement. */
+.listing-detail-layout > div { min-width: 0; }
 
 /* Gallery */
 .listing-gallery { border-radius: var(--r-lg); overflow: hidden; background: var(--dark); }
@@ -1209,9 +1214,9 @@ body.menu-open::before {
   font-size: 2rem; font-weight: 900; color: var(--orange);
   margin-bottom: 20px; letter-spacing: -.02em;
 }
-.listing-attrs-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+.listing-attrs-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; table-layout: fixed; }
 .listing-attrs-table tr:nth-child(even) td { background: var(--gray-50); }
-.listing-attrs-table td { padding: 9px 14px; font-size: 14px; border-bottom: 1px solid var(--gray-100); }
+.listing-attrs-table td { padding: 9px 14px; font-size: 14px; border-bottom: 1px solid var(--gray-100); word-break: break-word; overflow-wrap: anywhere; }
 .listing-attrs-table td:first-child { font-weight: 600; color: var(--gray-500); width: 42%; }
 
 /* Contact sidebar */
@@ -2415,7 +2420,6 @@ select.cselect-native { display: none !important; }
   .gallery-main img { max-height: min(480px, 55vh); }
   .listing-title { font-size: 1.25rem; word-break: break-word; }
   .listing-price { font-size: 1.6rem; word-break: break-word; }
-  .listing-attrs-table { table-layout: fixed; word-break: break-word; }
   .listing-attrs-table td { padding: 8px 10px; font-size: 13px; }
   .listing-attrs-table td:first-child { width: 45%; }
   .contact-sidebar { position: static; padding: 20px; }
