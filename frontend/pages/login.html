@@ -48,9 +48,9 @@
 
       <div id="form-error" class="error-msg" style="margin-bottom:12px;font-size:14px"></div>
 
-      <button type="submit" class="btn btn-orange btn-block btn-lg" id="submit-btn">
+      <button type="submit" class="btn btn-orange btn-block btn-lg" id="submit-btn" style="position:relative">
         <span id="btn-text"><i class="fas fa-sign-in-alt"></i> Se connecter</span>
-        <div class="spinner" id="btn-spinner" style="display:none"></div>
+        <div class="spinner" id="btn-spinner" style="display:none;position:absolute;inset:0;margin:auto"></div>
       </button>
     </form>
 
@@ -103,7 +103,7 @@
     errEl.classList.remove('show');
     btn.disabled = true;
     spinner.style.display = 'inline-block';
-    btnText.style.display = 'none';
+    btnText.style.visibility = 'hidden';
 
     try {
       const data = await AuthAPI.login({ email, password });
@@ -126,7 +126,7 @@
       errEl.classList.add('show');
       btn.disabled = false;
       spinner.style.display = 'none';
-      btnText.style.display = 'inline-flex';
+      btnText.style.visibility = 'visible';
     }
   });
 </script>
