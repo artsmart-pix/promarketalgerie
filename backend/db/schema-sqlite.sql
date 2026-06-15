@@ -132,21 +132,6 @@ CREATE TABLE IF NOT EXISTS favorites (
 );
 
 -- ─────────────────────────────────────────────────────────────
--- SAVED ALERTS
--- ─────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS alerts (
-  id          TEXT PRIMARY KEY,
-  user_id     TEXT,
-  label       TEXT,
-  filters     TEXT NOT NULL,
-  notify_email INTEGER DEFAULT 1,
-  notify_sms  INTEGER DEFAULT 0,
-  is_active   INTEGER DEFAULT 1,
-  last_sent   TEXT,
-  created_at  TEXT DEFAULT (datetime('now'))
-);
-
--- ─────────────────────────────────────────────────────────────
 -- INTERNAL MESSAGES
 -- ─────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS conversations (

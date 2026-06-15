@@ -154,21 +154,6 @@ CREATE TABLE favorites (
 );
 
 -- ─────────────────────────────────────────────────────────────
--- SAVED ALERTS (search alerts)
--- ─────────────────────────────────────────────────────────────
-CREATE TABLE alerts (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
-  label       VARCHAR(200),
-  filters     JSONB NOT NULL,
-  notify_email BOOLEAN DEFAULT TRUE,
-  notify_sms  BOOLEAN DEFAULT FALSE,
-  is_active   BOOLEAN DEFAULT TRUE,
-  last_sent   TIMESTAMP,
-  created_at  TIMESTAMP DEFAULT NOW()
-);
-
--- ─────────────────────────────────────────────────────────────
 -- INTERNAL MESSAGES
 -- ─────────────────────────────────────────────────────────────
 CREATE TABLE conversations (

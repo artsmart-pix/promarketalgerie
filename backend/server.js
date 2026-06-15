@@ -103,7 +103,6 @@ app.use('/api/listings',      require('./routes/listings'));
 app.use('/api/media',         require('./routes/media'));
 app.use('/api/messages',      require('./routes/messages'));
 app.use('/api/favorites',     require('./routes/favorites'));
-app.use('/api/alerts',        require('./routes/alerts'));
 app.use('/api/subscriptions', require('./routes/subscriptions'));
 app.use('/api/admin',         require('./routes/admin'));
 app.use('/api/advertisements',require('./routes/advertisements'));

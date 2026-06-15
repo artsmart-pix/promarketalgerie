@@ -34,9 +34,6 @@
         <option value="price_desc">Prix décroissant</option>
         <option value="views">Les plus vues</option>
       </select>
-      <button class="btn btn-orange btn-sm" id="save-alert-btn" onclick="saveSearchAlert()">
-        <i class="fas fa-bell"></i> Créer une alerte
-      </button>
     </div>
   </div>
 
@@ -205,28 +202,6 @@
   </div>
 </div>
 
-<!-- Save Alert Modal -->
-<div class="modal-overlay" id="alert-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('alert-modal')">&times;</button>
-    <h3><i class="fas fa-bell" style="color:var(--orange)"></i> Créer une alerte</h3>
-    <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">
-      Recevez une notification dès qu'une annonce correspond à vos critères actuels.
-    </p>
-    <div class="form-group">
-      <label>Nom de l'alerte</label>
-      <input type="text" class="form-control" id="alert-label" placeholder="ex: Chariot élévateur Sétif">
-    </div>
-    <div class="form-group">
-      <label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer">
-        <input type="checkbox" id="alert-email" checked> Notification par email
-      </label>
-    </div>
-    <button class="btn btn-orange btn-block" onclick="confirmSaveAlert()">
-      <i class="fas fa-bell"></i> Enregistrer l'alerte
-    </button>
-  </div>
-</div>
 
 <div id="site-footer"></div>
 
@@ -546,24 +521,6 @@
     syncFiltersToURL(buildFilters());
     loadListings();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // ── Alert ─────────────────────────────────────────────────
-  function saveSearchAlert() {
-    if (!Auth.isLoggedIn()) { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.href); return; }
-    document.getElementById('alert-label').value = currentCat ? currentCat.name_fr : 'Recherche';
-    openModal('alert-modal');
-  }
-  async function confirmSaveAlert() {
-    const label = document.getElementById('alert-label').value.trim();
-    const notifyEmail = document.getElementById('alert-email').checked;
-    const filters = buildFilters();
-    delete filters.page; delete filters.limit; delete filters.sort;
-    try {
-      await AlertsAPI.create({ label: label || 'Mon alerte', filters, notify_email: notifyEmail });
-      closeModal('alert-modal');
-      showToast('Alerte créée !', 'success');
-    } catch { showToast('Erreur.', 'error'); }
   }
 
   function syncCustomSelects() {

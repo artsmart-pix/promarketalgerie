@@ -119,13 +119,6 @@ const FavoritesAPI = {
   check:  (id)       => apiFetch(`/favorites/check/${id}`),
 };
 
-// ── ALERTS ───────────────────────────────────────────────────
-const AlertsAPI = {
-  list:   ()         => apiFetch('/alerts'),
-  create: (body)     => apiFetch('/alerts', { method: 'POST', body: JSON.stringify(body) }),
-  delete: (id)       => apiFetch(`/alerts/${id}`, { method: 'DELETE' }),
-  toggle: (id)       => apiFetch(`/alerts/${id}/toggle`, { method: 'PATCH' }),
-};
 
 // ── MESSAGES ─────────────────────────────────────────────────
 const MessagesAPI = {
@@ -212,7 +205,6 @@ window.CategoriesAPI = CategoriesAPI;
 window.ListingsAPI = ListingsAPI;
 window.MediaAPI = MediaAPI;
 window.FavoritesAPI = FavoritesAPI;
-window.AlertsAPI = AlertsAPI;
 window.MessagesAPI = MessagesAPI;
 window.SubscriptionsAPI = SubscriptionsAPI;
 window.AdminAPI = AdminAPI;

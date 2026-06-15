@@ -36,9 +36,6 @@
         <a href="#favorites" onclick="showTab('favorites',this)">
           <i class="fas fa-heart"></i> Favoris
         </a>
-        <a href="#alerts" onclick="showTab('alerts',this)">
-          <i class="fas fa-bell"></i> Alertes
-        </a>
         <a href="#subscription" onclick="showTab('subscription',this)">
           <i class="fas fa-crown"></i> Abonnement
         </a>
@@ -112,16 +109,6 @@
         </div>
       </div>
 
-      <!-- ── ALERTS ─────────────────────────────────────────── -->
-      <div id="tab-alerts" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <h2>Mes alertes de recherche</h2>
-        </div>
-        <div id="alerts-content">
-          <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
-        </div>
-      </div>
-
       <!-- ── SUBSCRIPTION ───────────────────────────────────── -->
       <div id="tab-subscription" style="display:none">
         <h2 style="margin-bottom:20px">Abonnement</h2>
@@ -177,7 +164,7 @@
   }
 
   // ── Tab routing ───────────────────────────────────────────
-  const TABS = ['overview','listings','messages','favorites','alerts','subscription','profile'];
+  const TABS = ['overview','listings','messages','favorites','subscription','profile'];
   let activeTab = location.hash.replace('#','').split('/')[0] || 'overview';
 
   function showTab(tab, navLink) {
@@ -195,7 +182,6 @@
     if (tab === 'listings')      loadMyListings();
     if (tab === 'messages')      loadConversations();
     if (tab === 'favorites')     loadFavorites();
-    if (tab === 'alerts')        loadAlerts();
     if (tab === 'subscription')  loadSubscription();
     if (tab === 'profile')       loadProfile();
   }
@@ -379,43 +365,6 @@
         ? favs.map(l => renderListingCard({ ...l, _fav: true })).join('')
         : '<div class="empty-state" style="grid-column:1/-1"><i class="far fa-heart"></i><p>Aucun favori.</p><a href="../index.html" class="btn btn-outline-orange mt-3">Explorer les annonces</a></div>';
     } catch {}
-  }
-
-  // ── ALERTS ────────────────────────────────────────────────
-  async function loadAlerts() {
-    try {
-      const alerts = await AlertsAPI.list();
-      document.getElementById('alerts-content').innerHTML = alerts.length
-        ? `<div class="table-responsive"><table class="data-table">
-            <thead><tr><th>Nom</th><th>Critères</th><th>Email</th><th>Statut</th><th>Actions</th></tr></thead>
-            <tbody>${alerts.map(a => `
-              <tr>
-                <td style="font-weight:600">${escapeHtml(a.label)}</td>
-                <td style="font-size:12px;color:var(--gray-600)">${(() => { let f = a.filters; try { if (typeof f === 'string') f = JSON.parse(f); } catch { f = {}; } return Object.entries(f || {}).map(([k,v]) => `${k}: ${v}`).join(', '); })()}</td>
-                <td>${a.notify_email ? '<i class="fas fa-check" style="color:var(--green)"></i>' : '—'}</td>
-                <td><span class="badge ${a.is_active ? 'badge-green' : 'badge-gray'}">${a.is_active ? 'Active' : 'Désactivée'}</span></td>
-                <td>
-                  <div class="table-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="toggleAlert('${String(a.id).replace(/'/g, '\\\'')}',this)">${a.is_active ? 'Désactiver' : 'Activer'}</button>
-                    <button class="btn btn-sm btn-outline-orange" onclick="deleteAlert('${String(a.id).replace(/'/g, '\\\'')}',this)"><i class="fas fa-trash"></i></button>
-                  </div>
-                </td>
-              </tr>`).join('')}
-            </tbody></table></div>`
-        : '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>Aucune alerte.<br><a href="category.html" class="btn btn-outline-orange btn-sm mt-3">Créer une alerte depuis une recherche</a></p></div>';
-    } catch {}
-  }
-
-  async function toggleAlert(id, btn) {
-    try {
-      const res = await AlertsAPI.toggle(id);
-      showToast(res.is_active ? 'Alerte activée.' : 'Alerte désactivée.', 'success');
-      loadAlerts();
-    } catch {}
-  }
-  async function deleteAlert(id, btn) {
-    if (!confirm('Supprimer cette alerte ?')) return;
-    try { await AlertsAPI.delete(id); btn.closest('tr').remove(); showToast('Alerte supprimée.', 'info'); } catch {}
   }
 
   // ── SUBSCRIPTION ──────────────────────────────────────────
