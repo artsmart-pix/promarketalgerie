@@ -795,22 +795,6 @@
   scrollbar-color: var(--gray-300) var(--gray-100);
 }
 
-/* ── Mobile Contact Bar Animation ─────────────────────────── */
-.mobile-contact-bar {
-  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slide-up {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
 /* ── Premium Ribbon Animation ─────────────────────────────── */
 .premium-ribbon {
   animation: ribbon-shine 3s ease-in-out infinite;
