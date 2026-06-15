@@ -1101,6 +1101,9 @@ body.menu-open::before {
   gap: 20px;
 }
 .listing-card {
+  position: relative; /* bloc conteneur pour ::after (brillance) — sans ça, le
+                         pseudo absolu de 200% pivoté à 45° échappe à overflow:hidden
+                         et déborde sous le footer (scroll fantôme sur tablette). */
   background: #fff; border-radius: var(--r-lg);
   border: 1.5px solid var(--gray-200);
   overflow: hidden; transition: all var(--t-base);
