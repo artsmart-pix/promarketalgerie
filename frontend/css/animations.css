@@ -4597,3 +4597,113 @@
 .cat-card.has-photo .cat-name-ar {
   padding: 0 14px;
 }
+
+/* ── Téléphone : les 13 rubriques en liste rectangulaire ──────
+   Chaque rubrique occupe sa propre ligne (vignette à gauche,
+   intitulés à droite) au lieu du carrousel horizontal. */
+@media (max-width: 600px) {
+  .categories-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    padding: 8px 0 16px !important;
+    overflow: visible !important;
+    scroll-snap-type: none !important;
+  }
+
+  .cat-card,
+  .cat-card.has-photo {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    position: relative;
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    min-height: 88px;
+    padding: 12px 44px 12px 96px !important;
+    text-align: left !important;
+    border-radius: var(--r-lg) !important;
+    scroll-snap-align: none !important;
+    /* On fige l'état "repos" : pas de soulèvement ni d'accent collé au tap */
+    transform: none !important;
+    box-shadow: var(--shadow-sm) !important;
+    border-color: var(--gray-200) !important;
+  }
+
+  /* Neutralise les barres d'accent orange (::before en haut, ::after en bas)
+     qui sont la cause du trait orange visible sur chaque carte en mode liste.
+     NB : ::after est ensuite réutilisé ci-dessous comme chevron. */
+  .cat-card::before,
+  .cat-card.has-photo::before {
+    display: none !important;
+  }
+
+  /* Vignette photo carrée, calée à gauche et centrée verticalement */
+  .cat-card .cat-card-photo {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 64px !important;
+    height: 64px !important;
+    margin: 0 !important;
+    border-radius: var(--r-md) !important;
+  }
+
+  /* L'icône en pastille n'a plus de sens en mode liste */
+  .cat-card.has-photo .icon-wrapper {
+    display: none !important;
+  }
+
+  /* Intitulés empilés, alignés à gauche */
+  .cat-card .cat-name,
+  .cat-card.has-photo .cat-name {
+    display: block !important;
+    width: 100%;
+    padding: 0 !important;
+    margin-bottom: 4px !important;
+    text-align: left !important;
+    font-size: 15px !important;
+  }
+  .cat-card .cat-name-ar,
+  .cat-card.has-photo .cat-name-ar {
+    display: block !important;
+    width: 100%;
+    padding: 0 !important;
+    text-align: left !important;
+    font-size: 12px !important;
+  }
+
+  /* Le pseudo ::after de .cat-card est, à l'origine, la barre d'accent
+     orange (bottom:0; height:4px; background:dégradé orange; scaleX(0)).
+     On le détourne ici en chevron : il faut donc ANNULER toute sa
+     géométrie de barre (left/right/bottom/height/background/scaleX),
+     sinon le dégradé orange réapparaît en pleine largeur. */
+  .cat-card.has-photo::after {
+    content: '\f054'; /* fa-chevron-right */
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: auto !important;
+    right: 16px !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    transform: translateY(-50%) !important;
+    background: none !important;
+    background-image: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    line-height: 1;
+    color: var(--gray-400);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  /* Flèches de défilement du carrousel inutiles en mode liste */
+  .cat-grid-arrow { display: none !important; }
+}
