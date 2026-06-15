@@ -420,7 +420,7 @@ function renderHeader() {
             <a href="${BASE}pages/admin.html" class="mobile-menu-link">
               <i class="fas fa-shield-alt"></i> Administration
             </a>
-            <button onclick="Auth.logout()" class="mobile-menu-link" style="width:100%;text-align:left;background:none;border:none;color:var(--red)">
+            <button onclick="Auth.logout()" class="mobile-menu-logout" type="button">
               <i class="fas fa-sign-out-alt"></i> Déconnexion
             </button>
           ` : ''}

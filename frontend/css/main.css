@@ -545,7 +545,7 @@ h4 { font-size: 1rem; font-weight: 600; }
   background: rgba(255,255,255,.1);
 }
 
-/* ── Mobile Menu ── */
+/* ── Mobile Menu — effet "modern glass" (mobile + tablette) ── */
 .header-mobile-menu {
   position: fixed;
   top: 0;
@@ -553,11 +553,23 @@ h4 { font-size: 1rem; font-weight: 600; }
   width: 320px;
   max-width: 85vw;
   height: 100vh;
-  background: var(--dark);
+  /* Verre dépoli translucide : floute la page assombrie derrière le panneau */
+  background: linear-gradient(160deg, rgba(16,30,52,.78), rgba(8,18,34,.86));
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  border-left: 1px solid rgba(255,255,255,.12);
+  box-shadow: -24px 0 60px rgba(0,0,0,.45);
   z-index: 1002;
   transform: translateX(100%);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-y: auto;
+}
+
+/* Fallback : navigateurs sans backdrop-filter → fond opaque pour rester lisible */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .header-mobile-menu {
+    background: linear-gradient(160deg, #101e34, #08122a);
+  }
 }
 
 .header-mobile-menu.open {
@@ -571,6 +583,9 @@ h4 { font-size: 1rem; font-weight: 600; }
     right: auto;
     left: 0;
     transform: translateX(-100%);
+    border-left: none;
+    border-right: 1px solid rgba(255,255,255,.12);
+    box-shadow: 24px 0 60px rgba(0,0,0,.45);
   }
 }
 
@@ -666,6 +681,34 @@ h4 { font-size: 1rem; font-weight: 600; }
 }
 .mobile-menu-link-cta i {
   color: #25D366;
+}
+
+/* ── Bouton Déconnexion (espace admin) ── */
+.mobile-menu-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: rgba(239,68,68,.14);
+  border: 1px solid rgba(239,68,68,.38);
+  color: #fecaca;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--t-fast);
+}
+.mobile-menu-logout:hover {
+  background: rgba(239,68,68,.26);
+  border-color: rgba(239,68,68,.6);
+  color: #fff;
+}
+.mobile-menu-logout i {
+  font-size: 17px;
 }
 
 body.menu-open {
