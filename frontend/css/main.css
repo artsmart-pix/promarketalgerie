@@ -564,6 +564,16 @@ h4 { font-size: 1rem; font-weight: 600; }
   transform: translateX(0);
 }
 
+/* Tablette : le bouton menu est à gauche → le panneau sort depuis la gauche.
+   (Mobile ≤768px conserve l'ouverture depuis la droite.) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .header-mobile-menu {
+    right: auto;
+    left: 0;
+    transform: translateX(-100%);
+  }
+}
+
 .mobile-menu-header {
   display: flex;
   align-items: center;
