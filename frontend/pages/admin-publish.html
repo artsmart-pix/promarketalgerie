@@ -38,52 +38,13 @@
     }
     
     /* 4. Wrapper fixed isolé du flux — ANCÊTRE SANS TRANSFORM */
-    .submit-bar-wrap {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 9999;
-      /* PAS de transform ici — transform sur ancêtre = fixed cassé */
-    }
-    
-    .submit-bar {
-      background: #fff;
-      border-top: 1px solid var(--gray-200);
-      padding: 16px 24px;
+    .form-actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-      /* PAS de position ici — c'est le wrap qui est fixed */
-      /* PAS de transform ici non plus */
-    }
-    
-    /* 5. Boutons de la barre : transitions très restreintes, pas de transform */
-    .submit-bar .btn {
-      transition-property: background-color, color, border-color, box-shadow, opacity !important;
-      transition-duration: 0.15s !important;
-      transform: none !important;
-    }
-    
-    .submit-bar .btn:active {
-      opacity: 0.85 !important;
-      transform: none !important;
-    }
-    
-    .submit-bar .btn::before {
-      display: none !important;
-    }
-    
-    .submit-bar .info {
-      font-size: 13px;
-      color: var(--gray-600);
-    }
-    
-    .submit-bar .info strong {
-      color: var(--dark);
+      margin-top: 8px;
     }
     
     .publish-layout {
@@ -424,7 +385,7 @@
 <body>
 <div id="site-header"></div>
 
-<div class="page-wrapper" style="padding-bottom: 80px;">
+<div class="page-wrapper">
 <div class="container" style="padding-top:32px">
 
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px;flex-wrap:wrap">
@@ -555,6 +516,17 @@
 
         <div class="section-divider"></div>
 
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="reset-btn">
+            <i class="fas fa-undo"></i> Réinitialiser
+          </button>
+          <button type="button" class="btn btn-orange btn-lg" id="publish-btn">
+            <span id="btn-text"><i class="fas fa-paper-plane"></i> Publier l'annonce</span>
+            <div class="spinner" id="btn-spinner" style="display:none;width:20px;height:20px;border-width:2px"></div>
+          </button>
+        </div>
+
       </form>
     </div>
 
@@ -589,25 +561,6 @@
     </div>
   </div>
 </div>
-</div>
-
-<!-- Submit Bar -->
-<div class="submit-bar-wrap">
-  <div class="submit-bar">
-    <div class="info">
-      <i class="fas fa-info-circle" style="color:var(--blue)"></i>
-      L'annonce sera publiée <strong>immédiatement</strong> sans modération
-    </div>
-    <div style="display:flex;gap:12px">
-      <button type="button" class="btn btn-ghost" id="reset-btn">
-        <i class="fas fa-undo"></i> Réinitialiser
-      </button>
-      <button type="button" class="btn btn-orange btn-lg" id="publish-btn">
-        <span id="btn-text"><i class="fas fa-paper-plane"></i> Publier l'annonce</span>
-        <div class="spinner" id="btn-spinner" style="display:none;width:20px;height:20px;border-width:2px"></div>
-      </button>
-    </div>
-  </div>
 </div>
 
 <!-- Success Overlay -->
