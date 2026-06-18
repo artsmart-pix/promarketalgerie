@@ -32,7 +32,7 @@ async function init() {
 
   // Vérifier si l'admin existe déjà
   const adminExists = await new Promise((resolve, reject) => {
-    db.get('SELECT id FROM users WHERE email = ?', ['admin@promarketalgerie.com'], (err, row) => {
+    db.get('SELECT id FROM users WHERE email = ?', ['promarketalgerie@gmail.com'], (err, row) => {
       if (err) reject(err);
       else resolve(row);
     });
@@ -46,27 +46,27 @@ async function init() {
       db.run(
         `INSERT INTO users (id, email, password_hash, full_name, role, is_active)
          VALUES (lower(hex(randomblob(16))), ?, ?, ?, 'admin', 1)`,
-        ['admin@promarketalgerie.com', hash, 'Administrateur'],
+        ['promarketalgerie@gmail.com', hash, 'Administrateur'],
         function(err) {
           if (err) reject(err);
           else resolve();
         }
       );
     });
-    console.log('✅  Admin user created: admin@promarketalgerie.com');
+    console.log('✅  Admin user created: promarketalgerie@gmail.com');
   } else {
     // Met à jour le mot de passe si l'admin existe déjà
     await new Promise((resolve, reject) => {
       db.run(
         'UPDATE users SET password_hash = ? WHERE email = ?',
-        [hash, 'admin@promarketalgerie.com'],
+        [hash, 'promarketalgerie@gmail.com'],
         function(err) {
           if (err) reject(err);
           else resolve();
         }
       );
     });
-    console.log('✅  Admin password updated: admin@promarketalgerie.com');
+    console.log('✅  Admin password updated: promarketalgerie@gmail.com');
   }
   console.log('   🔑 Password: ' + adminPass);
 

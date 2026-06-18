@@ -5,8 +5,12 @@ const crypto   = require('crypto');
 const { body, validationResult } = require('express-validator');
 const db       = require('../config/database');
 const { authenticate } = require('../middleware/auth');
+const { sendPasswordResetEmail, isConfigured } = require('../services/mailer');
 
 const router = express.Router();
+
+const sha256 = (v) => crypto.createHash('sha256').update(v).digest('hex');
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 heure
 
 // ── POST /api/auth/register ──────────────────────────────────
 router.post('/register', [
@@ -71,6 +75,96 @@ router.post('/login', [
     delete user.password_hash;
     const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
     res.json({ user, token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ── POST /api/auth/forgot-password ───────────────────────────
+// Génère un token de réinitialisation et envoie le lien par email.
+// Réponse TOUJOURS générique (200) pour ne pas révéler quels emails existent.
+router.post('/forgot-password', [
+  body('email').isEmail().normalizeEmail(),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+
+  const { email } = req.body;
+  const generic = { message: 'Si un compte existe pour cet email, un lien de réinitialisation vient d\'être envoyé.' };
+
+  try {
+    const { rows } = await db.query(
+      'SELECT id, is_active FROM users WHERE email = ?',
+      [email]
+    );
+
+    // Compte inexistant ou désactivé : on renvoie la même réponse, sans rien faire.
+    if (!rows.length || !rows[0].is_active) return res.json(generic);
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = sha256(token);
+    const expires = new Date(Date.now() + RESET_TOKEN_TTL_MS).toISOString();
+
+    await db.run(
+      'UPDATE users SET reset_token_hash = ?, reset_token_expires = ?, updated_at = datetime(\'now\') WHERE id = ?',
+      [tokenHash, expires, rows[0].id]
+    );
+
+    const base = (process.env.APP_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
+    const resetUrl = `${base}/pages/reset-password.html?token=${token}`;
+
+    let sent = false;
+    try {
+      sent = await sendPasswordResetEmail(email, resetUrl);
+    } catch (mailErr) {
+      console.error('[forgot-password] Échec envoi email:', mailErr.message);
+    }
+
+    // En développement, si le SMTP n'est pas configuré, on renvoie le lien
+    // directement pour permettre de tester sans serveur mail.
+    const payload = { ...generic };
+    if (!isConfigured && process.env.NODE_ENV !== 'production') {
+      payload.devResetUrl = resetUrl;
+    }
+    return res.json(payload);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ── POST /api/auth/reset-password ────────────────────────────
+// Valide le token et applique le nouveau mot de passe.
+router.post('/reset-password', [
+  body('token').isString().isLength({ min: 32 }),
+  body('password').isLength({ min: 8 }).withMessage('Mot de passe trop court (8 caractères min).'),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+
+  const { token, password } = req.body;
+  try {
+    const tokenHash = sha256(token);
+    const { rows } = await db.query(
+      `SELECT id FROM users
+       WHERE reset_token_hash = ? AND reset_token_expires > ? AND is_active = 1`,
+      [tokenHash, new Date().toISOString()]
+    );
+
+    if (!rows.length) {
+      return res.status(400).json({ error: 'Lien invalide ou expiré. Veuillez refaire une demande.' });
+    }
+
+    const hash = await bcrypt.hash(password, 12);
+    await db.run(
+      `UPDATE users
+       SET password_hash = ?, reset_token_hash = NULL, reset_token_expires = NULL, updated_at = datetime('now')
+       WHERE id = ?`,
+      [hash, rows[0].id]
+    );
+
+    res.json({ message: 'Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });

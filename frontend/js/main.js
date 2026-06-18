@@ -291,6 +291,9 @@ function escapeHtml(str) {
 // IMPORTANT: remplacer par le numéro WhatsApp du client avant mise en production
 window.WHATSAPP_NUMBER = '213549129811';
 
+// Email de récupération / contact administrateur
+window.RECOVERY_EMAIL = 'promarketalgerie@gmail.com';
+
 function getWhatsAppPublishUrl() {
   return `https://wa.me/${window.WHATSAPP_NUMBER}?text=Bonjour,%20je%20souhaite%20publier%20une%20annonce%20sur%20Pro%20Market%20Algérie`;
 }
