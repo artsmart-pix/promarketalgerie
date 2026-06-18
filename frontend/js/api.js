@@ -6,12 +6,11 @@
 // Auto-detect API base URL
 const API_BASE = (() => {
   if (typeof window === 'undefined') return 'http://localhost:3001/api';
-  // If served from backend (port 3001), use same origin
-  if (window.location.port === '3001') return '/api';
-  // If opened as file://, use localhost
+  // Opened directly from disk (file://) — talk to a local dev backend.
   if (window.location.protocol === 'file:') return 'http://localhost:3001/api';
-  // Otherwise use localhost:3001
-  return 'http://localhost:3001/api';
+  // Served over http(s) by the backend (dev on :3001) or behind a reverse
+  // proxy in production (Caddy → app) — the API lives on the same origin.
+  return '/api';
 })();
 
 // ── Token management ─────────────────────────────────────────
@@ -191,7 +190,9 @@ function createWSClient(onMessage) {
   const token = Auth.getToken();
   if (!userId || !token) return null;
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsHost = window.location.port === '3001' ? window.location.host : 'localhost:3001';
+  // Same host as the page (dev :3001 or prod domain behind Caddy); only a
+  // file:// page needs to point at an explicit local backend.
+  const wsHost = window.location.protocol === 'file:' ? 'localhost:3001' : window.location.host;
   const ws = new WebSocket(`${wsProtocol}//${wsHost}/ws?token=${token}`);
   _activeWS = ws;
 

@@ -1,0 +1,27 @@
+# ─────────────────────────────────────────────────────────────
+# Caddy — reverse proxy + HTTPS automatique (Let's Encrypt)
+# Pro Market Algérie — production
+#
+# Caddy obtient et renouvelle seul le certificat TLS pour le domaine
+# ci-dessous, à condition que :
+#   • l'enregistrement DNS A de promarketalgerie.com (et www) pointe
+#     vers l'IP publique du VPS ;
+#   • les ports 80 et 443 du VPS soient ouverts (firewalld) et libres.
+# ─────────────────────────────────────────────────────────────
+
+{
+	# Email utilisé par Let's Encrypt (avis d'expiration de certificat)
+	email promarketalgerie@gmail.com
+}
+
+# Domaine racine + www : www redirige vers le domaine racine.
+promarketalgerie.com {
+	encode zstd gzip
+	# Tout le trafic (API /api, WebSocket /ws, frontend statique) part vers
+	# le conteneur applicatif. Caddy gère seul l'upgrade WebSocket.
+	reverse_proxy app:3001
+}
+
+www.promarketalgerie.com {
+	redir https://promarketalgerie.com{uri} permanent
+}

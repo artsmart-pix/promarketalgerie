@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────
+# Compose PRODUCTION — Pro Market Algérie (VPS Rocky Linux + Docker)
+#
+# Fichier AUTONOME : il ne fusionne PAS docker-compose.yml ni
+# l'override de dev. Le script ./deploy.sh l'utilise explicitement :
+#     docker compose -f docker-compose.prod.yml up -d --build
+#
+# Différences avec le compose de dev :
+#   • Ajoute Caddy (reverse proxy + HTTPS auto sur promarketalgerie.com).
+#   • L'app n'est PAS exposée directement sur l'hôte : seul Caddy publie
+#     les ports 80/443. L'app n'est joignable que par Caddy via le réseau
+#     interne `web`.
+#   • FRONTEND_URL / APP_URL pointent vers le domaine public.
+# ─────────────────────────────────────────────────────────────
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: promarket-algerie:latest
+    container_name: promarket-algerie
+    restart: unless-stopped
+    # Secrets (JWT_SECRET, SMTP_*) chargés depuis backend/.env s'il existe.
+    # Sinon l'entrypoint génère et persiste un JWT_SECRET sur le volume.
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      SQLITE_PATH: /data/database.sqlite
+      UPLOAD_DIR: /data/uploads
+      # Origines publiques (CORS + liens d'emails). Domaine racine + www.
+      FRONTEND_URL: https://promarketalgerie.com,https://www.promarketalgerie.com
+      APP_URL: https://promarketalgerie.com
+    # Pas de `ports:` — l'app reste privée derrière Caddy.
+    expose:
+      - "3001"
+    volumes:
+      - pm_data:/data
+    networks:
+      - web
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3001/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: promarket-caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3 (QUIC)
+    volumes:
+      # `:ro,Z` — lecture seule + relabel SELinux (Rocky Linux enforcing).
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro,Z
+      - caddy_data:/data       # certificats TLS persistants — NE PAS perdre
+      - caddy_config:/config
+    networks:
+      - web
+
+volumes:
+  pm_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+
+networks:
+  web:
+    driver: bridge
