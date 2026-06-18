@@ -46,6 +46,40 @@
       gap: 12px;
       margin-top: 8px;
     }
+    /* Stabilise les boutons pendant le chargement : neutralise le halo ::before
+       (gonfle à 300 % au survol), le scale(0.96) au clic et la transition « all »
+       overshoot ajoutés par animations.css, qui déformaient le bouton. */
+    .form-actions .btn {
+      /* Taille FIXE et non négociable : les boutons ne changent jamais de dimension */
+      height: 48px !important;
+      min-height: 48px !important;
+      max-height: 48px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      overflow: hidden;
+      transition-property: background-color, background-position, box-shadow, opacity, color, border-color;
+      transition-duration: 0.15s;
+    }
+    .form-actions .btn:hover,
+    .form-actions .btn:active { transform: none !important; }
+    .form-actions .btn::before { display: none !important; }
+    /* Largeur FIXE : les boutons ne peuvent pas changer de largeur (clic, chargement, resize) */
+    #publish-btn {
+      position: relative;
+      flex: 0 0 auto;
+      width: 220px !important;
+    }
+    #reset-btn {
+      flex: 0 0 auto;
+      width: 160px !important;
+    }
+    #publish-btn #btn-spinner {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 20px !important;
+      height: 20px !important;
+    }
     
     .publish-layout {
       display: grid;
@@ -875,7 +909,7 @@
     
     btn.disabled = true;
     spinner.style.display = 'inline-block';
-    btnText.style.display = 'none';
+    btnText.style.visibility = 'hidden';
     
     const priceContactEl = document.getElementById('price-contact');
     const priceContact = priceContactEl ? priceContactEl.checked : false;
@@ -923,7 +957,7 @@
       showToast(msg, 'error');
       btn.disabled = false;
       spinner.style.display = 'none';
-      btnText.style.display = 'inline-flex';
+      btnText.style.visibility = 'visible';
     }
   }
 
@@ -953,7 +987,7 @@
     const btnText = document.getElementById('btn-text');
     btn.disabled = false;
     spinner.style.display = 'none';
-    btnText.style.display = 'inline-flex';
+    btnText.style.visibility = 'visible';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

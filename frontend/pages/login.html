@@ -8,6 +8,36 @@
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+  <style>
+    /* Stabilise le bouton "Se connecter" pendant le chargement.
+       animations.css enrichit .btn avec un halo ::before qui gonfle à 300 %
+       au survol, un scale(0.96) au clic et une transition « all » à easing
+       overshoot. Le curseur restant sur le bouton désactivé, le halo gonflait
+       en continu et faisait « grandir » le bouton durant la requête. */
+    #submit-btn {
+      /* Taille FIXE et non négociable : le bouton ne peut jamais changer de dimension */
+      height: 48px !important;
+      min-height: 48px !important;
+      max-height: 48px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      overflow: hidden;
+      transition-property: background-color, background-position, box-shadow, opacity, color, border-color;
+      transition-duration: var(--t-base);
+      transition-timing-function: ease;
+    }
+    #submit-btn:hover,
+    #submit-btn:active { transform: none !important; }
+    #submit-btn::before { display: none !important; }
+    /* Spinner toujours hors flux et de taille fixe : ne peut jamais agrandir le bouton */
+    #submit-btn #btn-spinner {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 22px !important;
+      height: 22px !important;
+    }
+  </style>
 </head>
 <body>
 <div id="site-header"></div>
