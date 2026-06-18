@@ -45,14 +45,20 @@
       <i class="fas fa-plus-circle"></i> Créer une annonce
     </button>
     <button class="admin-tab active" onclick="showAdminTab('pending')" id="tab-pending-btn">
-      <i class="fas fa-clock"></i> En attente <span class="badge badge-orange" id="pending-count">…</span>
+      <i class="fas fa-clock"></i> À activer <span class="badge badge-orange" id="pending-count">…</span>
     </button>
+    <button class="admin-tab" onclick="showAdminTab('active')" id="tab-active-btn">
+      <i class="fas fa-globe"></i> En ligne
+    </button>
+    <!-- Phase de lancement gratuite : onglets masqués (personne ne se connecte encore).
+         Réactiver quand le self-service ouvrira.
     <button class="admin-tab" onclick="showAdminTab('users')" id="tab-users-btn">
       <i class="fas fa-users"></i> Utilisateurs
     </button>
     <button class="admin-tab" onclick="showAdminTab('orders')" id="tab-orders-btn">
       <i class="fas fa-credit-card"></i> Commandes
     </button>
+    -->
     <button class="admin-tab" onclick="showAdminTab('ads')" id="tab-ads-btn">
       <i class="fas fa-ad"></i> Publicités
     </button>
@@ -77,11 +83,22 @@
   <!-- Pending listings -->
   <div id="admin-pending">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
-      <h2 style="font-size:1.1rem">Annonces en attente de modération</h2>
+      <h2 style="font-size:1.1rem">Annonces à activer</h2>
       <button class="btn btn-ghost btn-sm" onclick="loadPending()"><i class="fas fa-sync"></i> Rafraîchir</button>
     </div>
     <div id="pending-list">
       <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--orange);border-top-color:transparent;margin:0 auto"></div></div>
+    </div>
+  </div>
+
+  <!-- Active (published) listings -->
+  <div id="admin-active" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+      <h2 style="font-size:1.1rem">Annonces en ligne</h2>
+      <button class="btn btn-ghost btn-sm" onclick="loadActive()"><i class="fas fa-sync"></i> Rafraîchir</button>
+    </div>
+    <div id="active-list">
+      <div style="text-align:center;padding:40px"><div class="spinner" style="width:32px;height:32px;border-color:var(--green);border-top-color:transparent;margin:0 auto"></div></div>
     </div>
   </div>
 
@@ -166,6 +183,24 @@
   </div>
 </div>
 
+<!-- Activate Modal -->
+<div class="modal-overlay" id="activate-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('activate-modal')">&times;</button>
+    <h3 style="color:var(--green)"><i class="fas fa-rocket"></i> Activer l'annonce</h3>
+    <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">L'annonce deviendra visible publiquement. Indiquez les frais de publication facturés au client, ou publiez gratuitement.</p>
+    <div class="form-group">
+      <label>Frais de publication facturés (DZD)</label>
+      <input type="number" min="0" class="form-control" id="activate-fee" placeholder="0">
+      <div class="form-text">Pendant la phase de lancement, laissez vide et cliquez « Gratuit ».</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost" style="flex:1" onclick="confirmActivate(true)"><i class="fas fa-gift"></i> Gratuit</button>
+      <button class="btn btn-green" style="flex:1;background:var(--green);color:#fff;border:none" onclick="confirmActivate(false)"><i class="fas fa-check"></i> Activer avec montant</button>
+    </div>
+  </div>
+</div>
+
 <!-- Reject Modal -->
 <div class="modal-overlay" id="reject-modal">
   <div class="modal">
@@ -201,28 +236,30 @@
 <script>
   // Guard — admin only
   if (!Auth.isLoggedIn() || Auth.getUser()?.role !== 'admin') {
-    alert('Accès réservé aux administrateurs.');
-    window.location.href = '../index.html';
+    uiAlert('Accès réservé aux administrateurs.', { title: 'Accès refusé' })
+      .then(() => { window.location.href = '../index.html'; });
+    throw new Error('redirect: accès non autorisé');
   }
 
   // ── Stats ─────────────────────────────────────────────────
   AdminAPI.stats().then(s => {
     document.getElementById('admin-stats').innerHTML = `
       <div class="stat-card"><div class="stat-val">${s.active_listings}</div><div class="stat-lbl">Annonces actives</div></div>
-      <div class="stat-card orange"><div class="stat-val">${s.pending_listings}</div><div class="stat-lbl">En attente</div></div>
+      <div class="stat-card orange"><div class="stat-val">${s.pending_listings}</div><div class="stat-lbl">À activer</div></div>
       <div class="stat-card"><div class="stat-val">${s.total_users}</div><div class="stat-lbl">Utilisateurs</div></div>
-      <div class="stat-card green"><div class="stat-val">${parseInt(s.total_revenue).toLocaleString('fr-DZ')} DZD</div><div class="stat-lbl">Revenus validés</div></div>`;
+      <div class="stat-card green"><div class="stat-val">${parseInt(s.publication_revenue || 0).toLocaleString('fr-DZ')} DZD</div><div class="stat-lbl">Revenus publications</div></div>`;
   });
 
   // ── Tabs ──────────────────────────────────────────────────
   function showAdminTab(tab) {
-    ['create','pending','users','orders','ads'].forEach(t => {
+    ['create','pending','active','users','orders','ads'].forEach(t => {
       const el = document.getElementById(`admin-${t}`);
       if (el) el.style.display = t === tab ? '' : 'none';
       const btn = document.getElementById(`tab-${t}-btn`);
       if (btn) btn.classList.toggle('active', t === tab);
     });
     if (tab === 'pending') loadPending();
+    if (tab === 'active')  loadActive();
     if (tab === 'users')   loadUsers();
     if (tab === 'orders')  loadOrders();
     if (tab === 'ads')     loadAds();
@@ -249,16 +286,13 @@
                 <td style="font-size:12px;color:var(--gray-600)">${formatDate(l.created_at)}</td>
                 <td>
                   <div class="table-actions">
-                    <button class="btn btn-green btn-sm" onclick="approveListing('${String(l.id).replace(/'/g, '\\\'')}')">
-                      <i class="fas fa-check"></i> Valider
+                    <button class="btn btn-green btn-sm" onclick="openActivate('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-rocket"></i> Activer
                     </button>
                     <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="openReject('${String(l.id).replace(/'/g, '\\\'')}')">
                       <i class="fas fa-times"></i> Rejeter
                     </button>
-                    <button class="btn btn-ghost btn-sm" onclick="boostListing('${String(l.id).replace(/'/g, '\\\'')}')">
-                      <i class="fas fa-star"></i> Boost
-                    </button>
-                    <a href="listing-detail.html?id=${l.id}&admin=1" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
+                    <a href="admin-publish.html?edit=${l.id}" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
                       <i class="fas fa-edit"></i> Modifier
                     </a>
                     <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\'')}')">
@@ -272,11 +306,24 @@
     } catch { showToast('Erreur chargement.', 'error'); }
   }
 
-  async function approveListing(id) {
+  // ── ACTIVATION (gratuit / avec montant) ───────────────────
+  let activateTarget = null;
+  function openActivate(id) {
+    activateTarget = id;
+    document.getElementById('activate-fee').value = '';
+    openModal('activate-modal');
+  }
+  async function confirmActivate(free) {
+    const fee = free ? 0 : (parseFloat(document.getElementById('activate-fee').value) || 0);
     try {
-      await AdminAPI.approve(id);
-      document.getElementById(`pending-row-${id}`)?.remove();
-      showToast('Annonce validée et publiée.', 'success');
+      await AdminAPI.activate(activateTarget, fee);
+      document.getElementById(`pending-row-${activateTarget}`)?.remove();
+      closeModal('activate-modal');
+      document.getElementById('pending-count').textContent =
+        document.querySelectorAll('#pending-list tbody tr').length;
+      showToast(free
+        ? 'Annonce activée et publiée (gratuit).'
+        : `Annonce activée — ${fee.toLocaleString('fr-DZ')} DZD facturés.`, 'success');
     } catch { showToast('Erreur.', 'error'); }
   }
 
@@ -294,7 +341,7 @@
   }
 
   async function boostListing(id) {
-    const days = prompt('Durée du boost (jours) ?', '7');
+    const days = await uiPrompt('Combien de jours doit durer le boost ?', { title: 'Booster l’annonce', type: 'number', defaultValue: '7', confirmText: 'Booster' });
     if (!days) return;
     try {
       await AdminAPI.boostListing(id, { days: parseInt(days), is_premium: true });
@@ -303,12 +350,62 @@
   }
 
   async function deleteListing(id) {
-    if (!confirm('Supprimer définitivement cette annonce ?')) return;
+    if (!await uiConfirm('Cette annonce sera supprimée définitivement. Action irréversible.', { title: 'Supprimer l’annonce', danger: true, confirmText: 'Supprimer' })) return;
     try {
       await apiFetch(`/admin/listings/${id}`, { method: 'DELETE' });
       document.getElementById(`pending-row-${id}`)?.remove();
+      document.getElementById(`active-row-${id}`)?.remove();
       showToast('Annonce supprimée.', 'info');
     } catch { showToast('Erreur suppression.', 'error'); }
+  }
+
+  // ── ACTIVE (en ligne) ─────────────────────────────────────
+  async function loadActive() {
+    try {
+      const listings = await AdminAPI.activeListings();
+      document.getElementById('active-list').innerHTML = listings.length
+        ? `<div class="table-responsive"><table class="data-table">
+            <thead><tr><th>Titre</th><th>Catégorie</th><th>Vendeur</th><th>Prix</th><th>Frais pub.</th><th>Mise en ligne</th><th>Actions</th></tr></thead>
+            <tbody>${listings.map(l => `
+              <tr id="active-row-${l.id}">
+                <td><a href="listing-detail.html?id=${l.id}" target="_blank" style="font-weight:600">${escapeHtml(l.title_fr)}</a></td>
+                <td><span class="badge badge-gray">${escapeHtml(l.category_name || '?')}</span></td>
+                <td>
+                  <div style="font-size:13px;font-weight:600">${escapeHtml(l.seller_name)}</div>
+                  <div style="font-size:12px;color:var(--blue)">${escapeHtml(l.seller_phone || '')}</div>
+                </td>
+                <td>${l.price ? new Intl.NumberFormat('fr-DZ').format(l.price) + ' ' + l.currency : 'Sur contact'}</td>
+                <td>${l.publication_fee ? new Intl.NumberFormat('fr-DZ').format(l.publication_fee) + ' DZD' : '<span class="badge badge-green">Gratuit</span>'}</td>
+                <td style="font-size:12px;color:var(--gray-600)">${formatDate(l.activated_at || l.created_at)}</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn btn-sm" style="background:var(--orange);color:#fff;border:none" onclick="markSold('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-handshake"></i> Vendu
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="boostListing('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-star"></i> Boost
+                    </button>
+                    <a href="admin-publish.html?edit=${l.id}" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
+                      <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\'')}')">
+                      <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody></table></div>`
+        : '<div class="empty-state"><i class="fas fa-globe" style="color:var(--gray-400)"></i><p>Aucune annonce en ligne pour le moment.</p></div>';
+    } catch { showToast('Erreur chargement.', 'error'); }
+  }
+
+  async function markSold(id) {
+    if (!await uiConfirm('Elle sera retirée du marché public mais conservée dans l’historique.', { title: 'Marquer comme vendue', confirmText: 'Marquer vendue' })) return;
+    try {
+      await AdminAPI.markSold(id);
+      document.getElementById(`active-row-${id}`)?.remove();
+      showToast('Annonce marquée vendue et retirée du marché.', 'info');
+    } catch { showToast('Erreur.', 'error'); }
   }
 
   // ── USERS ─────────────────────────────────────────────────
@@ -359,7 +456,12 @@
     } catch { showToast('Erreur.', 'error'); }
   }
   async function setPack(id) {
-    const pack = prompt('Nouveau pack :\n(free / starter_pro / business_pro / concessionnaire_elite)');
+    const pack = await uiPrompt('Choisissez le nouveau pack de l’utilisateur :', { title: 'Changer le pack', confirmText: 'Appliquer', defaultValue: 'free', choices: [
+      { value: 'free', label: 'Free' },
+      { value: 'starter_pro', label: 'Starter Pro' },
+      { value: 'business_pro', label: 'Business Pro' },
+      { value: 'concessionnaire_elite', label: 'Concessionnaire Élite' },
+    ] });
     if (!pack) return;
     try { await AdminAPI.setPack(id, { pack, days: 30 }); showToast('Pack mis à jour !', 'success'); loadUsers(); } catch (e) { showToast(e.error || 'Erreur.', 'error'); }
   }
@@ -397,7 +499,7 @@
   }
 
   async function validateOrder(id, btn) {
-    if (!confirm('Valider ce paiement et activer le pack ?')) return;
+    if (!await uiConfirm('Le paiement sera validé et le pack activé pour cet utilisateur.', { title: 'Valider le paiement', confirmText: 'Valider' })) return;
     try {
       await AdminAPI.validateOrder(id);
       document.getElementById(`order-row-${id}`)?.remove();
@@ -504,7 +606,7 @@
   }
 
   async function deleteAd(id) {
-    if (!confirm('Supprimer cette publicité ?')) return;
+    if (!await uiConfirm('Cette publicité sera supprimée.', { title: 'Supprimer la publicité', danger: true, confirmText: 'Supprimer' })) return;
     try {
       await AdsAPI.delete(id);
       showToast('Publicité supprimée.', 'info');

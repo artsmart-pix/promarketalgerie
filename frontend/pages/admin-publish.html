@@ -67,7 +67,7 @@
     #publish-btn {
       position: relative;
       flex: 0 0 auto;
-      width: 220px !important;
+      width: 280px !important;
     }
     #reset-btn {
       flex: 0 0 auto;
@@ -538,6 +538,10 @@
 
         <!-- Photos -->
         <div class="form-section-title"><i class="fas fa-camera"></i> Photos (max 10)</div>
+
+        <!-- Photos existantes (mode édition uniquement) -->
+        <div id="existing-photos" style="display:none"></div>
+
         <input type="file" id="file-input" accept="image/*" multiple style="display:none">
         <label for="file-input" class="upload-zone-v2" id="upload-zone" style="display:block;cursor:pointer;width:100%">
           <div id="upload-zone-content">
@@ -602,8 +606,8 @@
   <div class="success-icon">
     <i class="fas fa-check"></i>
   </div>
-  <h2 style="color:var(--green);font-size:1.8rem;margin-bottom:12px">Annonce publiée !</h2>
-  <p style="color:var(--gray-600);margin-bottom:8px;max-width:400px">L'annonce est maintenant en ligne et visible par tous les visiteurs.</p>
+  <h2 id="success-title" style="color:var(--green);font-size:1.8rem;margin-bottom:12px">Annonce enregistrée !</h2>
+  <p id="success-text" style="color:var(--gray-600);margin-bottom:8px;max-width:400px">Elle est placée <strong>en attente d'activation</strong>. Rendez-vous dans le back-office (onglet « À activer ») pour la publier gratuitement ou avec un montant.</p>
   <div id="success-link" style="margin-bottom:32px"></div>
   <div class="quick-actions" style="max-width:400px;width:100%">
     <button id="new-listing-btn" class="btn btn-orange">
@@ -630,6 +634,208 @@
   let createdListingId = null;
   let previewDataUrls = [];
   let currentPreviewIndex = 0;
+
+  // ── Mode édition (admin-publish.html?edit=<id>) ──────────────
+  const editId = new URLSearchParams(location.search).get('edit');
+  const isEdit = !!editId;
+  let contactSuffix = '';   // bloc "--- Contact ---" ajouté à la création, préservé à l'enregistrement
+
+  // Met une <select> (native + widget custom) sur une valeur donnée
+  function setSelectValue(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = String(value ?? '');
+    if (typeof el._refreshCustom === 'function') el._refreshCustom();
+  }
+
+  async function initEditMode() {
+    // Adapte les libellés de la page
+    const h1 = document.querySelector('.container h1');
+    if (h1) {
+      h1.textContent = 'Modifier une annonce';
+      if (h1.nextElementSibling) h1.nextElementSibling.textContent = 'Mettez à jour les informations de cette annonce';
+    }
+    document.title = 'Modifier une annonce — Admin Pro Market';
+    document.getElementById('btn-text').innerHTML = '<i class="fas fa-save"></i> Enregistrer les modifications';
+
+    try {
+      const l = await AdminAPI.getListing(editId);
+
+      // Classification
+      setSelectValue('category', l.category_id);
+      setSelectValue('wilaya', l.wilaya_id);
+
+      // Contenu
+      document.getElementById('title').value = l.title_fr || '';
+      document.getElementById('brand').value = l.brand || '';
+      if (l.year) document.getElementById('year').value = l.year;
+      setSelectValue('condition', l.condition || '');
+
+      // Prix
+      document.getElementById('price').value = (l.price != null ? l.price : '');
+      setSelectValue('currency', l.currency || 'DZD');
+      const pc = document.getElementById('price-contact');
+      if (pc) pc.checked = !!l.price_on_contact;
+
+      // Description — on isole le bloc contact ajouté à la création
+      let desc = l.description_fr || '';
+      const marker = '\n\n--- Contact ---';
+      const mIdx = desc.indexOf(marker);
+      if (mIdx !== -1) { contactSuffix = desc.slice(mIdx); desc = desc.slice(0, mIdx); }
+      document.getElementById('description').value = desc;
+
+      // Infos client — lecture seule en édition (identité gérée à la création)
+      const cn = document.getElementById('client-name');
+      const cp = document.getElementById('client-phone');
+      cn.value = l.seller_name || '';
+      cp.value = l.seller_phone || '';
+      [cn, cp].forEach(el => {
+        el.readOnly = true;
+        el.style.opacity = '0.65';
+        el.style.cursor = 'not-allowed';
+        el.title = 'Le contact client se modifie à la création, pas ici.';
+      });
+
+      // Photos existantes (suppression immédiate)
+      renderExistingPhotos(l.media || []);
+
+      updatePreview();
+    } catch (err) {
+      showToast(err.error || "Impossible de charger l'annonce.", 'error');
+    }
+  }
+
+  let draggedCard = null;
+
+  function buildPhotoCard(m) {
+    const card = document.createElement('div');
+    card.className = 'existing-photo';
+    card.dataset.mediaId = m.id;
+    card.draggable = true;
+    card.style.cssText = 'position:relative;border-radius:var(--r-md);overflow:hidden;aspect-ratio:4/3;border:1px solid var(--gray-200);cursor:grab';
+    const bbtn = 'width:26px;height:26px;border:none;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px';
+    card.innerHTML = `
+      <img src="${m.url_thumb || m.url}" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none">
+      <span class="cover-badge" style="display:none;position:absolute;top:4px;left:4px;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px">Couverture</span>
+      <button type="button" class="del-existing-photo" title="Supprimer cette photo"
+        style="position:absolute;top:4px;right:4px;width:26px;height:26px;border:none;border-radius:50%;background:rgba(220,38,38,0.92);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px">
+        <i class="fas fa-trash"></i>
+      </button>
+      <div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:4px;padding:4px;background:linear-gradient(transparent,rgba(0,0,0,0.35))">
+        <button type="button" class="move-photo-left" title="Déplacer à gauche" style="${bbtn}"><i class="fas fa-chevron-left"></i></button>
+        <button type="button" class="set-cover-photo" title="Définir comme couverture" style="${bbtn}"><i class="fas fa-star"></i></button>
+        <button type="button" class="move-photo-right" title="Déplacer à droite" style="${bbtn}"><i class="fas fa-chevron-right"></i></button>
+      </div>`;
+
+    // Glisser-déposer pour réordonner
+    card.addEventListener('dragstart', () => { draggedCard = card; card.style.opacity = '0.4'; });
+    card.addEventListener('dragend', () => {
+      card.style.opacity = '';
+      draggedCard = null;
+      persistMediaOrder();
+    });
+    card.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (!draggedCard || draggedCard === card) return;
+      const rect = card.getBoundingClientRect();
+      const before = (e.clientX - rect.left) < rect.width / 2;
+      card.parentNode.insertBefore(draggedCard, before ? card : card.nextSibling);
+    });
+    return card;
+  }
+
+  function markCover() {
+    const cards = [...document.querySelectorAll('#existing-grid .existing-photo')];
+    cards.forEach((c, i) => {
+      const badge = c.querySelector('.cover-badge');
+      if (badge) badge.style.display = i === 0 ? 'block' : 'none';
+    });
+  }
+
+  async function persistMediaOrder() {
+    const ids = [...document.querySelectorAll('#existing-grid .existing-photo')].map(c => c.dataset.mediaId);
+    if (!ids.length) return;
+    markCover();
+    try {
+      await AdminAPI.reorderMedia(editId, ids);
+    } catch (err) {
+      showToast(err.error || 'Erreur lors du réordonnancement.', 'error');
+    }
+  }
+
+  function renderExistingPhotos(media) {
+    const box = document.getElementById('existing-photos');
+    if (!box) return;
+    if (!media.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    box.style.display = 'block';
+    box.innerHTML = `
+      <p style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:4px">
+        <i class="fas fa-images" style="color:var(--orange)"></i>
+        Photos actuelles (<span id="existing-count">${media.length}</span>)
+      </p>
+      <p style="font-size:12px;color:var(--gray-600);margin-bottom:10px">
+        Glissez pour réordonner — la <strong>1ʳᵉ</strong> photo est la couverture (<i class="fas fa-star"></i> pour la définir).
+        Suppression <strong>immédiate</strong>.
+      </p>
+      <div id="existing-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:16px"></div>
+    `;
+    const grid = box.querySelector('#existing-grid');
+    media.forEach(m => grid.appendChild(buildPhotoCard(m)));
+    markCover();
+  }
+
+  // Actions sur les photos existantes (délégation : couverture + suppression)
+  document.getElementById('existing-photos').addEventListener('click', async (e) => {
+    // Réordonnancement tactile par flèches
+    const leftBtn = e.target.closest('.move-photo-left');
+    if (leftBtn) {
+      const card = leftBtn.closest('.existing-photo');
+      const prev = card?.previousElementSibling;
+      if (prev) { card.parentNode.insertBefore(card, prev); persistMediaOrder(); }
+      return;
+    }
+    const rightBtn = e.target.closest('.move-photo-right');
+    if (rightBtn) {
+      const card = rightBtn.closest('.existing-photo');
+      const next = card?.nextElementSibling;
+      if (next) { card.parentNode.insertBefore(next, card); persistMediaOrder(); }
+      return;
+    }
+
+    const coverBtn = e.target.closest('.set-cover-photo');
+    if (coverBtn) {
+      const card = coverBtn.closest('.existing-photo');
+      const grid = document.getElementById('existing-grid');
+      if (card && grid && grid.firstChild !== card) {
+        grid.insertBefore(card, grid.firstChild);
+        persistMediaOrder();
+      }
+      return;
+    }
+
+    const delBtn = e.target.closest('.del-existing-photo');
+    if (!delBtn) return;
+    if (!await uiConfirm('Cette photo sera supprimée définitivement.', { title: 'Supprimer la photo', danger: true, confirmText: 'Supprimer' })) return;
+    delBtn.disabled = true;
+    delBtn.style.opacity = '0.5';
+    try {
+      const card = delBtn.closest('.existing-photo');
+      await MediaAPI.deleteMedia(card.dataset.mediaId);
+      const wasCover = card === document.querySelector('#existing-grid .existing-photo');
+      card.remove();
+      const box = document.getElementById('existing-photos');
+      const left = box.querySelectorAll('.existing-photo').length;
+      const counter = document.getElementById('existing-count');
+      if (counter) counter.textContent = String(left);
+      if (left === 0) { box.style.display = 'none'; box.innerHTML = ''; }
+      else { markCover(); if (wasCover) persistMediaOrder(); } // la 1ʳᵉ photo devient la nouvelle couverture
+      showToast('Photo supprimée.', 'success');
+    } catch (err) {
+      delBtn.disabled = false;
+      delBtn.style.opacity = '1';
+      showToast(err.error || 'Erreur lors de la suppression.', 'error');
+    }
+  });
 
   function updatePreviewImage() {
     const previewImg = document.getElementById('preview-img');
@@ -915,6 +1121,43 @@
     const priceContact = priceContactEl ? priceContactEl.checked : false;
     const currencyEl = document.getElementById('currency');
     const yearEl = document.getElementById('year');
+
+    // ── Mode édition : mise à jour (statut inchangé) ───────────
+    if (isEdit) {
+      const editBody = {
+        category_id: parseInt(document.getElementById('category').value),
+        title_fr: document.getElementById('title').value.trim(),
+        price: priceContact ? 0 : (parseFloat(document.getElementById('price').value) || 0),
+        currency: currencyEl ? currencyEl.value : 'DZD',
+        price_on_contact: priceContact,
+        wilaya_id: parseInt(document.getElementById('wilaya').value),
+        brand: document.getElementById('brand').value.trim() || undefined,
+        year: yearEl ? (parseInt(yearEl.value) || undefined) : undefined,
+        condition: document.getElementById('condition').value,
+        description_fr: ((document.getElementById('description').value.trim()) + (contactSuffix || '')) || undefined,
+      };
+      try {
+        await AdminAPI.updateListing(editId, editBody);
+        if (selectedFiles.length) {
+          const fd = new FormData();
+          selectedFiles.forEach(f => fd.append('images', f));
+          await MediaAPI.upload(editId, fd);
+        }
+        document.getElementById('success-title').textContent = 'Modifications enregistrées !';
+        document.getElementById('success-text').innerHTML = "Les changements sont appliqués. Le <strong>statut</strong> de l'annonce reste inchangé.";
+        document.getElementById('success-link').innerHTML = '<a href="admin.html" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i> Retour au back-office</a>';
+        document.getElementById('new-listing-btn').style.display = 'none';
+        document.getElementById('success-overlay').classList.add('active');
+      } catch (err) {
+        const msg = err.errors ? err.errors.map(e => e.msg).join(', ') : (err.error || "Erreur lors de l'enregistrement.");
+        showToast(msg, 'error');
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        btnText.style.visibility = 'visible';
+      }
+      return;
+    }
+
     const body = {
       category_id: parseInt(document.getElementById('category').value),
       title_fr: document.getElementById('title').value.trim(),
@@ -944,10 +1187,9 @@
       }
       
       // Show success
-      const link = `listing-detail.html?id=${createdListingId}`;
       document.getElementById('success-link').innerHTML = `
-        <a href="${link}" target="_blank" class="btn btn-ghost btn-sm">
-          <i class="fas fa-external-link-alt"></i> Voir l'annonce publiée
+        <a href="admin.html" class="btn btn-ghost btn-sm">
+          <i class="fas fa-rocket"></i> Activer dans le back-office
         </a>
       `;
       document.getElementById('success-overlay').classList.add('active');
@@ -995,6 +1237,12 @@
   document.getElementById('reset-btn').addEventListener('click', resetForm);
   document.getElementById('publish-btn').addEventListener('click', publishListing);
   document.getElementById('new-listing-btn').addEventListener('click', newListing);
+
+  // En mode édition : charger l'annonce une fois les selects enrichis (après DOMContentLoaded)
+  if (isEdit) {
+    if (document.readyState === 'complete') initEditMode();
+    else window.addEventListener('load', initEditMode);
+  }
   
   // Preview carousel navigation
   document.getElementById('preview-prev').addEventListener('click', () => {

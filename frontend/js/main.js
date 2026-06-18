@@ -258,6 +258,112 @@ document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id);
 });
 
+// ── Popups réutilisables (confirm / prompt / alert stylés) ────
+function _ensurePopStyles() {
+  if (document.getElementById('ui-pop-styles')) return;
+  const s = document.createElement('style');
+  s.id = 'ui-pop-styles';
+  s.textContent = `
+    .ui-pop-overlay{position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;
+      background:rgba(15,25,35,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:20px}
+    .ui-pop{width:100%;max-width:440px}
+    .ui-pop .ui-pop-msg{color:var(--gray-600);font-size:15px;line-height:1.55;margin-bottom:20px;white-space:pre-line}
+    .ui-pop .ui-pop-input{width:100%;margin-bottom:22px}
+    .ui-pop .ui-pop-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+    .ui-pop .ui-pop-actions .btn{min-width:120px;justify-content:center}
+    @media(max-width:480px){.ui-pop .ui-pop-actions{flex-direction:column-reverse}.ui-pop .ui-pop-actions .btn{width:100%}}
+    .ui-pop.shake{animation:uiShake .3s}
+    @keyframes uiShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+  `;
+  document.head.appendChild(s);
+}
+
+function uiPopup(cfg) {
+  _ensurePopStyles();
+  const { type = 'confirm', title = '', message = '', danger = false,
+          confirmText = 'Confirmer', cancelText = 'Annuler',
+          defaultValue = '', inputType = 'text', placeholder = '',
+          choices = null, required = false } = cfg;
+  const esc = (v) => String(v).replace(/"/g, '&quot;');
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'ui-pop-overlay';
+    const card = document.createElement('div');
+    card.className = 'modal ui-pop';
+
+    let inputHtml = '';
+    if (type === 'prompt') {
+      if (choices) {
+        inputHtml = `<select class="form-control ui-pop-input" data-no-cselect>` +
+          choices.map(c => `<option value="${esc(c.value)}"${String(c.value) === String(defaultValue) ? ' selected' : ''}>${c.label}</option>`).join('') +
+          `</select>`;
+      } else {
+        inputHtml = `<input type="${esc(inputType)}" class="form-control ui-pop-input" value="${esc(defaultValue)}"${placeholder ? ` placeholder="${esc(placeholder)}"` : ''}>`;
+      }
+    }
+    const confirmCls = danger ? 'btn' : 'btn btn-orange';
+    const confirmStyle = danger ? ' style="background:var(--red);color:#fff;border:2px solid var(--red)"' : '';
+    const cancelHtml = type === 'alert' ? '' : `<button type="button" class="btn btn-ghost ui-pop-cancel">${cancelText}</button>`;
+    card.innerHTML = `
+      ${title ? `<h3>${title}</h3>` : ''}
+      <div class="ui-pop-msg">${message}</div>
+      ${inputHtml}
+      <div class="ui-pop-actions">
+        ${cancelHtml}
+        <button type="button" class="${confirmCls} ui-pop-ok"${confirmStyle}>${confirmText}</button>
+      </div>`;
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    const input = card.querySelector('.ui-pop-input');
+    const okBtn = card.querySelector('.ui-pop-ok');
+    const cancelBtn = card.querySelector('.ui-pop-cancel');
+
+    function cleanup() { document.removeEventListener('keydown', onKey); overlay.remove(); }
+    function done(val) { cleanup(); resolve(val); }
+    function cancel() { done(type === 'prompt' ? null : (type === 'alert' ? undefined : false)); }
+    function confirm() {
+      if (type === 'prompt') {
+        const v = input ? input.value.trim() : '';
+        if (required && !v) { card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); input && input.focus(); return; }
+        done(input ? input.value : '');
+      } else { done(type === 'alert' ? undefined : true); }
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+      else if (e.key === 'Enter' && (!input || input.tagName !== 'TEXTAREA')) { e.preventDefault(); confirm(); }
+    }
+
+    okBtn.addEventListener('click', confirm);
+    if (cancelBtn) cancelBtn.addEventListener('click', cancel);
+    overlay.addEventListener('click', e => { if (e.target === overlay) cancel(); });
+    document.addEventListener('keydown', onKey);
+    setTimeout(() => { (input || okBtn).focus(); if (input && input.select) input.select(); }, 30);
+  });
+}
+
+// Retourne true/false
+function uiConfirm(message, opts = {}) {
+  return uiPopup({ type: 'confirm', message, title: opts.title ?? 'Confirmation',
+    confirmText: opts.confirmText || 'Confirmer', cancelText: opts.cancelText || 'Annuler',
+    danger: !!opts.danger });
+}
+// Retourne la valeur saisie, ou null si annulé
+function uiPrompt(message, opts = {}) {
+  return uiPopup({ type: 'prompt', message, title: opts.title ?? '',
+    confirmText: opts.confirmText || 'Valider', cancelText: opts.cancelText || 'Annuler',
+    defaultValue: opts.defaultValue ?? '', inputType: opts.type || 'text',
+    placeholder: opts.placeholder || '', choices: opts.choices || null,
+    required: opts.required ?? true });
+}
+// Information simple (un seul bouton)
+function uiAlert(message, opts = {}) {
+  return uiPopup({ type: 'alert', message, title: opts.title ?? '', confirmText: opts.confirmText || 'OK' });
+}
+window.uiConfirm = uiConfirm;
+window.uiPrompt = uiPrompt;
+window.uiAlert = uiAlert;
+
 // ── Format helpers ────────────────────────────────────────────
 function formatPrice(price, currency = 'DZD', priceOnContact = false) {
   if (priceOnContact) return '<span class="price contact"><i class="fas fa-phone-alt"></i> Prix après contact</span>';

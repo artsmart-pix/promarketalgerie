@@ -156,6 +156,12 @@ const AdminAPI = {
   pendingListings:()       => apiFetch('/admin/listings/pending'),
   approve:        (id)     => apiFetch(`/admin/listings/${id}/approve`, { method: 'PATCH' }),
   reject:         (id, reason) => apiFetch(`/admin/listings/${id}/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
+  activate:       (id, fee)    => apiFetch(`/admin/listings/${id}/activate`, { method: 'PATCH', body: JSON.stringify({ fee }) }),
+  markSold:       (id)         => apiFetch(`/admin/listings/${id}/mark-sold`, { method: 'PATCH' }),
+  activeListings: ()           => apiFetch('/admin/listings/active'),
+  getListing:     (id)         => apiFetch(`/admin/listings/${id}`),
+  updateListing:  (id, body)   => apiFetch(`/admin/listings/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  reorderMedia:   (id, order)  => apiFetch(`/admin/listings/${id}/media-order`, { method: 'PATCH', body: JSON.stringify({ order }) }),
   boostListing:   (id, body)   => apiFetch(`/admin/listings/${id}/boost`, { method: 'PATCH', body: JSON.stringify(body) }),
   users:          (params = {}) => {
     const qs = new URLSearchParams(params);

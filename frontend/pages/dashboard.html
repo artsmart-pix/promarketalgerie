@@ -259,7 +259,7 @@
   }
 
   async function deleteListing(id, btn) {
-    if (!confirm('Supprimer cette annonce définitivement ?')) return;
+    if (!await uiConfirm('Cette annonce sera supprimée définitivement. Action irréversible.', { title: 'Supprimer l’annonce', danger: true, confirmText: 'Supprimer' })) return;
     try {
       await ListingsAPI.delete(id);
       btn.closest('tr').remove();

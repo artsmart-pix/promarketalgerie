@@ -13,6 +13,10 @@ const REQUIRED = {
     reset_token_hash:    'TEXT',
     reset_token_expires: 'TEXT',
   },
+  listings: {
+    publication_fee: 'REAL DEFAULT 0', // frais de publication facturés au client (0 = gratuit)
+    activated_at:    'TEXT',           // date de passage en ligne (pending -> active)
+  },
 };
 
 async function ensureColumns(query, run) {

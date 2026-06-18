@@ -232,9 +232,9 @@
     }
   }
 
-  function orderBoost(boostType, name) {
+  async function orderBoost(boostType, name) {
     if (!Auth.isLoggedIn()) { window.location.href = 'login.html'; return; }
-    const listingId = prompt('Entrez l\'ID de l\'annonce à booster :');
+    const listingId = await uiPrompt('Entrez l’ID de l’annonce à booster :', { title: 'Booster une annonce', placeholder: 'ID de l’annonce', confirmText: 'Booster' });
     if (!listingId) return;
     SubscriptionsAPI.boost({ listing_id: listingId, boost_type: boostType })
       .then(r => showToast(r.message, 'success'))

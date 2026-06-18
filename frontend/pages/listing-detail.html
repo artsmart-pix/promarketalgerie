@@ -11,6 +11,21 @@
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
+  <style>
+    /* Stabilise les 4 boutons de la barre « Mode Admin » (Approuver / Rejeter /
+       Boost / Supprimer). animations.css (chargé après main.css) leur impose une
+       transition « all » rebondissante (overshoot), un halo ::before qui gonfle à
+       300 % au survol et un scale(0.96) au clic — ce qui déformait visiblement les
+       boutons. On neutralise ces effets tout en gardant le feedback couleur/ombre. */
+    #admin-toolbar .btn {
+      transition-property: background-color, background-position, box-shadow, color, border-color, opacity;
+      transition-duration: 0.15s;
+      transition-timing-function: ease;
+    }
+    #admin-toolbar .btn::before { display: none !important; }
+    #admin-toolbar .btn:hover,
+    #admin-toolbar .btn:active { transform: none !important; }
+  </style>
 </head>
 <body>
 <div id="site-header"></div>
@@ -37,9 +52,9 @@
       <span style="font-weight:700;color:var(--orange)"><i class="fas fa-shield-alt"></i> Mode Admin</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-left:auto">
         <button class="btn btn-green btn-sm" onclick="adminApprove()"><i class="fas fa-check"></i> Approuver</button>
-        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="adminReject()"><i class="fas fa-times"></i> Rejeter</button>
-        <button class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none" onclick="adminBoost()"><i class="fas fa-star"></i> Boost</button>
-        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="adminDelete()"><i class="fas fa-trash"></i> Supprimer</button>
+        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:2px solid var(--red)" onclick="adminReject()"><i class="fas fa-times"></i> Rejeter</button>
+        <button class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff" onclick="adminBoost()"><i class="fas fa-star"></i> Boost</button>
+        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:2px solid var(--red)" onclick="adminDelete()"><i class="fas fa-trash"></i> Supprimer</button>
       </div>
     </div>
   </div>
@@ -289,17 +304,17 @@
     try { await apiFetch(`/admin/listings/${listingId}/approve`, { method: 'PATCH' }); showToast('Annonce approuvée.', 'success'); } catch { showToast('Erreur.', 'error'); }
   }
   async function adminReject() {
-    const reason = prompt('Raison du rejet ?');
+    const reason = await uiPrompt('Indiquez la raison du rejet (visible en interne) :', { title: 'Rejeter l’annonce', placeholder: 'Ex : photos non conformes', confirmText: 'Rejeter' });
     if (!reason) return;
     try { await apiFetch(`/admin/listings/${listingId}/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }); showToast('Annonce rejetée.', 'info'); } catch { showToast('Erreur.', 'error'); }
   }
   async function adminBoost() {
-    const days = prompt('Durée du boost (jours) ?', '7');
+    const days = await uiPrompt('Combien de jours doit durer le boost ?', { title: 'Booster l’annonce', type: 'number', defaultValue: '7', confirmText: 'Booster' });
     if (!days) return;
     try { await apiFetch(`/admin/listings/${listingId}/boost`, { method: 'PATCH', body: JSON.stringify({ days: parseInt(days), is_premium: true }) }); showToast('Boost activé.', 'success'); } catch { showToast('Erreur.', 'error'); }
   }
   async function adminDelete() {
-    if (!confirm('Supprimer définitivement cette annonce ?')) return;
+    if (!await uiConfirm('Cette annonce sera supprimée définitivement. Action irréversible.', { title: 'Supprimer l’annonce', danger: true, confirmText: 'Supprimer' })) return;
     try {
       await apiFetch(`/admin/listings/${listingId}`, { method: 'DELETE' });
       showToast('Annonce supprimée.', 'info');
