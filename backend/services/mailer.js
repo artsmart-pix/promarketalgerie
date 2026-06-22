@@ -29,9 +29,40 @@ function getTransporter() {
       // 465 => connexion TLS implicite ; 587/25 => STARTTLS
       secure: SMTP_PORT === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
+      // Sans timeout, un port SMTP bloqué par l'hébergeur (fréquent sur VPS)
+      // ferait « pendre » la requête de reset jusqu'à plusieurs minutes.
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
   }
   return transporter;
+}
+
+/**
+ * Vérifie la connexion + l'authentification SMTP. Appelé au démarrage du serveur
+ * pour rendre visible (dans les logs) tout problème de configuration mail :
+ * mauvais mot de passe d'application Gmail, port bloqué par l'hébergeur, etc.
+ */
+async function verifyConnection() {
+  if (!isConfigured) {
+    console.warn(
+      '⚠️  [mailer] SMTP non configuré (SMTP_PASS manquant ou placeholder) — ' +
+      'les emails (reset de mot de passe…) ne seront PAS envoyés.'
+    );
+    return false;
+  }
+  try {
+    await getTransporter().verify();
+    console.log(`✅ [mailer] SMTP OK — prêt à envoyer via ${SMTP_HOST} (${SMTP_USER}).`);
+    return true;
+  } catch (err) {
+    console.error(
+      `❌ [mailer] SMTP INDISPONIBLE via ${SMTP_HOST}:${SMTP_PORT} (${SMTP_USER}) — ` +
+      `les emails ne partiront pas. Cause : ${err.message}`
+    );
+    return false;
+  }
 }
 
 /**
@@ -47,6 +78,7 @@ async function sendMail({ to, subject, text, html }) {
     return false;
   }
   await getTransporter().sendMail({ from: FROM, to, subject, text, html });
+  console.log(`📨  [mailer] Email envoyé à ${to} — « ${subject} »`);
   return true;
 }
 
@@ -85,4 +117,4 @@ async function sendPasswordResetEmail(to, resetUrl) {
   return sendMail({ to, subject, text, html });
 }
 
-module.exports = { sendMail, sendPasswordResetEmail, isConfigured };
+module.exports = { sendMail, sendPasswordResetEmail, verifyConnection, isConfigured };

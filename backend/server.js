@@ -154,6 +154,10 @@ if (require.main === module) {
     console.log(`   Listening on http://localhost:${PORT}`);
     console.log(`   WebSocket  on ws://localhost:${PORT}/ws`);
     console.log(`   Env: ${process.env.NODE_ENV || 'development'}\n`);
+    // Vérifie la config SMTP au démarrage : un échec (mot de passe d'application
+    // Gmail invalide, port bloqué…) apparaît clairement dans les logs au lieu de
+    // n'être découvert qu'au premier reset de mot de passe.
+    require('./services/mailer').verifyConnection();
   });
 
   server.on('error', (err) => {

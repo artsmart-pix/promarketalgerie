@@ -93,7 +93,13 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 input, select, textarea { font-family: inherit; }
 
 /* ─── Container ───────────────────────────────────────────── */
-.container { max-width: 100%; margin: 0 auto; padding: 0 40px; }
+/* width:100% indispensable : .container est un flex-item de .page-wrapper
+   (display:flex; flex-direction:column). Avec `margin:0 auto`, les marges auto
+   horizontales d'un flex-item ANNULENT l'étirement (stretch) et font rétrécir le
+   conteneur à la largeur de son contenu, centré. Résultat : la grille d'annonces
+   (auto-fill minmax(245px,1fr)) se réduisait à 1–2 colonnes centrées au lieu de
+   remplir la largeur. width:100% (box-sizing:border-box) le force pleine largeur. */
+.container { max-width: 100%; width: 100%; margin: 0 auto; padding: 0 40px; }
 
 /* ─── Typography ──────────────────────────────────────────── */
 h1 { font-size: 2.2rem; font-weight: 800; line-height: 1.2; letter-spacing: -.02em; }

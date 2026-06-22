@@ -749,7 +749,7 @@ function renderFooter() {
               <i class="fas fa-envelope"></i> contact@promarketalgerie.com
             </a>
             <a href="tel:+${window.WHATSAPP_NUMBER}">
-              <i class="fas fa-phone"></i> +213 555 000 000
+              <i class="fas fa-phone"></i> +213 549 129 811
             </a>
             <a href="#" onclick="showToast('Page Facebook bientôt disponible','info');return false;"><i class="fab fa-facebook"></i> Facebook</a>
             <a href="#" onclick="showToast('Page Instagram bientôt disponible','info');return false;"><i class="fab fa-instagram"></i> Instagram</a>
@@ -1462,3 +1462,13 @@ function initMobileUtils() {
     }).observe(document.body, { childList: true, subtree: true });
   });
 })();
+
+// ── PWA — enregistrement du service worker (app installable) ──────
+// Servi à la racine (/sw.js) → portée « / » : contrôle toutes les pages.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) =>
+      console.warn('[PWA] Échec d’enregistrement du service worker :', err)
+    );
+  });
+}

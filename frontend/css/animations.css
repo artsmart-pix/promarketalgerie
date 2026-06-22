@@ -128,7 +128,13 @@
   overflow: hidden;
 }
 
-.btn-ripple .ripple {
+/* initRippleEffect() (main.js) injecte un <span class="ripple"> dans TOUT bouton
+   .btn cliqué — pas seulement .btn-ripple. Sans `position:absolute`, ce span
+   (dimensionné à la largeur du bouton) devient un enfant en flux normal qui
+   étire le bouton verticalement pendant 600 ms puis se replie à sa suppression.
+   On cible donc aussi `.btn .ripple` pour que le ripple reste hors-flux partout. */
+.btn-ripple .ripple,
+.btn .ripple {
   position: absolute;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.4);

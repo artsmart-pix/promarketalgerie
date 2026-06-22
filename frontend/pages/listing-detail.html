@@ -3,6 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- PWA / installable mobile -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#f26522">
+  <link rel="icon" href="/assets/icons/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/assets/icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Pro Market">
   <title>Annonce — Pro Market Algérie</title>
   <meta name="description" content="Détail d'une annonce d'équipement professionnel ou fonds de commerce en Algérie. Contactez directement le vendeur sur Pro Market Algérie.">
   <meta property="og:title" content="Annonce — Pro Market Algérie">
@@ -25,6 +35,36 @@
     #admin-toolbar .btn::before { display: none !important; }
     #admin-toolbar .btn:hover,
     #admin-toolbar .btn:active { transform: none !important; }
+
+    /* Boutons « Appeler le vendeur » / « Contacter sur WhatsApp ».
+       animations.css impose aux .btn une transition « all » à ressort
+       (cubic-bezier overshoot) + un scale(0.96) au clic qui « rebondit » au-delà
+       de 100 % au relâchement + un halo ::before qui gonfle à 300 %. Résultat :
+       au tap le bouton s'agrandissait verticalement puis se repliait, et changeait
+       de forme. On verrouille ici TOUT mouvement pour qu'il reste strictement fixe :
+         • transition limitée à la couleur/ombre (jamais transform/largeur/hauteur) ;
+         • aucune transformation au survol / clic / focus ;
+         • halo ::before et toute animation désactivés ;
+         • hauteur figée (min-height = hauteur d'un btn-lg) pour qu'afficher le
+           numéro ne modifie jamais la taille.
+       !important pour battre la règle .btn d'animations.css chargé après main.css. */
+    #btn-call, #btn-whatsapp {
+      transition: background-color 0.15s ease, box-shadow 0.15s ease,
+                  color 0.15s ease, filter 0.15s ease !important;
+      animation: none !important;
+      min-height: 50px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    #btn-call::before, #btn-whatsapp::before { content: none !important; display: none !important; }
+    #btn-call:hover, #btn-call:active, #btn-call:focus,
+    #btn-whatsapp:hover, #btn-whatsapp:active, #btn-whatsapp:focus {
+      transform: none !important;
+    }
+    /* Supprime le <span class="ripple"> injecté par initRippleEffect() au clic :
+       c'est lui qui étirait le bouton vers le bas puis le repliait. Ces boutons
+       restent ainsi 100 % fixes (aucune onde, aucun changement de taille). */
+    #btn-call .ripple, #btn-whatsapp .ripple { display: none !important; }
   </style>
 </head>
 <body>
