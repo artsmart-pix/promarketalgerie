@@ -15,8 +15,8 @@
   <meta name="apple-mobile-web-app-title" content="Pro Market">
   <title>Administration — Pro Market Algérie</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
   <style>
     /* Stabilise le bouton "Se connecter" pendant le chargement.
@@ -83,7 +83,7 @@
         <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
           <input type="checkbox" id="remember"> Se souvenir de moi
         </label>
-        <a href="forgot-password.html" style="font-size:13px">Mot de passe oublié ?</a>
+        <a href="/forgot-password" style="font-size:13px">Mot de passe oublié ?</a>
       </div>
 
       <div id="form-error" class="error-msg" style="margin-bottom:12px;font-size:14px"></div>
@@ -114,11 +114,11 @@
 <div id="site-footer"></div>
 </div>
 
-<script src="../js/api.js"></script>
-<script src="../js/main.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/main.js"></script>
 <script>
   // Redirect if already logged in
-  if (Auth.isLoggedIn()) window.location.href = 'admin-publish.html';
+  if (Auth.isLoggedIn()) window.location.href = '/admin-publish';
 
   // Diagnostic: show which API URL is being used
   console.log('API_BASE:', API_BASE);
@@ -150,7 +150,7 @@
       Auth.setToken(data.token);
       Auth.setUser(data.user);
       showToast('Connexion réussie !', 'success');
-      const redirect = new URLSearchParams(location.search).get('redirect') || 'admin-publish.html';
+      const redirect = new URLSearchParams(location.search).get('redirect') || '/admin-publish';
       setTimeout(() => window.location.href = redirect, 800);
     } catch (err) {
       console.error('Login error:', err);

@@ -12,12 +12,12 @@
  *
  * Pense à incrémenter CACHE_VERSION à chaque déploiement modifiant ces fichiers.
  */
-const CACHE_VERSION = 'pm-v1';
+const CACHE_VERSION = 'pm-v2';
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 
 // Coquille applicative pré-mise en cache à l'installation.
 const PRECACHE_URLS = [
-  '/index.html',
+  '/',
   '/css/main.css',
   '/css/animations.css',
   '/css/rtl.css',
@@ -65,7 +65,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((c) => c.put(request, copy));
           return resp;
         })
-        .catch(() => caches.match(request).then((r) => r || caches.match('/index.html')))
+        .catch(() => caches.match(request).then((r) => r || caches.match('/')))
     );
     return;
   }

@@ -15,8 +15,8 @@
   <meta name="apple-mobile-web-app-title" content="Pro Market">
   <title>Publier une annonce — Admin Pro Market</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
   <style>
     /* ========== FIX VIBRAGE SUBMIT-BAR — Approche radicale ========== */
@@ -439,7 +439,7 @@
       <span style="font-size:13px;color:var(--gray-600)">Créez et publiez une annonce pour un client</span>
     </div>
     <div style="margin-left:auto">
-      <a href="admin.html" class="btn btn-ghost btn-sm">
+      <a href="/admin" class="btn btn-ghost btn-sm">
         <i class="fas fa-arrow-left"></i> Retour au back-office
       </a>
     </div>
@@ -623,7 +623,7 @@
     <button id="new-listing-btn" class="btn btn-orange">
       <i class="fas fa-plus"></i> Nouvelle annonce
     </button>
-    <a href="admin.html" class="btn btn-blue">
+    <a href="/admin" class="btn btn-blue">
       <i class="fas fa-shield-alt"></i> Back-office
     </a>
   </div>
@@ -631,13 +631,13 @@
 
 <div id="site-footer"></div>
 
-<script src="../js/api.js"></script>
-<script src="../js/main.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/main.js"></script>
 <script>
   // Guard — admin only
   const user = Auth.getUser();
   if (!Auth.isLoggedIn() || user?.role !== 'admin') {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
   }
 
   let selectedFiles = [];
@@ -645,7 +645,7 @@
   let previewDataUrls = [];
   let currentPreviewIndex = 0;
 
-  // ── Mode édition (admin-publish.html?edit=<id>) ──────────────
+  // ── Mode édition (/admin-publish?edit=<id>) ──────────────
   const editId = new URLSearchParams(location.search).get('edit');
   const isEdit = !!editId;
   let contactSuffix = '';   // bloc "--- Contact ---" ajouté à la création, préservé à l'enregistrement
@@ -1155,7 +1155,7 @@
         }
         document.getElementById('success-title').textContent = 'Modifications enregistrées !';
         document.getElementById('success-text').innerHTML = "Les changements sont appliqués. Le <strong>statut</strong> de l'annonce reste inchangé.";
-        document.getElementById('success-link').innerHTML = '<a href="admin.html" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i> Retour au back-office</a>';
+        document.getElementById('success-link').innerHTML = '<a href="/admin" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i> Retour au back-office</a>';
         document.getElementById('new-listing-btn').style.display = 'none';
         document.getElementById('success-overlay').classList.add('active');
       } catch (err) {
@@ -1198,7 +1198,7 @@
       
       // Show success
       document.getElementById('success-link').innerHTML = `
-        <a href="admin.html" class="btn btn-ghost btn-sm">
+        <a href="/admin" class="btn btn-ghost btn-sm">
           <i class="fas fa-rocket"></i> Activer dans le back-office
         </a>
       `;

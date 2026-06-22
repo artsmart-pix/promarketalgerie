@@ -18,8 +18,8 @@
   <meta property="og:title" content="Inscription — Pro Market Algérie">
   <meta property="og:description" content="Créez votre compte Pro Market Algérie pour acheter et vendre des équipements professionnels et fonds de commerce en Algérie.">
   <meta property="og:type" content="website">
-  <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
 </head>
 <body>
@@ -118,7 +118,7 @@
     </form>
 
     <div style="text-align:center;margin-top:20px;font-size:14px">
-      Déjà inscrit ? <a href="login.html" style="color:var(--orange);font-weight:700">Se connecter</a>
+      Déjà inscrit ? <a href="/login" style="color:var(--orange);font-weight:700">Se connecter</a>
     </div>
   </div>
 </div>
@@ -139,11 +139,11 @@
 
 </div>
 
-  <script src="../js/api.js"></script>
-  <script src="../js/main.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
   <script>
     // Inscription désactivée — redirection vers accueil (décommentez la ligne ci-dessous pour bloquer l'inscription)
-    // window.location.href = '../index.html';
+    // window.location.href = '/';
 
   // Load wilayas
   CategoriesAPI.wilayas().then(w => {
@@ -201,7 +201,7 @@
       Auth.setUser(data.user);
       showToast('Compte créé avec succès !', 'success');
       setTimeout(() => {
-        window.location.href = data.user?.role === 'admin' ? 'dashboard.html' : '../index.html';
+        window.location.href = data.user?.role === 'admin' ? '/dashboard' : '/';
       }, 900);
     } catch (err) {
       const msg = err.errors ? err.errors.map(e => e.msg).join(', ') : (err.error || 'Erreur lors de l\'inscription.');

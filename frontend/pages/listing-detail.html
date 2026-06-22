@@ -18,8 +18,8 @@
   <meta property="og:title" content="Annonce — Pro Market Algérie">
   <meta property="og:description" content="Détail d'une annonce d'équipement professionnel ou fonds de commerce en Algérie. Contactez directement le vendeur sur Pro Market Algérie.">
   <meta property="og:type" content="article">
-  <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
   <style>
     /* Stabilise les 4 boutons de la barre « Mode Admin » (Approuver / Rejeter /
@@ -82,7 +82,7 @@
   <div id="error-state" class="empty-state" style="display:none">
     <i class="fas fa-exclamation-circle" style="color:var(--red)"></i>
     <p>Annonce introuvable ou expirée.</p>
-    <a href="../index.html" class="btn btn-outline-orange mt-3">Retour à l'accueil</a>
+    <a href="/" class="btn btn-outline-orange mt-3">Retour à l'accueil</a>
   </div>
 
   <!-- Detail layout (populated after load) -->
@@ -184,8 +184,8 @@
 
 </div><!-- /.page-wrapper -->
 
-<script src="../js/api.js"></script>
-<script src="../js/main.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/main.js"></script>
 <script>
   const listingId = new URLSearchParams(location.search).get('id');
   const isAdminMode = new URLSearchParams(location.search).get('admin') === '1';
@@ -358,7 +358,7 @@
     try {
       await apiFetch(`/admin/listings/${listingId}`, { method: 'DELETE' });
       showToast('Annonce supprimée.', 'info');
-      setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+      setTimeout(() => { window.location.href = '/admin'; }, 1000);
     } catch { showToast('Erreur.', 'error'); }
   }
 

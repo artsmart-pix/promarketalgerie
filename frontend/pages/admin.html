@@ -15,8 +15,8 @@
   <meta name="apple-mobile-web-app-title" content="Pro Market">
   <title>Back-Office — Pro Market Algérie</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/animations.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" crossorigin="anonymous">
 </head>
 <body>
@@ -39,7 +39,7 @@
       <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 4px"><i class="fas fa-bolt" style="margin-right: 8px"></i>Publication rapide</div>
       <div style="font-size: 13px; opacity: 0.9">Créer et publier une annonce pour un client en quelques clics</div>
     </div>
-    <a href="admin-publish.html" class="btn" style="background: #fff; color: var(--orange); border: none; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2)">
+    <a href="/admin-publish" class="btn" style="background: #fff; color: var(--orange); border: none; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2)">
       <i class="fas fa-plus-circle"></i> Nouvelle annonce
     </a>
   </div>
@@ -84,7 +84,7 @@
       <p style="color:var(--gray-600);max-width:400px;margin:0 auto 24px;font-size:14px">
         Utilisez la page dédiée pour créer et publier rapidement des annonces pour vos clients.
       </p>
-      <a href="admin-publish.html" class="btn btn-orange btn-lg">
+      <a href="/admin-publish" class="btn btn-orange btn-lg">
         <i class="fas fa-plus-circle"></i> Ouvrir la page de publication
       </a>
     </div>
@@ -241,13 +241,13 @@
 
 </div>
 
-<script src="../js/api.js"></script>
-<script src="../js/main.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/main.js"></script>
 <script>
   // Guard — admin only
   if (!Auth.isLoggedIn() || Auth.getUser()?.role !== 'admin') {
     uiAlert('Accès réservé aux administrateurs.', { title: 'Accès refusé' })
-      .then(() => { window.location.href = '../index.html'; });
+      .then(() => { window.location.href = '/'; });
     throw new Error('redirect: accès non autorisé');
   }
 
@@ -285,7 +285,7 @@
             <thead><tr><th>Titre</th><th>Catégorie</th><th>Vendeur</th><th>Prix</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody>${listings.map(l => `
               <tr id="pending-row-${l.id}">
-                <td><a href="listing-detail.html?id=${l.id}" target="_blank" style="font-weight:600">${escapeHtml(l.title_fr)}</a></td>
+                <td><a href="/listing-detail?id=${l.id}" target="_blank" style="font-weight:600">${escapeHtml(l.title_fr)}</a></td>
                 <td><span class="badge badge-gray">${escapeHtml(l.category_name || '?')}</span></td>
                 <td>
                   <div style="font-size:13px;font-weight:600">${escapeHtml(l.seller_name)}</div>
@@ -302,7 +302,7 @@
                     <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="openReject('${String(l.id).replace(/'/g, '\\\'')}')">
                       <i class="fas fa-times"></i> Rejeter
                     </button>
-                    <a href="admin-publish.html?edit=${l.id}" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
+                    <a href="/admin-publish?edit=${l.id}" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
                       <i class="fas fa-edit"></i> Modifier
                     </a>
                     <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\'')}')">
@@ -378,7 +378,7 @@
             <thead><tr><th>Titre</th><th>Catégorie</th><th>Vendeur</th><th>Prix</th><th>Frais pub.</th><th>Mise en ligne</th><th>Actions</th></tr></thead>
             <tbody>${listings.map(l => `
               <tr id="active-row-${l.id}">
-                <td><a href="listing-detail.html?id=${l.id}" target="_blank" style="font-weight:600">${escapeHtml(l.title_fr)}</a></td>
+                <td><a href="/listing-detail?id=${l.id}" target="_blank" style="font-weight:600">${escapeHtml(l.title_fr)}</a></td>
                 <td><span class="badge badge-gray">${escapeHtml(l.category_name || '?')}</span></td>
                 <td>
                   <div style="font-size:13px;font-weight:600">${escapeHtml(l.seller_name)}</div>
@@ -395,7 +395,7 @@
                     <button class="btn btn-ghost btn-sm" onclick="boostListing('${String(l.id).replace(/'/g, '\\\'')}')">
                       <i class="fas fa-star"></i> Boost
                     </button>
-                    <a href="admin-publish.html?edit=${l.id}" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
+                    <a href="/admin-publish?edit=${l.id}" class="btn btn-blue btn-sm" style="background:var(--blue);color:#fff;border:none">
                       <i class="fas fa-edit"></i> Modifier
                     </a>
                     <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="deleteListing('${String(l.id).replace(/'/g, '\\\'')}')">

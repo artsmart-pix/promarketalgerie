@@ -94,6 +94,37 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 
 // ── Serve frontend static files ─────────────────────────────
 const FRONTEND_DIR = path.resolve(__dirname, '..', 'frontend');
+
+// ── Clean URLs ───────────────────────────────────────────────
+// Les pages vivent physiquement dans frontend/pages/<nom>.html mais sont
+// exposées à des chemins « propres » à la racine (/login au lieu de
+// /pages/login.html). Deux choses :
+//   1. les anciennes URLs .html redirigent en 301 vers la forme propre
+//      (favoris, moteurs de recherche, liens externes existants) ;
+//   2. la forme propre sert directement le fichier .html correspondant.
+// Ces routes DOIVENT être déclarées avant express.static, sinon ce dernier
+// servirait le fichier .html tel quel au lieu de rediriger.
+const PAGES = [
+  'login', 'register', 'category', 'listing-detail', 'dashboard',
+  'admin', 'admin-publish', 'create-listing', 'subscriptions',
+  'forgot-password', 'reset-password',
+];
+const pageFile = (name) => path.join(FRONTEND_DIR, 'pages', `${name}.html`);
+
+// 1) Redirections 301 : ancienne URL → URL propre (en préservant la query string).
+app.get('/index.html', (req, res) => res.redirect(301, '/'));
+PAGES.forEach((name) => {
+  app.get(`/pages/${name}.html`, (req, res) => {
+    const qs = req.originalUrl.slice(req.path.length); // garde ?id=… &slug=…
+    res.redirect(301, `/${name}${qs}`);
+  });
+});
+
+// 2) Service des URLs propres depuis les fichiers physiques.
+PAGES.forEach((name) => {
+  app.get(`/${name}`, (req, res) => res.sendFile(pageFile(name)));
+});
+
 app.use(express.static(FRONTEND_DIR));
 
 // ── API Routes ───────────────────────────────────────────────

@@ -25,8 +25,7 @@ const Auth = {
   logout: () => {
     localStorage.removeItem('pm_token');
     localStorage.removeItem('pm_user');
-    const base = location.pathname.includes('/pages/') ? '../' : '';
-    window.location.href = base + 'pages/login.html';
+    window.location.href = '/login';
   },
 };
 
@@ -45,7 +44,7 @@ async function apiFetch(endpoint, options = {}) {
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401 && token) {
-    const onLoginPage = location.pathname.includes('login.html');
+    const onLoginPage = location.pathname === '/login';
     if (!onLoginPage) {
       setTimeout(() => Auth.logout(), 100);
     }

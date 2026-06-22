@@ -2,11 +2,11 @@ User-agent: *
 Allow: /
 
 # Espaces privés / applicatifs : ne pas indexer
-Disallow: /pages/admin.html
-Disallow: /pages/admin-publish.html
-Disallow: /pages/dashboard.html
-Disallow: /pages/create-listing.html
-Disallow: /pages/login.html
+Disallow: /admin
+Disallow: /admin-publish
+Disallow: /dashboard
+Disallow: /create-listing
+Disallow: /login
 Disallow: /uploads/
 
 # Renseigner l'URL absolue du sitemap après déploiement, ex :

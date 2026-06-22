@@ -4,7 +4,7 @@
   "description": "Marketplace B2B de référence en Algérie : équipements professionnels, matériel BTP, matériel agricole et fonds de commerce.",
   "lang": "fr",
   "dir": "ltr",
-  "start_url": "/index.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

@@ -2,9 +2,10 @@
    PRO MARKET ALGÉRIE — Main JS (shared utilities + init)
    ============================================================ */
 
-// Detect if we're in frontend/pages/ or frontend/
-const IS_SUBPAGE = location.pathname.includes('/pages/');
-const BASE = IS_SUBPAGE ? '../' : '';
+// URLs propres : toutes les pages sont servies à la racine (/login, /category…)
+// et tous les liens/ressources sont donc des chemins absolus depuis « / ».
+// BASE est conservé (et exposé via window.BASE) pour compatibilité ascendante.
+const BASE = '/';
 
 // ── Page Loading System ──────────────────────────────────────
 let pageLoader = null;
@@ -206,7 +207,7 @@ function setLanguage(lang) {
   if (lang === 'ar' && !rtlLink) {
     const link = document.createElement('link');
     link.id = 'rtl-css'; link.rel = 'stylesheet';
-    link.href = `${BASE}css/rtl.css`;
+    link.href = `/css/rtl.css`;
     document.head.appendChild(link);
   } else if (lang !== 'ar' && rtlLink) {
     rtlLink.remove();
@@ -422,7 +423,7 @@ function renderHeader() {
           <button class="header-mobile-toggle header-mobile-toggle--left" onclick="toggleMobileMenu()" aria-label="Ouvrir le menu">
             <i class="fas fa-bars"></i>
           </button>
-          <a href="${BASE}index.html" class="site-logo" aria-label="Pro Market Algérie">
+          <a href="/" class="site-logo" aria-label="Pro Market Algérie">
             <div class="logo-box">
               <div class="logo-wordrow">
                 <span class="logo-s lo">pr</span><svg class="logo-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20,3 A17,17 0 1,1 7,9" fill="none" stroke="#f26522" stroke-width="5.5" stroke-linecap="round"/><polygon points="7,9 7,15 1,10" fill="#f26522"/></svg><span class="logo-s lw">market</span><span class="logo-s lo">&nbsp;algerie</span>
@@ -432,11 +433,11 @@ function renderHeader() {
           </a>
           
           <div class="header-nav">
-            <a href="${BASE}index.html" class="header-nav-link ${location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '/frontend/' ? 'active' : ''}">
+            <a href="/" class="header-nav-link ${location.pathname === '/' ? 'active' : ''}">
               <i class="fas fa-home"></i>
               <span>Accueil</span>
             </a>
-            <a href="${BASE}pages/category.html" class="header-nav-link ${location.pathname.includes('category') ? 'active' : ''}">
+            <a href="/category" class="header-nav-link ${location.pathname.includes('category') ? 'active' : ''}">
               <i class="fas fa-th-list"></i>
               <span>Annonces</span>
             </a>
@@ -444,11 +445,11 @@ function renderHeader() {
           
           <div class="header-actions">
             ${user?.role === 'admin' ? `
-              <a href="${BASE}pages/admin-publish.html" class="header-pill-btn header-pill-btn--publish" title="Publier une annonce">
+              <a href="/admin-publish" class="header-pill-btn header-pill-btn--publish" title="Publier une annonce">
                 <i class="fas fa-plus-circle"></i>
                 <span class="lbl">Publier</span>
               </a>
-              <a href="${BASE}pages/admin.html" class="header-pill-btn header-pill-btn--admin" title="Espace administration">
+              <a href="/admin" class="header-pill-btn header-pill-btn--admin" title="Espace administration">
                 <i class="fas fa-shield-alt"></i>
                 <span class="lbl">Admin</span>
               </a>
@@ -506,10 +507,10 @@ function renderHeader() {
           </button>
         </div>
         <div class="mobile-menu-content">
-          <a href="${BASE}index.html" class="mobile-menu-link">
+          <a href="/" class="mobile-menu-link">
             <i class="fas fa-home"></i> Accueil
           </a>
-          <a href="${BASE}pages/category.html" class="mobile-menu-link">
+          <a href="/category" class="mobile-menu-link">
             <i class="fas fa-th-list"></i> Toutes les annonces
           </a>
 
@@ -526,7 +527,7 @@ function renderHeader() {
           </a>
           ${user?.role === 'admin' ? `
             <div class="mobile-menu-divider"></div>
-            <a href="${BASE}pages/admin.html" class="mobile-menu-link">
+            <a href="/admin" class="mobile-menu-link">
               <i class="fas fa-shield-alt"></i> Administration
             </a>
             <button onclick="Auth.logout()" class="mobile-menu-logout" type="button">
@@ -538,11 +539,11 @@ function renderHeader() {
       
       <!-- Bottom Navigation (Mobile Only) -->
       <div class="bottom-nav">
-        <a href="${BASE}index.html" class="bottom-nav-item ${location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '/frontend/' ? 'active' : ''}">
+        <a href="/" class="bottom-nav-item ${location.pathname === '/' ? 'active' : ''}">
           <i class="fas fa-home"></i>
           <span>Accueil</span>
         </a>
-        <a href="${BASE}pages/category.html" class="bottom-nav-item ${location.pathname.includes('category') ? 'active' : ''}">
+        <a href="/category" class="bottom-nav-item ${location.pathname.includes('category') ? 'active' : ''}">
           <i class="fas fa-th-list"></i>
           <span>Annonces</span>
         </a>
@@ -562,7 +563,7 @@ function renderHeader() {
     const navList = document.getElementById('cat-nav-list');
     const catMenu = document.getElementById('mobile-menu-cats');
     cats.forEach(c => {
-      const href = `${BASE}pages/category.html?slug=${escapeHtml(c.slug)}`;
+      const href = `/category?slug=${escapeHtml(c.slug)}`;
       navList?.insertAdjacentHTML('beforeend',
         `<li><a href="${href}">
           <i class="fas ${escapeHtml(c.icon)}"></i> ${escapeHtml(c.name_fr)}
@@ -716,7 +717,7 @@ function renderFooter() {
       <div class="container">
         <div class="footer-top">
           <div class="footer-brand">
-            <a href="${BASE}index.html" class="site-logo" style="margin-bottom:14px" aria-label="Pro Market Algérie">
+            <a href="/" class="site-logo" style="margin-bottom:14px" aria-label="Pro Market Algérie">
               <div class="logo-box">
                 <div class="logo-wordrow">
                   <span class="logo-s lo">pr</span><svg class="logo-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20,3 A17,17 0 1,1 7,9" fill="none" stroke="#f26522" stroke-width="5.5" stroke-linecap="round"/><polygon points="7,9 7,15 1,10" fill="#f26522"/></svg><span class="logo-s lw">market</span><span class="logo-s lo">&nbsp;algerie</span>
@@ -731,17 +732,17 @@ function renderFooter() {
           </div>
           <div class="footer-col">
             <h4>Rubriques</h4>
-            <a href="${BASE}pages/category.html?slug=industrie-usines">Industrie & Usines</a>
-            <a href="${BASE}pages/category.html?slug=construction-btp">Construction & BTP</a>
-            <a href="${BASE}pages/category.html?slug=transport-logistique">Transport & Logistique</a>
-            <a href="${BASE}pages/category.html?slug=agriculture-peche">Agriculture & Pêche</a>
-            <a href="${BASE}pages/category.html?slug=restauration-hotellerie">Restauration</a>
+            <a href="/category?slug=industrie-usines">Industrie & Usines</a>
+            <a href="/category?slug=construction-btp">Construction & BTP</a>
+            <a href="/category?slug=transport-logistique">Transport & Logistique</a>
+            <a href="/category?slug=agriculture-peche">Agriculture & Pêche</a>
+            <a href="/category?slug=restauration-hotellerie">Restauration</a>
           </div>
           <div class="footer-col">
             <h4>Services</h4>
             <a href="https://wa.me/${window.WHATSAPP_NUMBER}?text=Bonjour,%20je%20souhaite%20publier%20une%20annonce%20sur%20Pro%20Market%20Algérie" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> Publier une annonce</a>
-            <a href="${BASE}pages/category.html">Toutes les annonces</a>
-            <a href="${BASE}pages/login.html"><i class="fas fa-lock"></i> Espace Admin</a>
+            <a href="/category">Toutes les annonces</a>
+            <a href="/login"><i class="fas fa-lock"></i> Espace Admin</a>
           </div>
           <div class="footer-col">
             <h4>Contact</h4>
@@ -780,7 +781,7 @@ function renderListingCard(listing) {
 
   return `
     <a class="listing-card ${listing.is_premium ? 'is-premium' : ''}"
-       href="${BASE}pages/listing-detail.html?id=${listing.id}">
+       href="/listing-detail?id=${listing.id}">
       <div class="listing-card-img">
         ${img}
          ${badges.length ? `<div class="badges">${badges.join('')}</div>` : ''}

@@ -145,7 +145,7 @@
   <div class="container">
     <div class="section-title">
       <h2><i class="fas fa-star" style="color:var(--orange)"></i> Annonces Premium</h2>
-      <a href="pages/category.html?is_boosted=true" class="btn btn-outline-orange btn-sm">Voir tout</a>
+      <a href="/category?is_boosted=true" class="btn btn-outline-orange btn-sm">Voir tout</a>
     </div>
     <div class="carousel-track" id="carousel-track"></div>
   </div>
@@ -224,7 +224,7 @@
       </div>
     </div>
     <div class="listings-footer">
-      <a href="pages/category.html" class="btn btn-view-all btn-ripple">
+      <a href="/category" class="btn btn-view-all btn-ripple">
         <span>Voir toutes les annonces</span>
         <i class="fas fa-arrow-right"></i>
         <span class="btn-shine"></span>
@@ -351,7 +351,7 @@
           <li><span class="trust-check"><i class="fas fa-check"></i></span> Contact direct par téléphone et WhatsApp, sans intermédiaire</li>
           <li><span class="trust-check"><i class="fas fa-check"></i></span> Couverture nationale — toutes les wilayas d'Algérie</li>
         </ul>
-        <a href="pages/category.html" class="btn btn-orange btn-lg btn-ripple">
+        <a href="/category" class="btn btn-orange btn-lg btn-ripple">
           <span>Explorer les annonces</span>
           <i class="fas fa-arrow-right"></i>
         </a>
@@ -393,7 +393,7 @@
 
   // Render categories grid immediately (no backend needed)
   document.getElementById('categories-grid').innerHTML = STATIC_CATS.map((c, index) => `
-    <a class="cat-card has-photo" href="pages/category.html?slug=${c.slug}" style="transition-delay: ${index * 0.05}s">
+    <a class="cat-card has-photo" href="/category?slug=${c.slug}" style="transition-delay: ${index * 0.05}s">
       <div class="cat-card-photo">
         <img src="assets/img/categories/${c.slug}.webp" alt="${c.name_fr}" loading="lazy" decoding="async">
       </div>
@@ -422,7 +422,7 @@
     if (!items.length) return;
     document.getElementById('carousel-section').style.display = '';
     document.getElementById('carousel-track').innerHTML = items.map(l => `
-      <div class="carousel-card" onclick="location.href='pages/listing-detail.html?id=${String(l.id).replace(/'/g, '\\\'')}'">
+      <div class="carousel-card" onclick="location.href='/listing-detail?id=${String(l.id).replace(/'/g, '\\\'')}'">
         <div class="premium-ribbon">Premium</div>
         ${l.cover_image ? `<img src="${escapeHtml(l.cover_image)}" alt="">` : `<div style="min-height:150px;height:auto;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gray-400)"><i class="fas fa-image"></i></div>`}
         <div class="card-body">
@@ -494,7 +494,7 @@
     const p   = new URLSearchParams();
     if (q)   p.set('q', q);
     if (cat) p.set('category', cat);
-    window.location.href = `pages/category.html?${p}`;
+    window.location.href = `/category?${p}`;
   }
 
   document.getElementById('hero-search-input').addEventListener('keydown', e => {
