@@ -757,7 +757,7 @@ function renderFooter() {
           </div>
         </div>
         <div class="footer-bottom">
-          <span>© ${new Date().getFullYear()} Pro Market Algérie — Tous droits réservés</span>
+          <span>© ${new Date().getFullYear()} Pro Market Algérie — Tous droits réservés · Développé par <a href="https://artofdoing.net" target="_blank" rel="noopener">Art Code by Artofdoing</a></span>
           <div style="display:flex;gap:12px">
             <a href="#" onclick="showToast('Page bientôt disponible','info');return false;">Conditions d'utilisation</a>
             <a href="#" onclick="showToast('Page bientôt disponible','info');return false;">Confidentialité</a>
